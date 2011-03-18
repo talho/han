@@ -240,7 +240,7 @@ class HanAlert < Alert
     initialize_statistics
   end
 
-  #handle_asynchronously :batch_deliver
+  handle_asynchronously :batch_deliver
 
   def is_updateable_by?(user)
     true if user.alerter_jurisdictions.include?(self.from_jurisdiction)
