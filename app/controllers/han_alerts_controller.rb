@@ -61,7 +61,7 @@ class HanAlertsController < ApplicationController
     remove_blank_call_downs unless params[:han_alert][:call_down_messages].nil?
     set_acknowledge
     params[:han_alert][:author_id] = current_user.id
-    @alert = present current_user.han_alerts.build(params[:han_alert])
+    @alert = present HanAlert.new(params[:han_alert])
     @acknowledge = if @alert.acknowledge && !(@alert.call_down_messages.blank? || @alert.call_down_messages.empty?)
       'Advanced'
     elsif @alert.acknowledge
@@ -273,8 +273,8 @@ class HanAlertsController < ApplicationController
           else
             alert_attempt.acknowledge! :ack_device => device, :ack_response => params[:alert_attempt][:call_down_response]
           end
-          expire_log_entry(alert_attempt.han_alert)
-          flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.han_alert.title}."
+          expire_log_entry(alert_attempt.alert)
+          flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
           format.json {
             headers["Access-Control-Allow-Origin"] = "*"
             headers["Access-Control-Allow-Headers"] = "Cookie"
@@ -282,8 +282,8 @@ class HanAlertsController < ApplicationController
           }
         end
         if alert_attempt.errors.empty?
-          expire_log_entry(alert_attempt.han_alert)
-          flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.han_alert.title}."
+          expire_log_entry(alert_attempt.alert)
+          flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
         else
           flash[:notice] = nil
           flash[:error] = "Error: " + alert_attempt.errors["acknowledgement"]
@@ -305,12 +305,12 @@ class HanAlertsController < ApplicationController
       flash[:error] = "Unable to acknowledge alert.  You may have already acknowledged the alert.
       If you believe this is in error, please contact support@#{DOMAIN}."
     else
-      if alert_attempt.han_alert.sensitive?
+      if alert_attempt.alert.sensitive?
         flash[:error] = "You are not authorized to view this page."
       else
         alert_attempt.acknowledge! :ack_device => "Device::EmailDevice"
-        expire_log_entry(alert_attempt.han_alert)
-        flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.han_alert.title}."
+        expire_log_entry(alert_attempt.alert)
+        flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
       end
     end
     redirect_to hud_path

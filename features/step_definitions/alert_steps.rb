@@ -9,7 +9,7 @@ Given "a sent alert with:" do |table|
 end
 
 Given /^(\d+) (?:more alerts are|more alert is) sent to me$/ do |n|
-  last_alert = current_user.recent_alerts.last
+  last_alert = current_user.recent_han_alerts.last
   n.to_i.times do |i|
     # always make these alerts happen after the last alert for the user
     alert = create_han_alert_with "people" => current_user.name, "created_at" => last_alert.created_at + 1.second
@@ -49,14 +49,14 @@ end
 
 When /I acknowledge the phone message for "([^"]*)"(?: with "([^"]*)")?$/ do |title, ack|
   u = current_user
-  al = Alert.find_by_title(title)
+  al = HanAlert.find_by_title(title)
   aa = al.alert_attempts.find_by_user_id(u)
   if aa.nil?
-    aa = Factory(:alert_attempt, :alert => HanAlert.find_by_title(title), :user => u, :acknowledged_at => nil, :acknowledged_alert_device_type_id => AlertDeviceType.find_by_device("Device::PhoneDevice"))
+    aa = Factory(:alert_attempt, :alert => al, :user => u, :acknowledged_at => nil, :acknowledged_alert_device_type_id => AlertDeviceType.find_by_device("Device::PhoneDevice"))
     del = Factory(:delivery, :alert_attempt => aa, :device => u.devices.phone.first)
   end
   unless ack.nil?
-    aa.acknowledge! :ack_response => aa.alert.call_down_messages.index(ack)
+    aa.acknowledge! :ack_response => al.call_down_messages.index(ack)
   else
     aa.acknowledge!
   end
@@ -128,19 +128,19 @@ end
 
 When /^I follow the acknowledge HAN alert link$/ do
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
-  visit token_acknowledge_alert_url(attempt.han_alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
+  visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
 end
 
 When 'I follow the acknowledge HAN alert link "$title"' do |title|
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
   if title.blank?
-    visit token_acknowledge_alert_url(attempt.han_alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
+    visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
   else
-    call_down_response = attempt.alert.call_down_messages.index(title).to_i
+    call_down_response = attempt.alert.becomes(HanAlert).reload.call_down_messages.index(title).to_i
     if current_user.nil?
       raise "Step not yet supported if no user is logged in"
     else
-      visit email_acknowledge_alert_url(attempt.han_alert, call_down_response, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
+      visit email_acknowledge_alert_url(attempt.alert, call_down_response, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
     end
   end
 end
@@ -228,7 +228,7 @@ Then 'an alert should not exist with:' do |table|
   attrs = table.rows_hash
   conditions = attrs['identifier'].blank? ? "" : "identifier = :identifier OR "
   conditions += attrs['message'].blank? ? "title = :title" : "(title = :title AND message = :message)"
-  alert = Alert.find(:first, :conditions => [conditions,
+  alert = HanAlert.find(:first, :conditions => [conditions,
       {:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
   if alert.nil?
     alert.should be_nil
@@ -343,7 +343,7 @@ Then /^I can see the device alert acknowledgement rate for "([^\"]*)" in "([^\"]
 end
 
 Then /^I can see the alert acknowledgement response rate for "([^\"]*)" in "([^\"]*)" is (\d*)%$/ do |alert_name, alert_response, percentage|
-  alert = Alert.find_by_title(alert_name)
+  alert = HanAlert.find_by_title(alert_name)
   num = alert.call_down_messages.index(alert_response)
   waiter do
     page.find(".response_ackpct #response#{num} .percentage", :text => percentage)
@@ -382,24 +382,24 @@ Then /^the alert should be acknowledged at time "([^\"]*)"$/ do |time|
 end
 
 Then /^I have acknowledged the HAN alert for "([^\"]*)"$/ do |alert|
-  Alert.find_by_title(alert).acknowledged_users.should include(current_user)
+  HanAlert.find_by_title(alert).acknowledged_users.should include(current_user)
 end
 
 Then /^the cancelled alert "([^\"]*)" has an original alert "([^\"]*)"$/ do |alert_identifier, original_alert_identifier|
-  alert = Alert.find_by_identifier(alert_identifier)
-  original_alert = Alert.find_by_identifier(original_alert_identifier)
+  alert = HanAlert.find_by_identifier(alert_identifier)
+  original_alert = HanAlert.find_by_identifier(original_alert_identifier)
   alert.original_alert_id.should == original_alert.id
 end
 
 When /^a foreign alert "([^\"]*)" is sent$/ do |title|
   When "delayed jobs are processed"
-  alert=Alert.find_by_title!(title)
+  alert=HanAlert.find_by_title!(title)
   File.exist?(File.join(Agency[:phin_ms_path], "#{alert.distribution_id}.edxl")).should be_true
 
 end
 When /^no foreign alert "([^\"]*)" is sent$/ do |title|
   When "delayed jobs are processed"
-  alert=Alert.find_by_title(title)
+  alert=HanAlert.find_by_title(title)
   File.exist?(File.join(Agency[:phin_ms_path],"#{alert.distribution_id}.edxl")).should_not be_true
 end
 

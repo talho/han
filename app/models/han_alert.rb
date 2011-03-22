@@ -46,7 +46,8 @@
 require 'ftools'
 
 class HanAlert < Alert
-  set_table_name "view_han_alerts"
+  include AlertMixin
+  acts_as_MTI
   belongs_to :from_organization, :class_name => 'Organization'
   belongs_to :from_jurisdiction, :class_name => 'Jurisdiction'
   belongs_to :original_alert, :class_name => 'HanAlert'
@@ -54,6 +55,7 @@ class HanAlert < Alert
   has_one :cancellation, :class_name => 'HanAlert', :foreign_key => :original_alert_id, :conditions => ['message_type = ?', "Cancel"], :include => [:original_alert, :cancellation, :updates, :author, :from_jurisdiction]
   has_many :updates, :class_name => 'HanAlert', :foreign_key => :original_alert_id, :conditions => ['message_type = ?', "Update"], :include => [:original_alert, :cancellation, :updates, :author, :from_jurisdiction]
   has_many :ack_logs, :class_name => 'AlertAckLog', :foreign_key => :alert_id
+  has_many :recipients, :class_name => "User", :finder_sql => 'SELECT users.* FROM users, targets, targets_users WHERE targets.item_type=\'HanAlert\' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id'
 
   named_scope :devices, {
       :select => "DISTINCT devices.type",
@@ -93,10 +95,6 @@ class HanAlert < Alert
 
   named_scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
 
-  def superclass
-    self.class.superclass
-  end
-    
   def self.new_with_defaults(options={})
     defaults = {:delivery_time => 4320, :severity => 'Minor'}
     self.new(options.merge(defaults))
