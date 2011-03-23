@@ -272,7 +272,7 @@ Feature: Updating an alert
     Then I should not see button "Update" for alert "Flying Monkey Disease"
     
     When I override alert
-    When I force open the alert update tab
+    When I force open the HAN alert update tab
     Then I should see "You cannot update or cancel an alert that has already been cancelled." within the alert box
     Then the "View Alert Logs and Reports" tab should be open
     And the "Create an Alert Update" tab should not be open

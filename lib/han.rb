@@ -5,10 +5,21 @@ Dir[File.join(File.dirname(__FILE__), 'models', '*.rb')].each do |f|
   require f
 end
 
+Dir[File.join(File.dirname(__FILE__), 'controllers', '*.rb')].each do |f|
+  require f
+end
+
+Dir[File.join(File.dirname(__FILE__), 'presenters', '*.rb')].each do |f|
+  require f
+end
+
 # Add PLUGIN_NAME vendor/plugins/*/lib to LOAD_PATH
 Dir[File.join(File.dirname(__FILE__), '../vendor/plugins/*/lib')].each do |path|
   $LOAD_PATH << path
 end
+
+# Load view helpers
+ActionView::Base.send :include, HanAlertsHelper
 
 # Require any submodule dependencies here
 # For example, if this depended on open_flash_chart you would require init.rb as follows:

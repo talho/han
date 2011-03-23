@@ -151,7 +151,7 @@ Feature: Canceling an alert
 
     Then I should not see button "Cancel" for alert "Flying Monkey Disease"
     When I override alert
-    When I force open the alert cancellation tab
+    When I force open the HAN alert cancellation tab
     Then I should see "You cannot update or cancel an alert that has already been cancelled." within the alert box
     Then the "Alert Log and Reporting" tab should be open
     And the "Create an Alert Update" tab should not be open
