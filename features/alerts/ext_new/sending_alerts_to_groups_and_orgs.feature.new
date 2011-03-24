@@ -89,7 +89,7 @@ Feature: Sending alerts using groups and organizations
       | message               | For more details, keep on reading... |
       | acknowledge           | None                                 |
       | communication_methods | E-mail                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | sara.smith@example.com |
 
   Scenario: Sending a non-HAN alert to only a group with no other audience specified
@@ -101,7 +101,7 @@ Feature: Sending alerts using groups and organizations
       | message               | For more details, keep on reading... |
       | acknowledge           | None                                 |
       | communication_methods | E-mail                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | sara.smith@example.com |
 
   Scenario: Sending an alert with a group selected should include group users as recipients
@@ -114,7 +114,7 @@ Feature: Sending alerts using groups and organizations
       | message               | For more details, keep on reading... |
       | acknowledge           | None                                 |
       | communication_methods | E-mail                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | sara.smith@example.com |
 
   Scenario: Sending a HAN alert to a group with members in other jurisdictions should notify HAN Coordinators
@@ -127,7 +127,7 @@ Feature: Sending alerts using groups and organizations
       | message               | For more details, keep on reading... |
       | acknowledge           | None                                 |
       | communication_methods | E-mail                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | anne.smith@example.com, nerf.smith@example.com, fred.smith@example.com, dolf.smith@example.com, sara.smith@example.com |
 
   Scenario: Sending a non-HAN alert to a group with members in other jurisdictions should not notify HAN Coordinators
@@ -151,7 +151,7 @@ Feature: Sending alerts using groups and organizations
       | message               | For more details, keep on reading... |
       | acknowledge           | None                                 |
       | communication_methods | E-mail                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | john.smith@example.com, anne.smith@example.com, sara.smith@example.com |
     And the following users should not receive the alert email:
       | People | nerf.smith@example.com, dolf.smith@example.com, fred.smith@example.com |
@@ -165,7 +165,7 @@ Feature: Sending alerts using groups and organizations
       | message               | For more details, keep on reading... |
       | acknowledge           | None                                 |
       | communication_methods | E-mail                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | anne.smith@example.com, nerf.smith@example.com, fred.smith@example.com, dolf.smith@example.com, sara.smith@example.com |
 
   Scenario: Sending a non-HAN alert to an organization with members in other jurisdictions should not notify HAN Coordinators
@@ -177,7 +177,7 @@ Feature: Sending alerts using groups and organizations
       | message               | For more details, keep on reading... |
       | acknowledge           | None                                 |
       | communication_methods | E-mail                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | anne.smith@example.com, john.smith@example.com, sara.smith@example.com |
     And the following users should not receive the alert email:
       | People | nerf.smith@example.com, dolf.smith@example.com, fred.smith@example.com |

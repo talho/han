@@ -72,11 +72,11 @@ Feature: Alerts from EDXL
       | role                   | Emergency Preparedness Coordinator           |
       | role                   | Chief Epidemiologist                         |
       | role                   | Communicable/Infectious Disease Coordinators |
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith@example.com, bob@example.com, daniel@example.com, jphipps@example.com, zach@example.com |
       | subject       | Health Alert "Cases of Vibrio vulnificus identified among Hurrican Katrina evacuees" |
       | body contains | To date, seven people in the area effected by Hurricane Katrina have been reported ill from the bacterial disease Vibrio vulnificus. |
-    And the following users should not receive any alert emails
+    And the following users should not receive any HAN alert emails
       | emails        | ethan@example.com, brandon@example.com, mjensen@cdc.gov |
     And the following users should not receive any emails
       | emails        | ethan@example.com, brandon@example.com, mjensen@cdc.gov |
@@ -102,7 +102,7 @@ Feature: Alerts from EDXL
       | jurisdiction | Texas |
       | role | Health Alert and Communications Coordinator |
 	   
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
      | People        | mjensen@cdc.gov,keith@example.com |
      | subject       | Cascade alert sent from Federal jurisdiction to TX    |
      | body contains | Message Body Message Body Message Body Message Body Message Body Message Body |
@@ -129,7 +129,7 @@ Feature: Alerts from EDXL
       | alert_references | 2.16.840.1.114222.4.20.1.1,CDC-2009-183,2009-11-05T13:02:42.1219Z |
       | message_type | Update |
     And the cancelled alert "CDC-2009-184" has an original alert "CDC-2009-183"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith@example.com |
       | subject       | Health Alert "[Update] - Cases of Vibrio vulnificus identified among Hurrican Katrina evacuees" |
       | body contains | To date, seven people in the area effected by Hurricane Katrina have been reported ill from the bacterial disease Vibrio vulnificus. |
@@ -153,7 +153,7 @@ Feature: Alerts from EDXL
       | alert_references | 2.16.840.1.114222.4.20.1.1,CDC-2009-183,2009-11-05T13:02:42.1219Z |
       | message_type | Cancel |
     And the cancelled alert "CDC-2009-185" has an original alert "CDC-2009-183"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith@example.com |
       | subject       | Health Alert "[Cancel] - Cases of Vibrio vulnificus identified among Hurrican Katrina evacuees" |
       | body contains | To date, seven people in the area effected by Hurricane Katrina have been reported ill from the bacterial disease Vibrio vulnificus. |
@@ -195,11 +195,11 @@ Feature: Alerts from EDXL
 
   Scenario:  Receiving a cascade alert without jurisdictions specified should alert only state jurisdictions
     When PhinMS delivers the message: cdc_no_jurisdiction_state.edxl
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
      | People        | keith@example.com,brandon@example.com, zach@example.com, mjensen@cdc.gov |
      | subject       | Cascade alert sent from Federal jurisdiction to TX    |
      | body contains | Message Body Message Body Message Body Message Body Message Body Message Body |
-    And the following users should not receive any alert emails
+    And the following users should not receive any HAN alert emails
       | emails        | ethan@example.com, jphipps@example.com, daniel@example.com |
     And the following users should not receive any emails
       | emails        | ethan@example.com, jphipps@example.com, daniel@example.com |
@@ -218,7 +218,7 @@ Feature: Alerts from EDXL
 
   Scenario:  Receiving a cascade alert without jurisdictions specified should alert state and local jurisdictions
     When PhinMS delivers the message: cdc_no_jurisdiction_statelocal.edxl
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
      | People        | keith@example.com,bob@example.com,jphipps@example.com,wisecoordinator@example.com,daniel@example.com,brandon@example.com,zach@example.com,ethan@example.com,mjensen@cdc.gov |
      | subject       | Cascade alert sent from Federal jurisdiction to TX    |
      | body contains | Message Body Message Body Message Body Message Body Message Body Message Body |
@@ -233,11 +233,11 @@ Feature: Alerts from EDXL
 
   Scenario:  Receiving a cascade alert without jurisdictions specified should alert local jurisdictions
     When PhinMS delivers the message: cdc_no_jurisdiction_local.edxl
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
      | People        | keith@example.com,bob@example.com,jphipps@example.com,wisecoordinator@example.com,daniel@example.com |
      | subject       | Cascade alert sent from Federal jurisdiction to TX    |
      | body contains | Message Body Message Body Message Body Message Body Message Body Message Body |
-    And the following users should not receive any alert emails
+    And the following users should not receive any HAN alert emails
       | emails        | brandon@example.com, zach@example.com, mjensen@cdc.gov |
     And the following users should not receive any emails
       | emails        | brandon@example.com, zach@example.com, mjensen@cdc.gov |
@@ -257,11 +257,11 @@ Feature: Alerts from EDXL
 
   Scenario:  Receiving a cascade alert without roles specified should alert all roles
     When PhinMS delivers the message: cdc_no_role.edxl
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
      | People        | keith@example.com,brandon@example.com,zach@example.com |
      | subject       | Cascade alert sent from Federal jurisdiction to TX    |
      | body contains | Message Body Message Body Message Body Message Body Message Body Message Body |
-    And the following users should not receive any alert emails
+    And the following users should not receive any HAN alert emails
       | emails        | ethan@example.com, jphipps@example.com |
     And the following users should not receive any emails
       | emails        | ethan@example.com, jphipps@example.com |

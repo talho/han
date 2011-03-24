@@ -49,10 +49,10 @@ Feature: Sending alerts across jurisdictions
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, keith.gaddis@example.com |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow |
-    And the following users should not receive any alert emails
+    And the following users should not receive any HAN alert emails
       | roles         | Potter County / Health Alert and Communications Coordinator |
       | roles         | Ottawa County / Health Alert and Communications Coordinator |
       | roles         | Texas / Health Alert and Communications Coordinator |
@@ -72,10 +72,10 @@ Feature: Sending alerts across jurisdictions
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | brandon.keepers@example.com |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow |
-    And the following users should not receive any alert emails
+    And the following users should not receive any HAN alert emails
       | roles         | Potter County / Health Alert and Communications Coordinator |
       | roles         | Ottawa County / Health Alert and Communications Coordinator |
       | roles         | Tarrant County / Health Alert and Communications Coordinator |
@@ -96,10 +96,10 @@ Feature: Sending alerts across jurisdictions
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
     
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | dan.morrison@example.com, brandon.keepers@example.com |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow |
-    And the following users should not receive any alert emails
+    And the following users should not receive any HAN alert emails
       | roles         | Potter County / Health Alert and Communications Coordinator |
       | roles         | Tarrant County / Health Alert and Communications Coordinator |
       | roles         | Potter County / Health Alert and Communications Coordinator |

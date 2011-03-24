@@ -61,7 +61,7 @@ Feature: Updating an alert
     Then the "Alert Log and Reporting" tab should be open
     And the "Send Alert" tab should not be open
     And I should see an alert titled "[Update] - Flying Monkey Disease"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | brian.simms@example.com, ed.mcguyver@example.com   |
       | subject       | Health Alert "[Update] - Flying Monkey Disease"    |
       | body contains | Title: [Update] - Flying Monkey Disease            |
@@ -129,7 +129,7 @@ Feature: Updating an alert
     And the "Create an Alert Update" tab should not be open
     
     And I should see an alert titled "[Update] - Flying Monkey Disease"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | brian.simms@example.com, ed.mcguyver@example.com   |
       | subject       | [Update] - Flying Monkey Disease                   |
       | body contains | Title: [Update] - Flying Monkey Disease            |

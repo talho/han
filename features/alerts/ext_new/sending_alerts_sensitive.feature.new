@@ -27,7 +27,7 @@ Feature: Sending sensitive alerts
       | communication_methods | E-mail                               |
       | sensitive             | Yes                                  |
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People                | anne.smith@example.com                                             |
       | subject               | [Health Alert] H1N1 SNS push packs to be delivered tomorrow        |
       | body contains         | Sensitive: use secure means of retrieval                           |

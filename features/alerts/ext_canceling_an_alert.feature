@@ -62,7 +62,7 @@ Feature: Canceling an alert
     And the "Create an Alert Cancellation" tab should not be open
 
     And I should see an alert titled "[Cancel] - Flying Monkey Disease"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | brian.simms@example.com, ed.mcguyver@example.com |
       | subject       | Health Alert "[Cancel] - Flying Monkey Disease"  |
       | body contains | Title: [Cancel] - Flying Monkey Disease          |
@@ -116,7 +116,7 @@ Feature: Canceling an alert
     And the "Create an Alert Cancellation" tab should not be open
 
     And I should see an alert titled "[Cancel] - Flying Monkey Disease"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | brian.simms@example.com, ed.mcguyver@example.com |
       | subject       | [Cancel] - Flying Monkey Disease                 |
       | body contains | Title: [Cancel] - Flying Monkey Disease          |

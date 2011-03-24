@@ -36,7 +36,7 @@ Feature: Sending sensitive alerts
     When I press "Send this Alert"
     Then I should see "Successfully sent the alert"
     And I should be on the HAN alert log
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Sensitive: use secure means of retrieval |

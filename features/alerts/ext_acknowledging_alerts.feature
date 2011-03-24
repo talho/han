@@ -24,7 +24,7 @@ Feature: Acknowledging an alert
       | communication methods | Email                                        |
       | people                | Keith Gaddis                                 |
       | jurisdictions         | Dallas County                                |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com                                    |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains alert acknowledgment link | |
@@ -48,7 +48,7 @@ Feature: Acknowledging an alert
       | communication methods | Email                                        |
       | people                | Keith Gaddis                                 |
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com                                    |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains alert acknowledgment link | |
@@ -73,7 +73,7 @@ Feature: Acknowledging an alert
       | people                | Keith Gaddis                                 |
 
     When delayed jobs are processed
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body does not contain alert acknowledgment link | |
@@ -143,7 +143,7 @@ Feature: Acknowledging an alert
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com |
 
     And I am logged in as "keith.gaddis@example.com"

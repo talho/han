@@ -48,7 +48,7 @@ Background:
      | not_cross_jurisdictional  | false                  |
      | jurisdictions             | <target_jurisdictions> |
 
-   Then the following users should receive the alert email:
+   Then the following users should receive the HAN alert email:
      | People | <recipients> |
    Then the following users should not receive any emails
      | emails | <non_recipients> |
@@ -82,7 +82,7 @@ Background:
      | not_cross_jurisdictional  | false                  |
      | jurisdictions             | <target_jurisdictions> |
      | roles                     | <target_roles>         |
-   Then the following users should receive the alert email:
+   Then the following users should receive the HAN alert email:
      | People | <recipients> |
    Then the following users should not receive any emails
      | emails | <non_recipients> |
@@ -126,7 +126,7 @@ Background:
       | not_cross_jurisdictional  | false                  |
       | jurisdictions             | <target_jurisdictions> |
       | groups                    | <target_groups>        |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | <recipients> |
     Then the following users should not receive any emails
       | emails | <non_recipients> |
@@ -151,7 +151,7 @@ Background:
       | not_cross_jurisdictional  | false                  |
       | jurisdictions             | <target_jurisdictions> |
       | emails                    | <target_emails>        |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | <recipients> |
     Then the following users should not receive any emails
       | emails | <non_recipients> |
@@ -191,7 +191,7 @@ Background:
      | delivery time             | 72 hours               |
      | not_cross_jurisdictional  | false                  |
      | jurisdictions             | <target_jurisdictions> |
-   Then the following users should receive the alert email:
+   Then the following users should receive the HAN alert email:
      | People | <recipients> |
    Then the following users should not receive any emails
      | emails | <non_recipients> |
@@ -224,7 +224,7 @@ Background:
       | not_cross_jurisdictional  | false                  |
       | jurisdictions             | <target_jurisdictions> |
       | roles                     | <target_roles>         |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | <recipients> |
     Then the following users should not receive any emails
       | emails | <non_recipients> |
@@ -266,7 +266,7 @@ Background:
       | not_cross_jurisdictional  | false                  |
       | jurisdictions             | <target_jurisdictions> |
       | groups                    | <target_groups>        |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | <recipients> |
     Then the following users should not receive any emails
       | emails | <non_recipients> |
@@ -291,7 +291,7 @@ Background:
       | not_cross_jurisdictional  | false                  |
       | jurisdictions             | <target_jurisdictions> |
       | emails                    | <target_emails>        |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | <recipients> |
     Then the following users should not receive any emails
       | emails | <non_recipients> |
@@ -329,7 +329,7 @@ Background:
      | delivery time             | 72 hours               |
      | not_cross_jurisdictional  | false                  |
      | jurisdictions             | <target_jurisdictions> |
-   Then the following users should receive the alert email:
+   Then the following users should receive the HAN alert email:
      | People | <recipients> |
    Then the following users should not receive any emails
      | emails | <non_recipients> |
@@ -361,7 +361,7 @@ Background:
       | not_cross_jurisdictional  | false                  |
       | jurisdictions             | <target_jurisdictions> |
       | roles                     | <target_roles>         |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | <recipients> |
     Then the following users should not receive any emails
       | emails | <non_recipients> |
@@ -397,7 +397,7 @@ Background:
       | not_cross_jurisdictional  | false                  |
       | jurisdictions             | <target_jurisdictions> |
       | groups                    | <target_groups>        |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | <recipients> |
     Then the following users should not receive any emails
       | emails | <non_recipients> |
@@ -422,7 +422,7 @@ Background:
       | not_cross_jurisdictional  | false                  |
       | jurisdictions             | <target_jurisdictions> |
       | emails                    | <target_emails>        |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | <recipients> |
     Then the following users should not receive any emails
       | emails | <non_recipients> |

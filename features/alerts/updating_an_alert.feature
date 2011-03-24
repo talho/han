@@ -40,7 +40,7 @@ Feature: Updating an alert
     And I should not see "Limit Roles"
     And I should not see "Organizations"
 
-    When I make changes to the alert form with:
+    When I make changes to the HAN alert form with:
       | Message    | Flying monkey disease contagion is more widespread |
     And I press "Preview Message"
     
@@ -59,7 +59,7 @@ Feature: Updating an alert
     Then I should see "Successfully sent the alert"
     And I should be on the HAN alert log
     And I should see an alert titled "[Update] - Flying Monkey Disease"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | brian.simms@example.com, ed.mcguyver@example.com |
       | subject       | Health Alert "[Update] - Flying Monkey Disease" |
       | body contains | Title: [Update] - Flying Monkey Disease |
@@ -98,7 +98,7 @@ Feature: Updating an alert
     And I should not see "Limit Roles"
     And I should not see "Organizations"
 
-    When I make changes to the alert form with:
+    When I make changes to the HAN alert form with:
       | Message    | Flying monkey disease contagion is more widespread |
     And I press "Preview Message"
 
@@ -117,7 +117,7 @@ Feature: Updating an alert
     Then I should see "Successfully sent the alert"
     And I should be on the HAN alert log
     And I should see an alert titled "[Update] - Flying Monkey Disease"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | brian.simms@example.com, ed.mcguyver@example.com |
       | subject       | [Update] - Flying Monkey Disease |
       | body contains | Title: [Update] - Flying Monkey Disease |
@@ -142,7 +142,7 @@ Feature: Updating an alert
       | Delivery Time | 60 minutes          |
 
     When I go to cancel the HAN alert
-    And I make changes to the alert form with:
+    And I make changes to the HAN alert form with:
       | Message    | Flying monkey disease is not contagious |
     And I press "Preview Message"
     When I press "Send"

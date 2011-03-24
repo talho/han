@@ -10,8 +10,10 @@ module HAN
 
         has_and_belongs_to_many :recipients_default, :join_table => 'audiences_recipients', :class_name => "User", :uniq => true, :conditions => ["audiences_recipients.is_hacc = ?", false] do
           def with_hacc(options={})
+            options[:joins] = "JOIN \"audiences_recipients\" ON \"audiences_recipients\".user_id = \"users\".id"
+            options[:conditions] = "" if options[:conditions].blank?
+            options[:conditions] += " #{options[:conditions].blank? ? '' : 'AND'} audiences_recipients.audience_id = #{proxy_owner.id}"
             ::User.send(:with_exclusive_scope) do
-              options[:joins] = "JOIN \"audiences_recipients\" ON \"audiences_recipients\".user_id = \"users\".id"
               ::User.find(:all, options)
               #scoped(options)
             end
@@ -31,7 +33,7 @@ module HAN
       end
     end
 
-    def update_han_coordinators_recipients(jurs)
+    def  update_han_coordinators_recipients(jurs)
       alert = ::Target.find_by_audience_id(self.id).item
       unless (jurs == [alert.from_jurisdiction] || jurs.blank? )           # only sending within the originating jurisdiction? no need for coordinators to be notified
         unless ( jurs.include?(alert.from_jurisdiction)) then    # otherwise we need to include the originating jurisdiction for the calculations to work properly.

@@ -58,6 +58,6 @@ Feature: Sending alerts to multiple devices
       | 246D6BA6      | Chicken pox outbreak short message |
       | 246D6BA7      | Chicken pox outbreak short message |
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        |  anne.smith@example.com, joe.black@example.com, henry.frank@example.com, martin.gons@example.com, george.strait@example.com |
       | body contains | Title: There is a Chicken pox outbreak                                                                                      |

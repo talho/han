@@ -61,7 +61,7 @@ Background:
     Then I should see a preview of the message
     When I press "Send"
     Then I should see "Successfully sent the alert"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People | nerf.smith@example.com, leroy@example.com |
 
   Scenario: Sending an alert to only a group with no other audience specified
@@ -77,5 +77,5 @@ Background:
     Then I should see a preview of the message
     When I press "Send"
     Then I should see "Successfully sent the alert"
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People | nerf.smith@example.com |

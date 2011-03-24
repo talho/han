@@ -61,7 +61,7 @@ Feature: Creating and sending Custom (non-cross-jurisdictional) alerts
       | from_jurisdiction     | Dallas County                                    |
       | people                | brian.simms@example.com, ed.mcguyver@example.com |
       | communication methods | Email                                            |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | brian.simms@example.com, ed.mcguyver@example.com   |
       | subject       | [Earthquake Alert] Watch out for aftershocks       |
       | body contains | Title: Watch out for aftershocks                   |
@@ -83,7 +83,7 @@ Feature: Creating and sending Custom (non-cross-jurisdictional) alerts
       | from_jurisdiction     | Dallas County                                       |
       | people                | ethan.waldo@example.com, brian.ryckbost@example.com |
       | communication methods | Email                                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, brian.ryckbost@example.com                 |
       | subject       | [Hurricane Alert] Hurricane Humperdinck Heads for Houston           |
       | body contains | Title: Hurricane Humperdinck Heads for Houston                      |
@@ -104,7 +104,7 @@ Feature: Creating and sending Custom (non-cross-jurisdictional) alerts
       | from_jurisdiction     | Dallas County                                                  |
       | people                | keith.gaddis@example.com                                       |
       | communication methods | Email                                                          |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com |
       | subject       | [Locust Alert] Protect Your Crops and Animals and Small Children         |
       | body contains | Title: Protect Your Crops and Animals and Small Children                 |
@@ -126,7 +126,7 @@ Feature: Creating and sending Custom (non-cross-jurisdictional) alerts
       | jurisdictions         | Dallas County                                    |
       | communication methods | Email                                            |
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | john.smith@example.com, brian.simms@example.com, ed.mcguyver@example.com |
       | subject       | [Bad Music Alert] Justin Bieber and Daughtry To Play Texas Stadium       |
       | body contains | Title: Justin Bieber and Daughtry To Play Texas Stadium                  |
@@ -148,7 +148,7 @@ Feature: Creating and sending Custom (non-cross-jurisdictional) alerts
       | from_jurisdiction     | Dallas County                                   |
       | roles                 | Health Officer                                  |
       | communication methods | Email                                           |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, jane.smith@example.com, dan.morrison@example.com |
       | subject       | [McRib Alert] Houston Area McDonalds to have McRibs next week             |
       | body contains | Title: Houston Area McDonalds to have McRibs next week                    |
@@ -172,7 +172,7 @@ Feature: Creating and sending Custom (non-cross-jurisdictional) alerts
       | roles                 | Health Officer                                                               |
       | communication methods | Email                                                                        |
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com                                                                        |
       | subject       | Dust Storm Alert] High Winds and Low Humidity to cause rolling dust storms throughout the week |
       | body contains | Title: High Winds and Low Humidity to cause rolling dust storms throughout the week            |
@@ -197,7 +197,7 @@ Feature: Creating and sending Custom (non-cross-jurisdictional) alerts
       | people                | jane.smith@example.com                                   |
       | communication methods | Email                                                    |
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, jane.smith@example.com             |
       | subject       | [Flood Alert] Gulf Of Mexico to Remain Underwater           |
       | body contains | Title: Gulf Of Mexico to Remain Underwater                  |

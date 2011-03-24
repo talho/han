@@ -153,7 +153,7 @@ Feature: Schedule an alert to be sent sometime in the future
       | from_jurisdiction | Dallas County               |
       | title             | TxPhin Scheduled test alert |
 
-    And "steve.gravy@example.com" should receive the email:
+    And "steve.gravy@example.com" should receive the HAN alert email:
       | subject       | TxPhin:  Scheduled alert aborted |
       | body contains | This alert will NOT be sent      |
 
@@ -187,6 +187,6 @@ Feature: Schedule an alert to be sent sometime in the future
     And an alert does not exist with:
       | from_jurisdiction | Dallas County               |
       | title             | TxPhin Scheduled test alert |
-    And "gene.garbanzo@example.com" should receive the email:
+    And "gene.garbanzo@example.com" should receive the HAN alert email:
       | subject       | TxPhin:  Scheduled alert aborted |
       | body contains | This alert will NOT be sent      |

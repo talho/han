@@ -12,7 +12,13 @@ module HAN
 
   def save_snapshot_of_users_with_han &block
     save_snapshot_of_users_without_han do
-      audience.recipients(:force => true).with_hacc(:select => "id").map(&:id) if item(true).class.to_s == 'HanAlert' && !item(true).not_cross_jurisdictional
+      if item(true).class.to_s == 'HanAlert'
+        if item(true).not_cross_jurisdictional
+          audience.recipients(:force => true, :select => "id").map(&:id)
+        else
+          audience.recipients(:force => true).with_hacc(:select => "id").map(&:id)
+        end
+      end
     end
   end
 

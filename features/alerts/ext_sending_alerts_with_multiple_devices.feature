@@ -74,6 +74,6 @@ Feature: Sending alerts to multiple devices
        | 246D6BA6      | Chicken pox outbreak |
        | 246D6BA7      | Chicken pox outbreak |
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        |  keith.gaddis@example.com, joe.black@example.com, henry.frank@example.com, martin.gons@example.com, george.strait@example.com |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow                                                                           |

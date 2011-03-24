@@ -60,7 +60,7 @@ Feature: Creating and sending alerts
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow |
@@ -137,7 +137,7 @@ Feature: Creating and sending alerts
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People       | keith.gaddis@example.com, dan.morrison@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow |
@@ -162,7 +162,7 @@ Feature: Creating and sending alerts
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | john.smith@example.com, brian.simms@example.com, ed.mcguyver@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow |
@@ -188,7 +188,7 @@ Feature: Creating and sending alerts
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | john.smith@example.com, ethan.waldo@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow |
@@ -213,7 +213,7 @@ Feature: Creating and sending alerts
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, dan.morrison@example.com, brian.ryckbost@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow |

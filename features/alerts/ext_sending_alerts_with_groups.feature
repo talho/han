@@ -89,7 +89,7 @@ Feature: Sending alerts using groups
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People | john.smith@example.com, jane.smith@example.com, bob.smith@example.com, jim.smith@example.com, leroy@example.com |
 
   Scenario: Sending an alert to only a group with no other audience specified
@@ -109,6 +109,6 @@ Feature: Sending alerts using groups
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
 
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People | john.smith@example.com, jane.smith@example.com, bob.smith@example.com, jim.smith@example.com |
     And "leroy@example.com" should not receive an email

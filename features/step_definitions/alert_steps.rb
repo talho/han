@@ -22,18 +22,18 @@ Given "I've sent an alert with:" do |table|
       #And I follow "Send an Alert"
   And %{I select "Advanced" from "Acknowledge"}
   And %{delayed jobs are processed}
-  fill_in_alert_form table
+  fill_in_han_alert_form table
   And %{I press "Preview Message"}
   And %{I press "Send"}
 #  visit new_alert_path
-#  fill_in_alert_form table
+#  fill_in_han_alert_form table
 #  click_button "Preview Message"
 #  lambda { click_button "Send" }.should change(Alert, :count).by(1)
 end
 
 Given /^I've sent an acknowledge alert with:$/ do |table|
   visit new_han_alert_path
-  fill_in_alert_form table
+  fill_in_han_alert_form table
   select("Normal", :from => "alert_acknowledge")
   click_button "Preview Message"
   lambda { click_button "Send" }.should change(Alert, :count).by(1)
@@ -111,12 +111,12 @@ When /^PhinMS delivers the message: (.*)$/ do |filename|
 end
 
 When /I fill out the alert form with:/ do |table|
-  fill_in_alert_form table
+  fill_in_han_alert_form table
 end
 
-When "I make changes to the alert form with:" do |table|
+When "I make changes to the HAN alert form with:" do |table|
   table.rows_hash.each do |label, value|
-    fill_in_alert_field label, value
+    fill_in_han_alert_field label, value
   end
 end
 

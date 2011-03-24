@@ -62,7 +62,7 @@ Feature: Creating and sending HAN (cross-jurisdictional) alerts
       | from_jurisdiction     | Dallas County                                    |
       | people                | brian.simms@example.com, ed.mcguyver@example.com |
       | communication methods | Email                                            |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | brian.simms@example.com, ed.mcguyver@example.com            |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow         |
@@ -84,7 +84,7 @@ Feature: Creating and sending HAN (cross-jurisdictional) alerts
       | from_jurisdiction     | Dallas County                                       |
       | people                | ethan.waldo@example.com, brian.ryckbost@example.com |
       | communication methods | Email                                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, brian.ryckbost@example.com, john.smith@example.com, tarr.hacc@example.com, reg.one@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow"              |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow                      |
@@ -105,7 +105,7 @@ Feature: Creating and sending HAN (cross-jurisdictional) alerts
       | from_jurisdiction     | Dallas County                                       |
       | people                | keith.gaddis@example.com                            |
       | communication methods | Email                                               |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com, john.smith@example.com, wise.hacc@example.com, reg.one@example.com, reg.two@example.com, tejas@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow"              |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow                      |
@@ -127,7 +127,7 @@ Feature: Creating and sending HAN (cross-jurisdictional) alerts
       | jurisdictions         | Dallas County                                |
       | communication methods | Email                                        |
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | john.smith@example.com, brian.simms@example.com, ed.mcguyver@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow"              |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow                      |
@@ -149,7 +149,7 @@ Feature: Creating and sending HAN (cross-jurisdictional) alerts
       | from_jurisdiction     | Dallas County                                |
       | roles                 | Health Officer                               |
       | communication methods | Email                                        |
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, jane.smith@example.com, dan.morrison@example.com, brian.ryckbost@example.com, wise.hacc@example.com, tarr.hacc@example.com, pott.hacc@example.com, john.smith@example.com, reg.one@example.com, reg.two@example.com, tejas@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow         |
@@ -173,7 +173,7 @@ Feature: Creating and sending HAN (cross-jurisdictional) alerts
       | roles                 | Health Officer                               |
       | communication methods | Email                                        |
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, tarr.hacc@example.com, john.smith@example.com, reg.one@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow         |
@@ -198,7 +198,7 @@ Feature: Creating and sending HAN (cross-jurisdictional) alerts
       | people                | jane.smith@example.com                       |
       | communication methods | Email                                        |
 
-    Then the following users should receive the alert email:
+    Then the following users should receive the HAN alert email:
       | People        | ethan.waldo@example.com, tarr.hacc@example.com, john.smith@example.com, reg.one@example.com, jane.smith@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow         |

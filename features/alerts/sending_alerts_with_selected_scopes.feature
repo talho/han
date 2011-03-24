@@ -61,7 +61,7 @@ Feature: Creating and sending alerts
     When I press "Send"
     Then I should see "Successfully sent the alert"
     And I should be on the HAN alert log
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com                                    |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow         |
@@ -98,7 +98,7 @@ Feature: Creating and sending alerts
       | Delivery Time         | 72 hours                                                    |
     
     When I press "Edit"
-    And I make changes to the alert form with:
+    And I make changes to the HAN alert form with:
       | Title | Something Different |
     And I press "Select an Audience"
     And I press "Preview Message"
@@ -130,7 +130,7 @@ Feature: Creating and sending alerts
     When I press "Send"
     Then I should see "Successfully sent the alert"
     And I should be on the HAN alert log
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | keith.gaddis@example.com, dan.morrison@example.com          |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow         |
@@ -157,7 +157,7 @@ Feature: Creating and sending alerts
     When I press "Send"
     Then I should see "Successfully sent the alert"
     And I should be on the HAN alert log
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | john.smith@example.com, brian.simms@example.com, ed.mcguyver@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow"              |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow                      |
@@ -185,7 +185,7 @@ Feature: Creating and sending alerts
     When I press "Send"
     Then I should see "Successfully sent the alert"
     And I should be on the HAN alert log
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | john.smith@example.com, ethan.waldo@example.com             |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow" |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow         |
@@ -212,7 +212,7 @@ Scenario: Sending an alert with specified Roles scopes who the alerts are sent t
     When I press "Send"
     Then I should see "Successfully sent the alert"
     And I should be on the HAN alert log
-    And the following users should receive the alert email:
+    And the following users should receive the HAN alert email:
       | People        | john.smith@example.com, ethan.waldo@example.com, dan.morrison@example.com, brian.ryckbost@example.com |
       | subject       | Health Alert "H1N1 SNS push packs to be delivered tomorrow"                                           |
       | body contains | Title: H1N1 SNS push packs to be delivered tomorrow                                                   |

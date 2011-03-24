@@ -409,7 +409,7 @@ class HanAlert < Alert
       ActiveRecord::Base.transaction do
         temp_alert = HanAlert.new(params[:han_alert])
         temp_alert.save!
-        temp_recipients_size = temp_alert.recipients({:force => true}).with_hacc.size
+        temp_recipients_size = temp_alert.recipients({:force => true}).size
         raise ActiveRecord::Rollback
       end
     end
