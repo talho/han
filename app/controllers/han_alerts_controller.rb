@@ -39,7 +39,7 @@ class HanAlertsController < ApplicationController
                                                  :only => ['acknowledge', 'call_down_messages', 'created_at', 'delivery_time', 'message', 'not_cross_jurisdictional', 'severity', 'short_message', 'status', 'sensitive', 'title']),
                          :alert_attempts => alert.alert_attempts,
                          :audiences => audiences,
-                         :recipient_count => @alert.recipients.count
+                         :recipient_count => @alert.recipients.with_hacc.count
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
       end
@@ -165,7 +165,7 @@ class HanAlertsController < ApplicationController
             audiences[:groups].push(audience)
           end
         end
-        render :json => {'alert' => alert, 'devices' => @device_types, 'audiences' => audiences, 'success' => true, 'recipient_count' => alert.recipients.count}
+        render :json => {'alert' => alert, 'devices' => @device_types, 'audiences' => audiences, 'success' => true, 'recipient_count' => alert.recipients.with_hacc.count}
       end
     end
   end
@@ -379,7 +379,7 @@ private
   def can_view_alert
     alert = HanAlert.find(params[:id])
     unless !alert.nil? &&
-        (alert.recipients.include?(current_user) ||
+        (alert.recipients.with_hacc.include?(current_user) ||
           alert.from_jurisdiction.self_and_ancestors.detect{|j| j.han_coordinators.include?(current_user)})
       error = "That resource does not exist or you do not have access to it."
       if request.xhr?
