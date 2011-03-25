@@ -40,6 +40,7 @@ class CreateHanAlert < ActiveRecord::Migration
     add_column(:alert_ack_logs, :alert_type, :string)
     add_column(:alert_device_types, :alert_type, :string)
 
+
     ::Alert.find_in_batches(:select => "id") do |alerts|
       alerts.each do |alert|
         execute("INSERT INTO han_alerts SELECT severity, status, sensitive, delivery_time, id, sent_at, from_organization_id, from_organization_name, from_organization_oid, \
@@ -81,26 +82,58 @@ class CreateHanAlert < ActiveRecord::Migration
     remove_column(:alerts, :not_cross_jurisdictional)
 
     CreateMTIFor(HanAlert)
+    execute("UPDATE alerts SET alert_type = 'HanAlert'")
   end
 
   def self.down
-    DropMTIFor(HanAlert)
-
     add_column(:alerts, :severity, :string)
     add_column(:alerts, :status, :string)
     add_column(:alerts, :sensitive, :boolean)
     add_column(:alerts, :delivery_time, :integer)
     add_column(:alerts, :sent_at, :datetime)
+    add_column(:alerts, :from_organization_id, :integer)
+    add_column(:alerts, :from_organization_name, :string)
+    add_column(:alerts, :from_organization_oid, :string)
+    add_column(:alerts, :identifier, :string)
+    add_column(:alerts, :scope, :string)
+    add_column(:alerts, :category, :string)
+    add_column(:alerts, :program, :string)
+    add_column(:alerts, :urgency, :string)
+    add_column(:alerts, :certainty, :string)
+    add_column(:alerts, :jurisdiction_level, :string)
+    add_column(:alerts, :alert_references, :string)
+    add_column(:alerts, :from_jurisdiction_id, :integer)
+    add_column(:alerts, :original_alert_id, :integer)
+    add_column(:alerts, :short_message, :string)
+    add_column(:alerts, :message_recording_file_name, :string)
+    add_column(:alerts, :message_recording_content_type, :string)
+    add_column(:alerts, :message_recording_file_size, :string)
+    add_column(:alerts, :distribution_reference, :string)
+    add_column(:alerts, :caller_id, :string)
+    add_column(:alerts, :ack_distribution_reference, :string)
+    add_column(:alerts, :distribution_id, :string)
+    add_column(:alerts, :reference, :string)
+    add_column(:alerts, :sender_id, :string)
+    add_column(:alerts, :call_down_messages, :text)
+    add_column(:alerts, :not_cross_jurisdictional, :boolean, :default => false)
 
-    ::Alert.find_in_batches(:select => "id") do |alerts|
+    ::Alert.find_in_batches(:select => "id", :conditions => ["alert_type = 'HanAlert'"]) do |alerts|
       alerts.each do |alert|
-        execute("UPDATE alerts SET (severity, status, sensitive, delivery_time, sent_at) VALUES(SELECT(severity, status, sensitive, delivery_time, sent_at) FROM han_alerts WHERE alert_id=#{alert.id})")
+        execute("UPDATE alerts SET severity = han_alerts.severity, status = han_alerts.status, sensitive = han_alerts.sensitive, delivery_time = han_alerts.delivery_time, \
+          sent_at = han_alerts.sent_at, from_organization_id = han_alerts.from_organization_id, from_organization_name = han_alerts.from_organization_name, \
+          from_organization_oid = han_alerts.from_organization_oid, identifier = han_alerts.identifier, scope = han_alerts.scope, category = han_alerts.category, \
+          program = han_alerts.program, urgency = han_alerts.urgency, certainty = han_alerts.certainty, jurisdiction_level = han_alerts.jurisdiction_level, \
+          alert_references = han_alerts.alert_references, from_jurisdiction_id = han_alerts.from_jurisdiction_id, original_alert_id = han_alerts.original_alert_id, \
+          short_message = han_alerts.short_message, message_recording_file_name = han_alerts.message_recording_file_name, message_recording_content_type = han_alerts.message_recording_content_type, \
+          message_recording_file_size = han_alerts.message_recording_file_size, distribution_reference = han_alerts.distribution_reference, caller_id = han_alerts.caller_id, \
+          ack_distribution_reference = han_alerts.ack_distribution_reference, distribution_id = han_alerts.distribution_id, reference = han_alerts.reference, sender_id = han_alerts.sender_id, \
+          call_down_messages = han_alerts.call_down_messages, not_cross_jurisdictional = han_alerts.not_cross_jurisdictional FROM (SELECT * FROM han_alerts WHERE alert_id=#{alert.id}) AS han_alerts WHERE id=#{alert.id}")
       end
     end
 
+    DropMTIFor(HanAlert)
     drop_table :han_alerts
 
-    remove_column(:alerts, :alert_type)
     rename_column(:alerts, :alert_references, :references)
     remove_column(:alert_attempts, :alert_type)
     remove_column(:alert_ack_logs, :alert_type)
