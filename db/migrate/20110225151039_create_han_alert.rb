@@ -40,8 +40,13 @@ class CreateHanAlert < ActiveRecord::Migration
     add_column(:alert_ack_logs, :alert_type, :string)
     add_column(:alert_device_types, :alert_type, :string)
 
-    ::Alert.find_in_batches(:select => "id") do |alert|
-      execute("INSERT INTO han_alerts (alert_id, severity, status, sensitive, delivery_time, sent_at) VALUES(SELECT(id, severity, status, sensitive, delivery_time, sent_at) FROM alerts WHERE id=#{alert.id})")
+    ::Alert.find_in_batches(:select => "id") do |alerts|
+      alerts.each do |alert|
+        execute("INSERT INTO han_alerts SELECT severity, status, sensitive, delivery_time, id, sent_at, from_organization_id, from_organization_name, from_organization_oid, \
+          identifier, scope, category, program, urgency, certainty, jurisdiction_level, alert_references, from_jurisdiction_id, original_alert_id, short_message, \
+          message_recording_file_name, message_recording_content_type, message_recording_file_size, distribution_reference, caller_id, ack_distribution_reference, \
+          distribution_id, reference, sender_id, call_down_messages, not_cross_jurisdictional FROM alerts WHERE alerts.id=#{alert.id}")
+      end
     end
 
     remove_column(:alerts, :severity)
@@ -87,8 +92,10 @@ class CreateHanAlert < ActiveRecord::Migration
     add_column(:alerts, :delivery_time, :integer)
     add_column(:alerts, :sent_at, :datetime)
 
-    ::Alert.find_in_batches(:select => "id") do |alert|
-      execute("UPDATE alerts SET (severity, status, sensitive, delivery_time, sent_at) VALUES(SELECT(severity, status, sensitive, delivery_time, sent_at) FROM han_alerts WHERE alert_id=#{alert.id})")
+    ::Alert.find_in_batches(:select => "id") do |alerts|
+      alerts.each do |alert|
+        execute("UPDATE alerts SET (severity, status, sensitive, delivery_time, sent_at) VALUES(SELECT(severity, status, sensitive, delivery_time, sent_at) FROM han_alerts WHERE alert_id=#{alert.id})")
+      end
     end
 
     drop_table :han_alerts
