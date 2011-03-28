@@ -46,7 +46,6 @@
 require 'ftools'
 
 class HanAlert < Alert
-  include AlertMixin
   acts_as_MTI
   belongs_to :from_organization, :class_name => 'Organization'
   belongs_to :from_jurisdiction, :class_name => 'Jurisdiction'
