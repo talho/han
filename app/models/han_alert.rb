@@ -91,6 +91,7 @@ class HanAlert < Alert
   after_save :set_sender_id
   after_save :set_distribution_reference
   after_save :set_reference
+  has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s } }
 
   named_scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
 
@@ -430,6 +431,10 @@ class HanAlert < Alert
         audience.roles = Role.all if audience.roles.empty?
       end
     end
+  end
+
+  def to_s
+    title
   end
 
   private
