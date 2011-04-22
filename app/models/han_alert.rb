@@ -224,16 +224,12 @@ class HanAlert < Alert
   end
 
   def batch_deliver
-    recipients.each do |user|
-      alert_attempts.create!(:user => user).batch_deliver
-    end
-    audiences(true).each do |audience|
-      audience.foreign_jurisdictions.each do |jurisdiction|
-        alert_attempts.create!(:jurisdiction => jurisdiction).batch_deliver
+    super do
+      audiences(true).each do |audience|
+        audience.foreign_jurisdictions.each do |jurisdiction|
+          alert_attempts.create!(:jurisdiction => jurisdiction).batch_deliver
+        end
       end
-    end
-    alert_device_types(true).each do |device_type|
-      device_type.device_type.batch_deliver(self)
     end
     initialize_statistics
   end
@@ -286,26 +282,15 @@ class HanAlert < Alert
       ack_logs.create(:item_type => "jurisdiction", :item => jur.name, :total => attempted_users.with_jurisdiction(jur).size.to_f, :acks => 0)
     end
 
-    types = (alert_device_types.map(&:device) << "Device::ConsoleDevice").uniq
-    types.each do |type|
-      ack_logs.create(:item_type => "device", :item => type, :acks => 0, :total => aa_size)
-    end
-
     if has_alert_response_messages?
       call_down_messages.each do |key, value|
         ack_logs.create(:item_type => "alert_response", :item => value, :acks => 0, :total => aa_size)
       end
     end
-    ack_logs.create(:item_type => "total", :acks => 0, :total => aa_size)
   end
 
   def update_statistics(options)
     aa_size = nil
-    if options[:device]
-      ack = ack_logs.find_by_item_type_and_item("device",options[:device])
-      ack.update_attribute(:acks, ack[:acks] + 1) unless ack.nil?
-    end
-
     if options[:jurisdiction]
       options[:jurisdiction] = [options[:jurisdiction]].flatten
       options[:jurisdiction].map(&:name).each { |name|
@@ -319,9 +304,7 @@ class HanAlert < Alert
       ack = ack_logs.find_by_item_type_and_item("alert_response", call_down_messages[options[:response]])
       ack.update_attribute(:acks, ack[:acks] + 1) unless ack.nil?
     end
-
-    ack = ack_logs.find_by_item_type("total")
-    ack.update_attribute(:acks, ack[:acks] + 1) unless ack.nil?
+    super
   end
 
   def sender
@@ -435,6 +418,20 @@ class HanAlert < Alert
 
   def to_s
     title
+  end
+
+  def to_xml
+    options = {}
+    options[:Messages] = {}
+    options[:Messages][:supplement] = Proc.new do |messages|
+      unless self.short_message.blank?
+        messages.Message(:name => "short_message", :lang => "en/us", :encoding => "utf8", :content_type => "text/plain") do |message|
+          message.Value self.short_message
+        end
+      end
+    end
+
+    super(options)
   end
 
   private

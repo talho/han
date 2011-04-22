@@ -75,8 +75,8 @@ class HanAlertsController < ApplicationController
       if @alert.valid?
 
         @alert.save
-        @alert.integrate_voice
-        @alert.batch_deliver
+        #@alert.integrate_voice
+        #@alert.batch_deliver
         respond_to do |format|
           format.html {
             flash[:notice] = "Successfully sent the alert."
@@ -218,8 +218,8 @@ class HanAlertsController < ApplicationController
     if params[:send]
       @alert.save
       if @alert.valid?
-        @alert.integrate_voice
-        @alert.batch_deliver
+        #@alert.integrate_voice
+        #@alert.batch_deliver
         respond_to do |format|
           format.html do
             flash[:notice] = "Successfully sent the alert."
