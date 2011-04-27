@@ -47,6 +47,8 @@ require 'ftools'
 
 class HanAlert < Alert
   acts_as_MTI
+  include ActionController::UrlWriter
+  
   belongs_to :from_organization, :class_name => 'Organization'
   belongs_to :from_jurisdiction, :class_name => 'Jurisdiction'
   belongs_to :original_alert, :class_name => 'HanAlert'
@@ -421,12 +423,55 @@ class HanAlert < Alert
   end
 
   def to_xml
-    options = {}
+    options = {:messageId => self.distribution_id}
     options[:Messages] = {}
-    options[:Messages][:supplement] = Proc.new do |messages|
-      unless self.short_message.blank?
-        messages.Message(:name => "short_message", :lang => "en/us", :encoding => "utf8", :content_type => "text/plain") do |message|
-          message.Value self.short_message
+    options[:Messages][:override] = Proc.new do |messages|
+      messages.Message(:name => "title", :lang => "en/us", :encoding => "utf8", :content_type => "text/plain") do |message|
+        message.Value self.title
+      end
+
+      messages.Message(:name => "short_message", :lang => "en/us", :encoding => "utf8", :content_type => "text/plain") do |message|
+        message.Value self.short_message
+      end unless self.short_message.blank?
+
+      messages.Message(:name => "message", :lang => "en/us", :enconding => "utf8", :content_type => "text/plain") do |message|
+        message.Value self.construct_message
+      end
+    end
+
+    options[:Behavior] = {}
+    options[:Behavior][:supplement] = Proc.new do |behavior|
+      introOrganization = self..from_organization unless self.from_organization.blank?
+      introOrganization = self.from_jurisdiction unless self.from_jurisdiction.blank?
+
+      behavior.Delivery do |delivery|
+        delivery.customAttributes do |customAttributes|
+          customAttributes.customAttribute(:name => "introOrganization") do |customAttribute|
+            customAttribute.Value introOrganization
+          end unless introOrganization.blank?
+
+          customAttributes.customAttribute(:name => "phone") do |customAttribute|
+            customAttribute.Value self.caller_id
+          end unless self.caller_id.blank?
+        end
+      end
+    end
+
+    if self.acknowledge? && !self.has_alert_response_messages?  
+      options[:IVRTree] = {}
+      options[:IVRTree][:override] = Proc.new do |ivrtree|
+        ivrtree.IVR(:name => "alert_responses") do |ivr|
+          ivr.RootNode(:operation => "start") do |rootnode|
+            rootnode.ContextNode do |node|
+              node.label "1"
+              node.operation "TTS"
+              node.response "Please press one to acknowledge this alert."
+            end
+            rootnode.ContextNode do |response_node|
+              response_node.label "Prompt"
+              response_node.operation "Prompt"
+            end
+          end
         end
       end
     end
@@ -434,6 +479,38 @@ class HanAlert < Alert
     super(options)
   end
 
+  def construct_message
+    default_url_options[:host] = HOST
+    header = "The following is an alert from the Texas Public Health Information Network.\r\n\r\n"
+    footer = ""
+    more = "... \r\n\r\nPlease visit the TXPhin website at #{url_for(:action => "hud", :controller => "dashboard")} to read the rest of this alert.\r\n\r\n"
+    if self.acknowledge?
+      header += "This alert requires acknowledgment.  Please follow the instructions below to acknowledge this alert.\r\n\r\n"
+    end
+    if self.sensitive?
+      footer += "\r\n\r\nAlert ID: #{self.identifier}\r\n"
+      footer += "Reference: #{self.original_alert_id}\r\n" unless self.original_alert_id.blank?
+      footer += "Status: #{self.status}\r\n" unless self.status == "Actual"
+      footer += "Sensitive: use secure means of retrieval\r\n\r\n"
+      footer += "Please visit #{url_for(:action => "hud", :controller => "dashboard", :escape => false, :only_path => false, :protocol => "https")} to securely view this alert.\r\n"
+      output = header + footer
+    else
+      footer += "\r\n\r\nTitle: #{self.title}\r\n"
+      footer += "Alert ID: #{self.identifier}\r\n"
+      footer += "Reference: #{self.original_alert_id}\r\n" unless self.original_alert_id.blank?
+      footer += "Agency: #{self.from_jurisdiction.nil? ? self.from_organization_name : self.from_jurisdiction.name}\r\n"
+      footer += "Sender: #{self.author.display_name}\r\n" unless self.author.nil?
+      footer += "Status: #{self.status}\r\n" unless self.status == "Actual"
+      footer += "Time Sent: #{self.created_at.strftime("%B %d, %Y %I:%M %p %Z")}\r\n\r\n"
+      if self.message.size + header.size + footer.size > 1000
+        output = header + self.message[0..(1000 - header.size - more.size - footer.size)] + more + footer
+      else
+        output = header + self.message + footer
+      end
+    end
+    output
+  end
+  
   private
   def set_sent_at
     if sent_at.blank?
