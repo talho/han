@@ -48,7 +48,7 @@ module FeatureHelpers
 
     def find_han_alert_email_via_SWN(email_address, table=nil)
       When "delayed jobs are processed"
-      Service::Email.deliveries.detect do |email|
+      Service::SWN::Message.deliveries.detect do |email|
         xml = Nokogiri::XML(email.body)
         status = false
         status ||= (xml.search('//swn:rcpts/swn:rcpt/swn:contactPnts/swn:contactPntInfo[@type="Email"]/swn:address',

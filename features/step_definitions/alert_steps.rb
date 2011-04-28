@@ -4,7 +4,6 @@ end
 
 Given "a sent alert with:" do |table|
   alert = create_han_alert_with table.rows_hash
-  alert.batch_deliver
   When "delayed jobs are processed"
 end
 
@@ -13,7 +12,6 @@ Given /^(\d+) (?:more alerts are|more alert is) sent to me$/ do |n|
   n.to_i.times do |i|
     # always make these alerts happen after the last alert for the user
     alert = create_han_alert_with "people" => current_user.name, "created_at" => last_alert.created_at + 1.second
-    alert.batch_deliver
   end
 end
 

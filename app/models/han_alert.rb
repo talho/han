@@ -427,7 +427,7 @@ class HanAlert < Alert
     options[:Messages] = {}
     options[:Messages][:override] = Proc.new do |messages|
       messages.Message(:name => "title", :lang => "en/us", :encoding => "utf8", :content_type => "text/plain") do |message|
-        message.Value self.title
+        message.Value "Health Alert \"#{self.title}\""
       end
 
       messages.Message(:name => "short_message", :lang => "en/us", :encoding => "utf8", :content_type => "text/plain") do |message|
@@ -440,8 +440,8 @@ class HanAlert < Alert
     end
 
     options[:Behavior] = {}
-    options[:Behavior][:supplement] = Proc.new do |behavior|
-      introOrganization = self..from_organization unless self.from_organization.blank?
+    options[:Behavior][:override] = Proc.new do |behavior|
+      introOrganization = self.from_organization unless self.from_organization.blank?
       introOrganization = self.from_jurisdiction unless self.from_jurisdiction.blank?
 
       behavior.Delivery do |delivery|
@@ -453,6 +453,21 @@ class HanAlert < Alert
           customAttributes.customAttribute(:name => "phone") do |customAttribute|
             customAttribute.Value self.caller_id
           end unless self.caller_id.blank?
+
+          delivery.Providers do |providers|
+            (self.alert_device_types.map{|device| device.device_type.display_name} || Service::SWN::Message::SUPPORTED_DEVICES.keys).each do |device|
+              device_options = {:name => "swn", :device => device}
+              if self.has_alert_response_messages?
+                if self.sensitive
+                  device_options[:ivr] = "alert_responses" if device == "Phone"
+                else
+                  device_options[:ivr] = "alert_responses"
+                end
+              end
+              providers.Provider(device_options)
+            end
+          end
+
         end
       end
     end
