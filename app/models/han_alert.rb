@@ -289,6 +289,8 @@ class HanAlert < Alert
         ack_logs.create(:item_type => "alert_response", :item => value, :acks => 0, :total => aa_size)
       end
     end
+    
+    super
   end
 
   def update_statistics(options)
@@ -434,8 +436,12 @@ class HanAlert < Alert
         message.Value self.short_message
       end unless self.short_message.blank?
 
-      messages.Message(:name => "message", :lang => "en/us", :enconding => "utf8", :content_type => "text/plain") do |message|
-        message.Value self.construct_message
+      messages.Message(:name => "email_message", :lang => "en/us", :enconding => "utf8", :content_type => "text/plain") do |message|
+        message.Value self.construct_email_message
+      end
+
+      messages.Message(:name => "phone_message", :lang => "en/us", :enconding => "utf8", :content_type => "text/plain") do |message|
+        message.Value self.construct_phone_message
       end
     end
 
@@ -455,16 +461,23 @@ class HanAlert < Alert
           end unless self.caller_id.blank?
 
           delivery.Providers do |providers|
-            (self.alert_device_types.map{|device| device.device_type.display_name} || Service::SWN::Message::SUPPORTED_DEVICES.keys).each do |device|
+            (self.alert_device_types.map{|device| device.device_type.display_name} & Service::SWN::Message::SUPPORTED_DEVICES.keys).each do |device|
               device_options = {:name => "swn", :device => device}
-              if self.has_alert_response_messages?
+              if self.acknowledge? || self.has_alert_response_messages?
                 if self.sensitive
                   device_options[:ivr] = "alert_responses" if device == "Phone"
                 else
                   device_options[:ivr] = "alert_responses"
                 end
               end
-              providers.Provider(device_options)
+              providers.Provider(device_options) do |provider|
+                provider.Messages do |messages|
+                  messages.ProviderMessage(:name => "title", :ref => "title")
+                  messages.ProviderMessage(:name => "message", :ref => "short_message") if device == "Blackberry PIN" || device == "Fax" || device == "SMS"
+                  messages.ProviderMessage(:name => "message", :ref => "email_message") if device == "E-mail"
+                  messages.ProviderMessage(:name => "message", :ref => "phone_message") if device == "Phone"
+                end
+              end
             end
           end
 
@@ -472,7 +485,7 @@ class HanAlert < Alert
       end
     end
 
-    if self.acknowledge? && !self.has_alert_response_messages?  
+    if self.acknowledge? && !self.has_alert_response_messages?
       options[:IVRTree] = {}
       options[:IVRTree][:override] = Proc.new do |ivrtree|
         ivrtree.IVR(:name => "alert_responses") do |ivr|
@@ -494,7 +507,7 @@ class HanAlert < Alert
     super(options)
   end
 
-  def construct_message
+  def construct_email_message
     default_url_options[:host] = HOST
     header = "The following is an alert from the Texas Public Health Information Network.\r\n\r\n"
     footer = ""
@@ -525,7 +538,19 @@ class HanAlert < Alert
     end
     output
   end
-  
+
+
+  def construct_phone_message
+    output = "The following is an alert from the Texas Public Health Information Network.  "
+    if output.size + self.message.size > 1000
+      footer = ".  The rest of this message is unavailable.  Please visit the T X Fin website for the rest of this alert."
+      output += self.message[0..(1000 - output.size - footer.size)] + footer
+    else
+      output += self.message
+    end
+    output
+  end
+
   private
   def set_sent_at
     if sent_at.blank?

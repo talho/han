@@ -151,7 +151,6 @@ module EDXL
           end
 
           a.alert_device_types << AlertDeviceType.create!(:device => 'Device::EmailDevice')
-          a.batch_deliver
           Dir.ensure_exists(File.join(Agency[:phin_ms_path]))
 
           File.open(File.join(Agency[:phin_ms_path], "#{a.identifier}-ACK.edxl"), 'w' ) do |f|
