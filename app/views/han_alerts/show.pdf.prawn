@@ -21,7 +21,7 @@ pdf.bounding_box col1.top_left, :width=> col1.width, :height => col1.height do
   pdf.move_down 10
   pdf.text "Disable Cross-Jurisdictional alerting?", :style => :bold
   pdf.text(@alert.not_cross_jurisdictional? ? "Yes" : "No")
-  if @alert.has_alert_response_messages?
+  if @alert.acknowledge?
     @alert.call_down_messages.each do |index, value| 
       pdf.move_down 10
       pdf.text "Alert Response #{index}", :style => :bold
@@ -41,7 +41,7 @@ pdf.bounding_box col2.top_left, :width=> col2.width, :height => col2.height do
   pdf.move_down 10
   pdf.text "Acknowledge", :style => :bold
   if @alert.acknowledge?
-    pdf.text(@alert.has_alert_response_messages? && @alert.original_alert.nil? ? "Advanced" : "Normal")
+    pdf.text(@alert.call_down_messages["1"] == "Please press one to acknowledge this alert." && @alert.original_alert.nil? ? "Advanced" : "Normal")
   else
     pdf.text "None"
   end

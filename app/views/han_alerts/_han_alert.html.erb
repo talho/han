@@ -10,7 +10,7 @@
       <p class="created_at"><strong>Created at: </strong><%= @alert.created_at.strftime("%B %d, %Y %I:%M %p %Z") %></p>
     <% end %>
     <p class="not_cross_jurisdictional"><strong>Disable Cross-Jurisdictional alerting?:</strong> <%=h yn(@alert.not_cross_jurisdictional?) %></p>
-    <% if @alert.has_alert_response_messages? %>
+    <% if @alert.acknowledge? %>
       <% @alert.call_down_messages.each do |index, value| %>
         <p class="alertResponse"><strong>Alert Response <%=h index %>:</strong> <%=h value %></p>
       <% end %>
@@ -27,7 +27,7 @@
     <h5>Acknowledge</h5>
     <p class="acknowledge">
       <%- if @alert.acknowledge? -%>
-        <%= @alert.has_alert_response_messages? && @alert.original_alert.nil? ? "Advanced" : "Normal" -%>
+        <%= @alert.call_down_messages["1"] == "Please press one to acknowledge this alert." && @alert.original_alert.nil? ? "Advanced" : "Normal" -%>
       <%- else -%>
         None
       <%- end -%>

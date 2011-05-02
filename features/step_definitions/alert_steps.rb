@@ -56,7 +56,7 @@ When /I acknowledge the phone message for "([^"]*)"(?: with "([^"]*)")?$/ do |ti
   unless ack.nil?
     aa.acknowledge! :ack_response => al.call_down_messages.index(ack)
   else
-    aa.acknowledge!
+    aa.acknowledge! :ack_response => 1
   end
 end
 
@@ -126,19 +126,19 @@ end
 
 When /^I follow the acknowledge HAN alert link$/ do
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
-  visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
+  visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
 end
 
 When 'I follow the acknowledge HAN alert link "$title"' do |title|
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
   if title.blank?
-    visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
+    visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
   else
     call_down_response = attempt.alert.becomes(HanAlert).reload.call_down_messages.index(title).to_i
     if current_user.nil?
       raise "Step not yet supported if no user is logged in"
     else
-      visit email_acknowledge_alert_url(attempt.alert, call_down_response, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}")
+      visit email_acknowledge_alert_url(attempt.alert, call_down_response, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
     end
   end
 end

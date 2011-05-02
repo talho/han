@@ -1,6 +1,10 @@
-When /^"([^\"]*)" acknowledges the phone message for "([^\"]*)" with "([^\"]*)"$/ do |email, title, call_down_response|
+When /^"([^"]*)" acknowledges the phone message for "([^"]*)"(?: with "([^"]*))"?$/ do |email, title, call_down_response|
   a = User.find_by_email(email).alert_attempts.find_by_alert_id(Alert.find_by_title(title).id)
-  a.acknowledge!(:ack_response => a.alert.call_down_messages.index(call_down_response).to_i, :ack_device => "Device::PhoneDevice")
+  if a.alert.call_down_messages["1"] == "Please press one to acknowledge this alert."
+    a.acknowledge!(:ack_response => "1", :ack_device => "Device::PhoneDevice")
+  else
+    a.acknowledge!(:ack_response => a.alert.call_down_messages.index(call_down_response).to_i, :ack_device => "Device::PhoneDevice")
+  end
 end
 
 Then '"$email" should not receive a HAN alert email' do |email|

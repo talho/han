@@ -80,7 +80,7 @@
         <%= form.label :acknowledge, "Acknowledge" %>
       </p>
 
-      <% if @alert.has_alert_response_messages? && !(@update.blank? && @cancel.blank?) %>
+      <% if @alert.acknowledge? && !(@update.blank? && @cancel.blank?) %>
         <p>
           <%= form.label :responders, "Responders" %>
           <%= form.select :responders, options_for_select(@alert.call_down_messages.collect{|key,value| [value,key]},@alert.call_down_messages.keys),{:prompt=>"Select one or more"},{:multiple=>true,:size=>6} %>

@@ -15,12 +15,8 @@ This email has been generated from the automated alerting system.  Please do not
   <%= @alert.message %>
 
   <%- if @alert.acknowledge? -%>
-    <%- if @alert.has_alert_response_messages? -%>
-      <%- @alert.call_down_messages.each do |key, value| -%>
-        <%= value %>, please click the following link <%= email_acknowledge_alert_url(@alert, key) %>
-      <%- end -%>
-    <%- else -%>
-      Please click <%= email_acknowledge_alert_url(@alert, 0) %> and log in to acknowledge this alert
+    <%- @alert.call_down_messages.each do |key, value| -%>
+      <%= value %>, please click the following link <%= email_acknowledge_alert_url(@alert, key) %>
     <%- end -%>
   <%- end -%>
 

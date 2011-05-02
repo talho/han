@@ -62,10 +62,8 @@ class HanAlertsController < ApplicationController
     set_acknowledge
     params[:han_alert][:author_id] = current_user.id
     @alert = present HanAlert.new(params[:han_alert])
-    @acknowledge = if @alert.acknowledge && !(@alert.call_down_messages.blank? || @alert.call_down_messages.empty?)
-      'Advanced'
-    elsif @alert.acknowledge
-      'Normal'
+    @acknowledge = if @alert.acknowledge
+      @alert.call_down_messages.blank? || @alert.call_down_messages["1"] == "Please press one to acknowledge this alert." ? 'Normal' : 'Advanced'
     else
       'None'
     end
@@ -265,14 +263,10 @@ class HanAlertsController < ApplicationController
           params[:alert_attempt][:call_down_response] = params[:call_down_response]
         end
         if params[:alert_attempt].blank?
-            alert_attempt.acknowledge! :ack_device => device
+            alert_attempt.acknowledge! :ack_device => device, :ack_response => "1"
         else
           device = "Device::EmailDevice" unless params[:email].blank?
-          if params[:alert_attempt].nil? || params[:alert_attempt][:call_down_response].nil? || params[:alert_attempt][:call_down_response].empty?
-            alert_attempt.acknowledge! :ack_device => device
-          else
-            alert_attempt.acknowledge! :ack_device => device, :ack_response => params[:alert_attempt][:call_down_response]
-          end
+          alert_attempt.acknowledge! :ack_device => device, :ack_response => params[:alert_attempt][:call_down_response]
           expire_log_entry(alert_attempt.alert)
           flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
           format.json {
@@ -308,7 +302,7 @@ class HanAlertsController < ApplicationController
       if alert_attempt.alert.sensitive?
         flash[:error] = "You are not authorized to view this page."
       else
-        alert_attempt.acknowledge! :ack_device => "Device::EmailDevice"
+        alert_attempt.acknowledge! :ack_device => "Device::EmailDevice", :ack_response => params[:call_down_response]
         expire_log_entry(alert_attempt.alert)
         flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
       end
@@ -421,7 +415,7 @@ private
   end
 
   def reduce_call_down_messages_from_responses(original_alert)
-    if params[:han_alert][:call_down_messages].nil? && original_alert.has_alert_response_messages?
+    if params[:han_alert][:call_down_messages].nil? && original_alert.acknowledge?
       params[:han_alert][:call_down_messages] = {}
 
       msgs = original_alert.call_down_messages.select{|key, value| params[:han_alert][:responders].include?(key)}

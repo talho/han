@@ -73,8 +73,6 @@ class HanAlert < Alert
   DeliveryTimes = [15, 30, 45, 60, 75, 90, 1440, 4320]
   ExpirationGracePeriod = 240 # in minutes
 
-  serialize :call_down_messages, Hash
-  
   validates_inclusion_of :status, :in => Statuses
   validates_inclusion_of :severity, :in => Severities
 
@@ -87,6 +85,7 @@ class HanAlert < Alert
 
   before_create :set_sent_at
   before_create :set_message_type
+  before_create :set_acknowledgment
   before_save :set_jurisdiction_level
   after_save :set_identifier
   after_save :set_distribution_id
@@ -129,7 +128,7 @@ class HanAlert < Alert
       alert.message_type = MessageTypes[:cancel]
       alert.original_alert = self
 
-      if alert.has_alert_response_messages?
+      if alert.acknowledge?
         self.audiences.each do |audience|
           attrs = audience.attributes
           ["id","updated_at","created_at"].each{|item| attrs.delete(item)}
@@ -155,7 +154,7 @@ class HanAlert < Alert
       alert.message_type = MessageTypes[:update]
       alert.original_alert = self
 
-      if alert.has_alert_response_messages?
+      if alert.acknowledge?
         self.audiences.each do |audience|
           attrs = audience.attributes
           ["id","updated_at","created_at"].each{|item| attrs.delete(item)}
@@ -196,7 +195,7 @@ class HanAlert < Alert
           "path",   (id && acknowledge && !acknowledged_by_user) ? path : ""
         ],
       ]
-      if has_alert_response_messages?
+      if acknowledge?
         format["detail"]["response"] = call_down_messages
       end
       return format
@@ -207,10 +206,6 @@ class HanAlert < Alert
     alert_attempts.compact.collect do |aa|
       aa.user if cdm.include?(aa.call_down_response.to_s)
     end.flatten.compact.uniq
-  end
-
-  def has_alert_response_messages?
-    !(call_down_messages.nil? || call_down_messages.empty?)
   end
 
   def after_initialize
@@ -284,12 +279,10 @@ class HanAlert < Alert
       ack_logs.create(:item_type => "jurisdiction", :item => jur.name, :total => attempted_users.with_jurisdiction(jur).size.to_f, :acks => 0)
     end
 
-    if has_alert_response_messages?
-      call_down_messages.each do |key, value|
-        ack_logs.create(:item_type => "alert_response", :item => value, :acks => 0, :total => aa_size)
-      end
-    end
-    
+    call_down_messages.each do |key, value|
+      ack_logs.create(:item_type => "alert_response", :item => value, :acks => 0, :total => aa_size)
+    end if acknowledge?
+
     super
   end
 
@@ -463,13 +456,10 @@ class HanAlert < Alert
           delivery.Providers do |providers|
             (self.alert_device_types.map{|device| device.device_type.display_name} & Service::SWN::Message::SUPPORTED_DEVICES.keys).each do |device|
               device_options = {:name => "swn", :device => device}
-              if self.acknowledge? || self.has_alert_response_messages?
-                if self.sensitive
-                  device_options[:ivr] = "alert_responses" if device == "Phone"
-                else
-                  device_options[:ivr] = "alert_responses"
-                end
+              if self.acknowledge?
+                device_options[:ivr] = "alert_responses" if (device == "Phone" && self.sensitive) || (!self.sensitive)
               end
+
               providers.Provider(device_options) do |provider|
                 provider.Messages do |messages|
                   messages.ProviderMessage(:name => "title", :ref => "title")
@@ -481,25 +471,6 @@ class HanAlert < Alert
             end
           end
 
-        end
-      end
-    end
-
-    if self.acknowledge? && !self.has_alert_response_messages?
-      options[:IVRTree] = {}
-      options[:IVRTree][:override] = Proc.new do |ivrtree|
-        ivrtree.IVR(:name => "alert_responses") do |ivr|
-          ivr.RootNode(:operation => "start") do |rootnode|
-            rootnode.ContextNode do |node|
-              node.label "1"
-              node.operation "TTS"
-              node.response "Please press one to acknowledge this alert."
-            end
-            rootnode.ContextNode do |response_node|
-              response_node.label "Prompt"
-              response_node.operation "Prompt"
-            end
-          end
         end
       end
     end
@@ -594,6 +565,13 @@ class HanAlert < Alert
     if !original_alert.nil? && reference.nil?
       write_attribute(:reference, "#{Agency[:agency_identifier]},#{original_alert.distribution_id},#{original_alert.sent_at.utc.iso8601(3)}")
       self.save!
+    end
+  end
+
+  def set_acknowledgment
+    if self.acknowledge && self.call_down_messages.blank?
+      self.call_down_messages = {}
+      self.call_down_messages["1"] = "Please press one to acknowledge this alert."
     end
   end
 

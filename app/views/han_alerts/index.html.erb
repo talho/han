@@ -37,7 +37,7 @@
               <p class="brief"><strong>Sensitive:</strong> <%= h alert.sensitive? ? 'Yes' : 'No' %></p>
 
               <%- if alert.acknowledge? -%>
-                <%- if alert.has_alert_response_messages? -%>
+                <%- if alert.call_down_messages["1"] == "Please press one to acknowledge this alert." -%>
                   <p class="brief"><strong>Acknowledge:</strong> Advanced</p>
                 <%- else -%>
                   <p class="brief"><strong>Acknowledge:</strong> Normal</p>
