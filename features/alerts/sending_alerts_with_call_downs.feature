@@ -132,7 +132,7 @@ Feature: Sending alerts with call downs
       | message             | H1N1 SNS push packs to be delivered in 15 minutes at point A |
       | targets             | john.wayne@example.com, john.smith@example.com               |
       | call_down_messages  | if you can respond within 15 minutes                         |
-      | acknowledge         | false                                                        |
+      | acknowledge         | true                                                         |
     Then an alert should not exist with:
       | title   | [Update] - H1N1 SNS push packs to be delivered tomorrow               |
       | message | H1N1 SNS push packs to be delivered in 15 minutes at point A          |

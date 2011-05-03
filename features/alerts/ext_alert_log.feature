@@ -326,5 +326,4 @@ Feature: Viewing the HAN alert log
       | Texas          | Jurisdiction |
       | Health Officer | Role         |
       | John Smith     | User         |
-    And I should see "Acknowledged" for user "Daniel Smith"
-
+    And I should see "Please press one to acknowledge this alert." for user "Daniel Smith"

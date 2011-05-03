@@ -23,7 +23,7 @@ class CascadeHanAlert
   end
 
   def distribution_id
-    alert.distribution_id
+    alert.alert_identifier
   end
   
   def confidentiality
@@ -34,7 +34,7 @@ class CascadeHanAlert
     xml = Builder::XmlMarkup.new(:indent => 2)
     xml.instruct!
     xml.EDXLDistribution(:xmlns => 'urn:oasis:names:tc:emergency:EDXL:DE:1.0') do
-      xml.distributionID alert.distribution_id
+      xml.distributionID alert.alert_identifier
       xml.senderID alert.sender_id
       xml.dateTimeSent alert.sent_at.utc.iso8601(3)
       xml.distributionStatus alert.status
@@ -70,7 +70,7 @@ class CascadeHanAlert
         xml.xmlContent do
           xml.embeddedXMLContent do
             xml.ns1(:alert, "xmlns:ns1".to_sym => 'urn:oasis:names:tc:emergency:cap:1.1') do |cap|
-              xml.ns1 :identifier, alert.distribution_id
+              xml.ns1 :identifier, alert.alert_identifier
               xml.ns1 :sender, alert.sender_id.split('@')[0]
               xml.ns1 :sent, alert.sent_at.utc.iso8601(3)
               xml.ns1 :status, alert.status

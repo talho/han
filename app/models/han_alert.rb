@@ -101,6 +101,10 @@ class HanAlert < Alert
     self.new(options.merge(defaults))
   end
 
+  def alert_identifier
+    self.distribution_id
+  end
+
   def cancelled?
     if cancellation.nil?
       return false
@@ -228,7 +232,6 @@ class HanAlert < Alert
         end
       end
     end
-    initialize_statistics
   end
 
   handle_asynchronously :batch_deliver
@@ -296,11 +299,6 @@ class HanAlert < Alert
       }
     end
 
-    if options[:response] && options[:response].to_i > 0
-      response = options[:response]
-      ack = ack_logs.find_by_item_type_and_item("alert_response", call_down_messages[options[:response]])
-      ack.update_attribute(:acks, ack[:acks] + 1) unless ack.nil?
-    end
     super
   end
 

@@ -112,11 +112,16 @@ class HanAlertsController < ApplicationController
     end
 
     unless error
-      @acknowledge_options = HanAlert::Acknowledgement.reject{|x| x=="Advanced"}
+      @acknowledge_options = HanAlert::Acknowledgement #.reject{|x| x=="Advanced"}
       # TODO : Remove when devices refactored
       @device_types = []
       alert.device_types.each do |device_type|
         @device_types << device_type
+      end
+      @acknowledge = if alert.acknowledge?
+        alert.call_down_messages.blank? || alert.call_down_messages["1"] == "Please press one to acknowledge this alert." ? 'Normal' : 'Advanced'
+      else
+        'None'
       end
     end
 
@@ -207,12 +212,12 @@ class HanAlertsController < ApplicationController
       @update = true
       original_alert.build_update(params[:han_alert])
     end
-     @acknowledge = if @alert.acknowledge
-       'Normal'
-     else
-       'None'
-     end
-     @acknowledge_options = HanAlert::Acknowledgement.reject{|x| x=="Advanced"}
+    @acknowledge = if @alert.acknowledge
+      'Normal'
+    else
+      'None'
+    end
+     @acknowledge_options = HanAlert::Acknowledgement #.reject{|x| x=="Advanced"}
     if params[:send]
       @alert.save
       if @alert.valid?
@@ -415,7 +420,7 @@ private
   end
 
   def reduce_call_down_messages_from_responses(original_alert)
-    if params[:han_alert][:call_down_messages].nil? && original_alert.acknowledge?
+    if params[:han_alert][:call_down_messages].nil? && original_alert.acknowledge? && !params[:han_alert][:responders].blank?
       params[:han_alert][:call_down_messages] = {}
 
       msgs = original_alert.call_down_messages.select{|key, value| params[:han_alert][:responders].include?(key)}

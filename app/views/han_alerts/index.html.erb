@@ -38,9 +38,9 @@
 
               <%- if alert.acknowledge? -%>
                 <%- if alert.call_down_messages["1"] == "Please press one to acknowledge this alert." -%>
-                  <p class="brief"><strong>Acknowledge:</strong> Advanced</p>
-                <%- else -%>
                   <p class="brief"><strong>Acknowledge:</strong> Normal</p>
+                <%- else -%>
+                  <p class="brief"><strong>Acknowledge:</strong> Advanced</p>
                 <%- end -%>
               <%- else -%>
                 <p class="brief"><strong>Acknowledge:</strong> None</p>
