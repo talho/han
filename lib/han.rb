@@ -29,13 +29,20 @@ ActionView::Base.send :include, HanAlertsHelper
 $expansion_list = [] unless defined?($expansion_list)
 $expansion_list.push(:han) unless $expansion_list.index(:han)
 
+$menu_config = {} unless defined?($menu_config)
+$menu_config[:han] = <<EOF
+  nav = "{name: 'HAN', items:[{name: 'HAN Alerts', tab:{id: 'han_home', title:'HAN Alerts', url:'\#{ hud_path }.ext', initializer: 'Talho.Alerts'}}"
+  if current_user.alerter?
+    nav += ",{name: 'Send an Alert', tab:{id: 'new_han_alert', title:'Send Alert', url:'\#{ new_han_alert_path }', initializer: 'Talho.SendAlert'}},"
+    nav += "{name: 'Alert Log and Reporting', tab:{id: 'han_alert_log', title:'Alert Log and Reporting', url:'\#{ han_alerts_path }', initializer: 'Talho.Alerts'}}"
+  end
+  nav += "]},"
+EOF
+
 # Register any required javascript or stylesheet files with the appropriate
 # rails expansion helper
 ActionView::Helpers::AssetTagHelper.register_javascript_expansion(
-  :han => [
-    # add any necessary javascripts like "han/cool_js_stuff.js"
-  ])
+  :han => [ "han/script_config" ])
 ActionView::Helpers::AssetTagHelper.register_stylesheet_expansion(
-  :han => [
-    # add any necessary stylesheets like "han/cool_css_stuff.css"
-  ])
+  :han => [ "han/han" ])
+
