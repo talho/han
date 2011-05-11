@@ -2,23 +2,23 @@ Feature: Viewing the dashboard
 
     Background:
         Given the following entities exists:
-          | Jurisdiction  | Dallas County                               |
-          | Jurisdiction  | Tarrant County                              |
-          | Jurisdiction  | Texas                                       |
-          | Role          | Public                                      |
-          | approval role | Health Officer                              |
-          | approval role | Immunization Director                       |
-          | approval role | Health Alert and Communications Coordinator |
+          | Jurisdiction  | Dallas County                               |      |
+          | Jurisdiction  | Tarrant County                              |      |
+          | Jurisdiction  | Texas                                       |      |
+          | Role          | Public                                      | phin |
+          | approval role | Health Officer                              | phin |
+          | approval role | Immunization Director                       | phin |
+          | approval role | Health Alert and Communications Coordinator | phin |
         And the role "Health Alert and Communications Coordinator" is an alerter
         And Texas is the parent jurisdiction of:
           | Dallas County | Tarrant County |
         And Dallas County has the following administrators:
-          | Bob Jones      | admin1@dallascounty.com      |
-          | Quincy Jones   | admin2@dallascounty.com   |
+          | Bob Jones     | admin1@dallascounty.com |
+          | Quincy Jones  | admin2@dallascounty.com |
         And Tarrant County has the following administrators:
-          | TarrantCounty Admin  | admin@tarrantcounty.com      |
+          | TarrantCounty Admin  | admin@tarrantcounty.com |
         And Texas has the following administrators:
-          | Zach Dennis   | admin@texas.com      |
+          | Zach Dennis   | admin@texas.com |
 
     Scenario: Dashboard should show the unapproved role requests
     Given the following users exist:

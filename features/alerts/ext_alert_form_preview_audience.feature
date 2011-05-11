@@ -9,6 +9,7 @@ Feature: Alert Preview Audience Calculation
       | Role         | Epidemiologist                              |
       | Role         | Phantom                                     |
       | Role         | Populous                                    |
+      | Role         | Masses                                      |
     And Federal is the parent jurisdiction of:
       | Texas |
     And Texas is the parent jurisdiction of:
@@ -166,15 +167,14 @@ Feature: Alert Preview Audience Calculation
 
   Scenario: Malicious user cannot get recipient counts
     Given I am logged in as "pot.epid@example.com"
-    And I am on the ext dashboard page
-    When I maliciously post data to "/han_alerts/calculate_recipient_count.json"
+    When I maliciously post formdata to "/han_alerts/calculate_recipient_count.json"
       | from_jurisdiction_id | 1 |
       | jurisdiction_ids[]   | 2 |
     Then I should see "You do not have permission"
 
   Scenario: Malicious anon cannot get recipient counts
     Given I am on the login page
-    When I maliciously post data to "/han_alerts/calculate_recipient_count.json"
+    When I maliciously post formdata to "/han_alerts/calculate_recipient_count.json"
       | from_jurisdiction_id | 1 |
       | jurisdiction_ids[]   | 2 |
     Then I should see "Sign In "

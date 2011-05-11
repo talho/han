@@ -15,7 +15,7 @@ Feature: Audit Log
      | Dallas County, Travis County |
     And the following users exist:
       | Jane Smith | janesmith@example.com | Boss                                        | Dallas County |
-      | Bill Smith | billsmith@example.com | Superadmin                                  | Texas         |
+      | Bill Smith | billsmith@example.com | SysAdmin                                    | Texas         |
       | Bill Smith | billsmith@example.com | Health Alert and Communications Coordinator | Dallas County |
     And the role "Health Alert and Communications Coordinator" is an alerter
 
