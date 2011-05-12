@@ -28,8 +28,10 @@ module HAN
     def refresh_recipients_with_han(options = {}, &block)
       refresh_recipients_without_han(options) do
         target = ::Target.find_by_audience_id(self.id)
-        primary_audience_jurisdictions = determine_primary_audience_jurisdictions
-        (update_han_coordinators_recipients(primary_audience_jurisdictions) ? true : raise(ActiveRecord::Rollback)) if target && target.item.class.to_s == "HanAlert"
+        if target && target.item.class.to_s == "HanAlert"
+          primary_audience_jurisdictions = determine_primary_audience_jurisdictions # determine primary audience is keyed off of from jurisdiction, which isn't something in the base alert. Wrap to ensure it only happens in HanAlert
+          (update_han_coordinators_recipients(primary_audience_jurisdictions) ? true : raise(ActiveRecord::Rollback))
+        end 
       end
     end
 
