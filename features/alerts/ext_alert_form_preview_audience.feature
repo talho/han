@@ -9,6 +9,7 @@ Feature: Alert Preview Audience Calculation
       | Role         | Epidemiologist                              |
       | Role         | Phantom                                     |
       | Role         | Populous                                    |
+      | Role         | Masses                                      |
     And Federal is the parent jurisdiction of:
       | Texas |
     And Texas is the parent jurisdiction of:
@@ -177,7 +178,7 @@ Feature: Alert Preview Audience Calculation
 
   Scenario: Malicious anon cannot get recipient counts
     Given I am on the login page
-    When I maliciously post data to "/han_alerts/calculate_recipient_count.json"
+    When I maliciously post formdata to "/han_alerts/calculate_recipient_count.json"
       | from_jurisdiction_id | 1 |
       | jurisdiction_ids[]   | 2 |
     And I should see "Sign In "
