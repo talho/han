@@ -397,10 +397,16 @@ private
   def expire_log_entry(alert)
     expire_fragment(:controller => "alerts", :action => "index", :key => ['alert_log_entry', alert.id])
   end
+
   def alerter_required
     unless current_user.alerter?
-      flash[:error] = "You do not have permission to send an alert."
-      redirect_to root_path
+      respond_to do |format|
+        format.html do
+          flash[:error] = "You do not have permission to send an alert."
+          redirect_to root_path
+        end
+        format.json {render :json => {:success => false, :flash => "You do not have permission to send an alert."}}
+      end
     end
   end
 

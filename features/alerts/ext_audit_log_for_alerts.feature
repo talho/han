@@ -7,15 +7,13 @@ Feature: Audit Log
     Given the following entities exist:
       | Jurisdiction | Texas      |
       | Role         | Boss       |
-      | System role  | Superadmin |
-      | System role  | Admin      |
     And Texas is the parent jurisdiction of:
      | Region 1 |
     And Region 1 is the parent jurisdiction of:
      | Dallas County, Travis County |
     And the following users exist:
       | Jane Smith | janesmith@example.com | Boss                                        | Dallas County |
-      | Bill Smith | billsmith@example.com | Superadmin                                  | Texas         |
+      | Bill Smith | billsmith@example.com | SysAdmin                                    | Texas         |
       | Bill Smith | billsmith@example.com | Health Alert and Communications Coordinator | Dallas County |
     And the role "Health Alert and Communications Coordinator" is an alerter
 

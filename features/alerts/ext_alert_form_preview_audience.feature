@@ -126,7 +126,9 @@ Feature: Alert Preview Audience Calculation
     Then I should see "0" within ".recipient_count"
 
   Scenario: Audience greater than 100 should prompt for user confirmation before sending
-    Given 50 users exist like
+    Given the following entities exists:
+      | Role | Masses |
+    And 50 users exist like
       | role         | Populous       |
       | jurisdiction | Dallas County  |
     And 51 users exist like
@@ -167,14 +169,15 @@ Feature: Alert Preview Audience Calculation
   Scenario: Malicious user cannot get recipient counts
     Given I am logged in as "pot.epid@example.com"
     And I am on the ext dashboard page
+    And I will confirm on next step
     When I maliciously post data to "/han_alerts/calculate_recipient_count.json"
       | from_jurisdiction_id | 1 |
       | jurisdiction_ids[]   | 2 |
-    Then I should see "You do not have permission"
+    Then I should see "You do not have permission" within the alert box
 
   Scenario: Malicious anon cannot get recipient counts
     Given I am on the login page
     When I maliciously post data to "/han_alerts/calculate_recipient_count.json"
       | from_jurisdiction_id | 1 |
       | jurisdiction_ids[]   | 2 |
-    Then I should see "Sign In "
+    And I should see "Sign In "
