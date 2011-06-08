@@ -12,9 +12,8 @@ Feature: Audit Log
     And Region 1 is the parent jurisdiction of:
      | Dallas County, Travis County |
     And the following users exist:
-      | Jane Smith | janesmith@example.com | Boss | Dallas County  |
-    And Dallas County has the following administrators:
-      | Bill Smith | billsmith@example.com |
+      | Jane Smith | janesmith@example.com | Boss       | Dallas County |
+      | Bill Smith | billsmith@example.com | SysAdmin   | Texas         |
 
   Scenario: Audit log for Han Alert model
     Given I am logged in as "billsmith@example.com"
