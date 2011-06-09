@@ -453,7 +453,8 @@ class HanAlert < Alert
 
           delivery.Providers do |providers|
             (self.alert_device_types.map{|device| device.device_type.display_name} & Service::SWN::Message::SUPPORTED_DEVICES.keys).each do |device|
-              device_options = {:name => "swn", :device => device}
+              email = YAML.load(IO.read(RAILS_ROOT+"/config/email.yml"))[RAILS_ENV]
+              device_options = {:name => email["alert"].to_s.downcase, :device => device}
               if self.acknowledge?
                 device_options[:ivr] = "alert_responses" if (device == "Phone" && self.sensitive) || (!self.sensitive)
               end

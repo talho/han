@@ -1,6 +1,6 @@
 module FeatureHelpers
   module UtilityMethods
-
+    
     def find_han_alert_email(email_address, table=nil)
       When "delayed jobs are processed"
       ActionMailer::Base.deliveries.detect do |email|
