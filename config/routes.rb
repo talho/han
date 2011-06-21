@@ -5,5 +5,5 @@ ActionController::Routing::Routes.draw do |map|
   map.email_acknowledge_alert "han_alerts/:id/emailack/:call_down_response", :controller => "han_alerts", :action => "acknowledge", :email => "1"
   map.connect "han_alerts/:id/acknowledge.:format", :controller => "application", :action => "options", :conditions => {:method => [:options]}
   map.token_acknowledge_alert "han_alerts/:id/acknowledge/:token.:format", :controller => "han_alerts", :action => "token_acknowledge"
-  map.resources :han_alerts, :member => {:acknowledge => [:get, :put]}
+  map.resources :han_alerts, :member => {:acknowledge => [:get, :put], :acknowledgements => :get}
 end

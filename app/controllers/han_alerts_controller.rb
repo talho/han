@@ -2,7 +2,7 @@ require 'ftools'
 
 class HanAlertsController < ApplicationController
   before_filter :alerter_required, :only => [:index, :new, :create, :edit, :update, :calculate_recipient_count]
-  before_filter :can_view_alert, :only => [:show]
+  before_filter :can_view_alert, :only => [:show, :acknowledgements]
   skip_before_filter :login_required, :only => [:token_acknowledge, :upload, :playback]
   protect_from_forgery :except => [:upload, :playback]
 
@@ -37,7 +37,6 @@ class HanAlertsController < ApplicationController
         end
         render :json => {:alert => alert.as_json(:include => {:alert_device_types => {:only => ['device']}, :author => {:only => ["display_name"]} },
                                                  :only => ['acknowledge', 'call_down_messages', 'created_at', 'delivery_time', 'message', 'not_cross_jurisdictional', 'severity', 'short_message', 'status', 'sensitive', 'title']),
-                         :alert_attempts => alert.alert_attempts,
                          :audiences => audiences,
                          :recipient_count => @alert.recipients.count
         }
@@ -375,6 +374,21 @@ class HanAlertsController < ApplicationController
     render :play, :layout => false
   end
 
+  def acknowledgements
+    alert = HanAlert.find(params[:id])
+    respond_to do |format|
+      format.json { render :json => {:attempts => alert.alert_attempts.paginate(:page => (params[:start].to_i||0)/(params[:limit].to_i||10) + 1, :per_page => params[:limit] || 10).map do |attempt|
+                      { :name => attempt.user.display_name,
+                        :email => attempt.user.email,
+                        :device => attempt.acknowledged_alert_device_type || "",
+                        :response => attempt.call_down_response ? alert.call_down_messages[attempt.call_down_response] : attempt.call_down_response === 0 ? "Acknowledged" : "",
+                        :acknowledged_at => attempt.acknowledged_at
+                      }
+                  end, :total => alert.alert_attempts.count } 
+                }
+    end
+  end
+  
 private
   def can_view_alert
     alert = HanAlert.find(params[:id])
