@@ -393,8 +393,8 @@ private
   def can_view_alert
     alert = HanAlert.find(params[:id])
     unless !alert.nil? &&
-        (alert.recipients.include?(current_user) ||
-          alert.from_jurisdiction.self_and_ancestors.detect{|j| j.han_coordinators.include?(current_user)})
+        (alert.targets.map{|t| t.users.find_by_id(current_user.id)}.flatten.compact.present? ||
+          current_user.alerting_jurisdictions.map(&:id).include?(alert.from_jurisdiction.id))
       error = "That resource does not exist or you do not have access to it."
       if request.xhr?
         respond_to do |format|
