@@ -380,8 +380,8 @@ class HanAlertsController < ApplicationController
       format.json { render :json => {:attempts => alert.alert_attempts.paginate(:page => (params[:start].to_i||0)/(params[:limit].to_i||10) + 1, :per_page => params[:limit] || 10).map do |attempt|
                       { :name => attempt.user.display_name,
                         :email => attempt.user.email,
-                        :device => attempt.acknowledged_alert_device_type || "",
-                        :response => attempt.call_down_response ? alert.call_down_messages[attempt.call_down_response] : attempt.call_down_response === 0 ? "Acknowledged" : "",
+                        :device => attempt.acknowledged_alert_device_type ? attempt.acknowledged_alert_device_type.device : "",
+                        :response => attempt.call_down_response ? ( attempt.call_down_response == 0 ? "Acknowledged" : alert.call_down_messages[attempt.call_down_response.to_s] ) : "",
                         :acknowledged_at => attempt.acknowledged_at
                       }
                   end, :total => alert.alert_attempts.count } 
