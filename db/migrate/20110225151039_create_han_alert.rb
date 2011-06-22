@@ -83,6 +83,10 @@ class CreateHanAlert < ActiveRecord::Migration
 
     CreateMTIFor(HanAlert)
     execute("UPDATE alerts SET alert_type = 'HanAlert'")
+    execute("UPDATE alert_attempts SET alert_type = 'HanAlert'");
+    execute("UPDATE targets SET item_type = 'HanAlert' WHERE item_type = 'Alert'");
+    execute("UPDATE alert_device_types SET alert_type = 'HanAlert'");
+    execute("UPDATE alert_ack_logs SET alert_type = 'HanAlert'");
   end
 
   def self.down
@@ -127,8 +131,9 @@ class CreateHanAlert < ActiveRecord::Migration
           short_message = han_alerts.short_message, message_recording_file_name = han_alerts.message_recording_file_name, message_recording_content_type = han_alerts.message_recording_content_type, \
           message_recording_file_size = han_alerts.message_recording_file_size, distribution_reference = han_alerts.distribution_reference, caller_id = han_alerts.caller_id, \
           ack_distribution_reference = han_alerts.ack_distribution_reference, distribution_id = han_alerts.distribution_id, reference = han_alerts.reference, sender_id = han_alerts.sender_id, \
-          call_down_messages = han_alerts.call_down_messages, not_cross_jurisdictional = han_alerts.not_cross_jurisdictional FROM (SELECT * FROM han_alerts WHERE alert_id=#{alert.id}) AS han_alerts WHERE id=#{alert.id}")
+          call_down_messages = han_alerts.call_down_messages, not_cross_jurisdictional = han_alerts.not_cross_jurisdictional, type = 'Alert' FROM (SELECT * FROM han_alerts WHERE alert_id=#{alert.id}) AS han_alerts WHERE id=#{alert.id}")
       end
+      execute("UPDATE targets SET item_type = 'Alert' WHERE item_type = 'HanAlert'");
     end
 
     DropMTIFor(HanAlert)
