@@ -392,9 +392,14 @@ class HanAlertsController < ApplicationController
 private
   def can_view_alert
     alert = HanAlert.find(params[:id])
+    jurs=current_user.alerting_jurisdictions.sort_by(&:lft)
+    jurs=jurs.map{|j1| jurs.detect{|j2| j2.is_ancestor_of?(j1)} || j1}.uniq
+    ors=jurs.map{|j| "(jurisdictions.lft >= #{j.lft} AND jurisdictions.lft <= #{j.rgt})"}.join(" OR ")
+    jurs=Jurisdiction.find(:all, :conditions => ors)
+
     unless !alert.nil? &&
         (alert.targets.map{|t| t.users.find_by_id(current_user.id)}.flatten.compact.present? ||
-          current_user.alerting_jurisdictions.map(&:id).include?(alert.from_jurisdiction.id))
+          jurs.map(&:id).include?(alert.from_jurisdiction.id))
       error = "That resource does not exist or you do not have access to it."
       if request.xhr?
         respond_to do |format|
