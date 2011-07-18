@@ -232,7 +232,7 @@ Feature: Viewing the HAN alert log
     When I am on the ext dashboard page
     And I navigate to "HAN > HAN Alerts"
     Then I should see "Alert Response"
-    When I click han_alert "Hello World"
+    When I click summary "Hello World"
     And I select "if you can respond within 15 minutes" from "Alert Response"
     And I press "Acknowledge"
     And I navigate to "HAN > Alert Log and Reporting"
