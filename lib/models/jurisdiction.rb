@@ -1,4 +1,5 @@
 require 'dispatcher'
+require 'cdc_exchange'
 
 module HAN
   module Jurisdiction
@@ -20,8 +21,9 @@ module HAN
     def deliver(alert)
       raise "#{self.name} is not foreign jurisdiction" unless foreign?
       cascade_alert = CascadeHanAlert.new(alert)
-      Dir.ensure_exists(Agency[:phin_ms_path])
-      File.open(File.join(Agency[:phin_ms_path], "#{cascade_alert.distribution_id}.edxl"), 'w') {|f| f.write cascade_alert.to_edxl }
+      #Dir.ensure_exists(Agency[:phin_ms_path])
+      #File.open(File.join(Agency[:phin_ms_path], "#{cascade_alert.distribution_id}.edxl"), 'w') {|f| f.write cascade_alert.to_edxl }
+      CDCExchange.new.send_alert(cascade_alert.to_edxl)
     end
 
      def to_dsml(builder=nil)

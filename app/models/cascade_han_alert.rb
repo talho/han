@@ -99,7 +99,7 @@ class CascadeHanAlert
                 end
                 
                 xml.ns1 :parameter do
-                  xml.ns1 :valueName, 'Level'
+                  xml.ns1 :valueName, 'JurisdictionLevel'
                   xml.ns1 :value, alert.jurisdiction_level
                 end
                 

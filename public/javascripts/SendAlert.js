@@ -212,7 +212,7 @@ Talho.SendAlert = Ext.extend(function(){}, {
             action.options.params['han_alert[audiences_attributes][1][jurisdiction_ids][]'] = audienceIds.jurisdiction_ids;
             action.options.params['han_alert[audiences_attributes][1][role_ids][]'] = audienceIds.role_ids;
             action.options.params['han_alert[audiences_attributes][1][user_ids][]'] = audienceIds.user_ids;
-            action.options.params['han_alert[audience_ids][]'] = audienceIds.group_ids;
+            action.options.params['han_alert[audiences_attributes][1][group_ids][]'] = audienceIds.group_ids;
         }
         return true;
     },

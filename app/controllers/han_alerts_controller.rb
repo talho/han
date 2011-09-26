@@ -330,7 +330,7 @@ class HanAlertsController < ApplicationController
     params2[:han_alert][:audiences_attributes][:"0"][:jurisdiction_ids] = params[:jurisdiction_ids]
     params2[:han_alert][:audiences_attributes][:"0"][:user_ids] = params[:user_ids]
     params2[:han_alert][:audiences_attributes][:"0"][:role_ids] = params[:role_ids]
-    params2[:han_alert][:audience_ids] = params[:group_ids]
+    params2[:han_alert][:audiences_attributes][:"0"][:group_ids] = params[:group_ids]
     params2[:han_alert][:from_jurisdiction_id] = params[:from_jurisdiction_id]
     params2[:han_alert][:not_cross_jurisdictional] = params[:not_cross_jurisdictional]
     params2[:han_alert][:severity] = "Minor"
