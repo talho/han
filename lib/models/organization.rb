@@ -1,5 +1,4 @@
 require 'dispatcher'
-require 'cdc_exchange'
 
 module HAN
   module Organization
@@ -12,9 +11,8 @@ module HAN
 
     def deliver(alert)
       raise 'not foreign' unless foreign?
-      cascade_alert = CascadeHanAlert.new(alert)
       #File.open(File.join(phin_ms_queue, "#{cascade_alert.distribution_id}.edxl"), 'w') {|f| f.write cascade_alert.to_edxl }
-      CDCExchange.new.send_alert(cascade_alert.to_edxl)
+      CDCFileExchange.new.send_alert(alert)
     end
   end
 
