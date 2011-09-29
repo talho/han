@@ -12,7 +12,11 @@ module HAN
     def deliver(alert)
       raise 'not foreign' unless foreign?
       #File.open(File.join(phin_ms_queue, "#{cascade_alert.distribution_id}.edxl"), 'w') {|f| f.write cascade_alert.to_edxl }
-      CDCFileExchange.new.send_alert(alert)
+      begin
+        CDCFileExchange.new.send_alert(alert)
+      rescue
+        # swallow exception for now. the file exchange logs
+      end
     end
   end
 

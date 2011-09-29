@@ -28,21 +28,20 @@ module HAN
     def refresh_recipients_with_han(options = {}, &block)
       refresh_recipients_without_han(options) do
         target = ::Target.find_by_audience_id(self.id)
-        if target && target.item.class.to_s == "HanAlert"
+        if (target && target.item.class.to_s == "HanAlert") || options[:from_jurisdiction]
           primary_audience_jurisdictions = determine_primary_audience_jurisdictions # determine primary audience is keyed off of from jurisdiction, which isn't something in the base alert. Wrap to ensure it only happens in HanAlert
-          (update_han_coordinators_recipients(primary_audience_jurisdictions) ? true : raise(ActiveRecord::Rollback))
+          (update_han_coordinators_recipients(primary_audience_jurisdictions, target && target.item.class.to_s == "HanAlert" ? target.item.from_jurisdiction : options[:from_jurisdiction]) ? true : raise(ActiveRecord::Rollback))
         end 
       end
     end
 
-    def  update_han_coordinators_recipients(jurs)
-      alert = ::Target.find_by_audience_id(self.id).item
-      unless (jurs == [alert.from_jurisdiction] || jurs.blank? )           # only sending within the originating jurisdiction? no need for coordinators to be notified
-        unless ( jurs.include?(alert.from_jurisdiction)) then    # otherwise we need to include the originating jurisdiction for the calculations to work properly.
-          jurs << alert.from_jurisdiction if alert.from_jurisdiction
+    def  update_han_coordinators_recipients(jurs, from_jurisdiction)
+      unless (jurs == [from_jurisdiction] || jurs.blank? )           # only sending within the originating jurisdiction? no need for coordinators to be notified
+        unless ( jurs.include?(from_jurisdiction)) then    # otherwise we need to include the originating jurisdiction for the calculations to work properly.
+          jurs << from_jurisdiction if from_jurisdiction
         end
         # grab all jurisdictions we're sending to, plus the from jurisdiction and get their ancestors
-        jurs = if alert.from_jurisdiction.nil?
+        jurs = if from_jurisdiction.nil?
           jurs.map(&:self_and_ancestors).flatten.uniq - (::Jurisdiction.federal)
         else
           selves_and_ancestors =  jurs.flatten.compact.uniq.map(&:self_and_ancestors)

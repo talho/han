@@ -378,16 +378,17 @@ class HanAlert < Alert
     end
   end
 
-  def preview_recipients_size(params)
+  def self.preview_recipients_size(params)
     temp_recipients_size = nil
     if ( params["action"] == "update" || params["action"] == "cancel")
       original_alert = HanAlert.find_by_id(params[:id])
       temp_recipients_size = original_alert.targets.first.users.size
     else
       ActiveRecord::Base.transaction do
-        temp_alert = HanAlert.new(params[:han_alert])
-        temp_alert.save!
-        temp_recipients_size = temp_alert.recipients({:force => true}).size
+        temp_aud = Audience.create(params[:audience])
+        params[:not_cross_jurisdictional] == '1' ? temp_aud.refresh_recipients : 
+          temp_aud.refresh_recipients_with_han( :force => true, :from_jurisdiction => Jurisdiction.find_by_id(params[:from_jurisdiction]) )
+        temp_recipients_size = temp_aud.recipients.size
         raise ActiveRecord::Rollback
       end
     end

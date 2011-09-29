@@ -317,28 +317,12 @@ class HanAlertsController < ApplicationController
 
   def calculate_recipient_count
     # TODO: is there a smarter way to build up a dummy alert with received data?  This works but it makes me cringe. --Andrew
-    params2 = HashWithIndifferentAccess.new
-    params2[:han_alert] = HashWithIndifferentAccess.new
-    params2[:han_alert][:title] = "DUMMY TITLE"
-    params2[:han_alert][:message] = "DUMMY MESSAGE"
-    params2[:han_alert][:short_message] = "DUMMY SHORT MESSAGE"
-    params2[:han_alert][:caller_id] = "0000000000"
-    params2[:han_alert][:call_down_messages] = {}
-    params2[:han_alert][:author_id] = current_user.id
-    params2[:han_alert][:audiences_attributes] = HashWithIndifferentAccess.new
-    params2[:han_alert][:audiences_attributes][:"0"] = HashWithIndifferentAccess.new
-    params2[:han_alert][:audiences_attributes][:"0"][:jurisdiction_ids] = params[:jurisdiction_ids]
-    params2[:han_alert][:audiences_attributes][:"0"][:user_ids] = params[:user_ids]
-    params2[:han_alert][:audiences_attributes][:"0"][:role_ids] = params[:role_ids]
-    params2[:han_alert][:audiences_attributes][:"0"][:group_ids] = params[:group_ids]
-    params2[:han_alert][:from_jurisdiction_id] = params[:from_jurisdiction_id]
-    params2[:han_alert][:not_cross_jurisdictional] = params[:not_cross_jurisdictional]
-    params2[:han_alert][:severity] = "Minor"
-    params2[:han_alert][:status] = "Test"
-    params2[:han_alert][:delivery_time] = 4320
-    @alert = present HanAlert.new_with_defaults
+    parms = { :audience => {:jurisdiction_ids => params[:jurisdiction_ids], :user_ids => params[:user_ids], 
+              :role_ids => params[:role_ids], :group_ids => params[:group_ids]},
+              :not_cross_jurisdictional => params[:not_cross_jurisdictional],
+              :from_jurisdiction_id => params[:from_jurisdiction_id]}
     respond_to do |format|
-        format.json { render :json => @alert.preview_recipients_size(params2) }
+        format.json { render :json => HanAlert.preview_recipients_size(parms) }
     end
   end
 

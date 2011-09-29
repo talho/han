@@ -21,7 +21,11 @@ module HAN
       raise "#{self.name} is not foreign jurisdiction" unless foreign?
       #Dir.ensure_exists(Agency[:phin_ms_path])
       #File.open(File.join(Agency[:phin_ms_path], "#{cascade_alert.distribution_id}.edxl"), 'w') {|f| f.write cascade_alert.to_edxl }
-      CDCFileExchange.new.send_alert(alert)
+      begin
+        CDCFileExchange.new.send_alert(alert)
+      rescue
+        # swallow exception for now. the file exchange logs
+      end
     end
 
      def to_dsml(builder=nil)
