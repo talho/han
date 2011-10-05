@@ -55,7 +55,7 @@ class CDCFileExchange
   def get_destinations_for_alert
     begin
       @client.request :tns, :get_destinations do |soap|
-        soap.body = {:arg0 => 'CascadeAlerting_alert'}
+        soap.body = {:arg0 => {:item => 'CascadeAlerting_alert'} }
       end
     rescue Exception => e
       logger.error "Could not find alert destinations. Server returned error \"#{e.to_hash[:fault][:faultstring]}\""#log this exception
@@ -117,12 +117,8 @@ class CDCFileExchange
     zeroed_pages = ret[:page_size].to_i != 0 ? ret[:result_size].to_i / ret[:page_size].to_i : 0
     alerts = []
     0.upto(zeroed_pages) do |i| 
+      alerts += ret[:results]
       ret[:results].each do |result|
-        begin
-          alerts << receive_alert(result[:id])[:receive_response][:return]
-        rescue
-          next # move on to processing the next message. This one will be there next time through.
-        end
         #mark_alert_read(result[:id])
       end
       begin
@@ -137,6 +133,25 @@ class CDCFileExchange
   
   private
   def get_receivers(cascade_han_alert)
-    [{:id => 33}, {:id => 34}]
+    all_destinations = get_destinations_for_alert.to_hash[:get_destinations_response][:return][:item]
+    foreign_jurisdictions = cascade_han_alert.alert.audiences.first.foreign_jurisdictions
+    recipients = []
+    foreign_jurisdictions.each do |j|
+      # try matching fips number
+      d = all_destinations.select {|d| d[:fips] == j.fips_code}.first
+      # try matching jurisdiction name
+      if d.nil?
+        d = all_destinations.select {|d| d[:name] =~ Regexp.new(j.name) || d[:oid] =~ Regexp.new(j.name) }.first
+      end
+      
+      if d
+        recipients << d
+        foreign_jurisdictions.delete j
+      end
+    end
+    # send to everyone?
+    recipients = all_destinations unless foreign_jurisdictions.blank?
+    
+    recipients.map { |r| {:id => r[:id] } }
   end
 end

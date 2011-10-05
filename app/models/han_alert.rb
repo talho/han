@@ -227,9 +227,10 @@ class HanAlert < Alert
   def batch_deliver
     super do
       audiences(true).each do |audience|
-        audience.foreign_jurisdictions.each do |jurisdiction|
-          alert_attempts.create!(:jurisdiction => jurisdiction).batch_deliver
+        aas = audience.foreign_jurisdictions.map do |jurisdiction|
+          alert_attempts.create!(:jurisdiction => jurisdiction)
         end
+        aas.first.batch_deliver unless aas.blank?
       end
     end
   end
@@ -386,9 +387,8 @@ class HanAlert < Alert
     else
       ActiveRecord::Base.transaction do
         temp_aud = Audience.create(params[:audience])
-        params[:not_cross_jurisdictional] == '1' ? temp_aud.refresh_recipients : 
-          temp_aud.refresh_recipients_with_han( :force => true, :from_jurisdiction => Jurisdiction.find_by_id(params[:from_jurisdiction]) )
-        temp_recipients_size = temp_aud.recipients.size
+        temp_aud.refresh_recipients( :force => true, :from_jurisdiction => Jurisdiction.find_by_id(params[:from_jurisdiction_id]) )
+        temp_recipients_size = params[:not_cross_jurisdictional] == '1' ? temp_aud.recipients.size : temp_aud.recipients.with_hacc.size
         raise ActiveRecord::Rollback
       end
     end

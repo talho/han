@@ -316,7 +316,6 @@ class HanAlertsController < ApplicationController
   end
 
   def calculate_recipient_count
-    # TODO: is there a smarter way to build up a dummy alert with received data?  This works but it makes me cringe. --Andrew
     parms = { :audience => {:jurisdiction_ids => params[:jurisdiction_ids], :user_ids => params[:user_ids], 
               :role_ids => params[:role_ids], :group_ids => params[:group_ids]},
               :not_cross_jurisdictional => params[:not_cross_jurisdictional],
@@ -380,10 +379,16 @@ private
   def expire_log_entry(alert)
     expire_fragment(:controller => "alerts", :action => "index", :key => ['alert_log_entry', alert.id])
   end
+  
   def alerter_required
     unless current_user.alerter?
-      flash[:error] = "You do not have permission to send an alert."
-      redirect_to root_path
+      respond_to do |format|
+        format.json {render :json => {:message => "You do not have permission to send an alert."}, :status => 400}
+        format.html do
+          flash[:error] = "You do not have permission to send an alert."
+          redirect_to root_path
+        end
+      end
     end
   end
 

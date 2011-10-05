@@ -205,7 +205,7 @@ Then 'a HAN alert exists with:' do |table|
     when 'people'
       value.split(",").each do |user|
         first_name, last_name = user.split(" ")
-        alert.audiences.map(&:users).flatten.should include(User.find_by_first_name_and_last_name(first_name, last_name))
+        alert.recipients.should include(User.find_by_first_name_and_last_name(first_name, last_name))
       end
     when 'call_down_messages'
 

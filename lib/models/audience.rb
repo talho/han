@@ -30,7 +30,8 @@ module HAN
         target = ::Target.find_by_audience_id(self.id)
         if (target && target.item.class.to_s == "HanAlert") || options[:from_jurisdiction]
           primary_audience_jurisdictions = determine_primary_audience_jurisdictions # determine primary audience is keyed off of from jurisdiction, which isn't something in the base alert. Wrap to ensure it only happens in HanAlert
-          (update_han_coordinators_recipients(primary_audience_jurisdictions, target && target.item.class.to_s == "HanAlert" ? target.item.from_jurisdiction : options[:from_jurisdiction]) ? true : raise(ActiveRecord::Rollback))
+          jur = target && target.item.class.to_s == "HanAlert" ? target.item.from_jurisdiction : options[:from_jurisdiction]
+          (update_han_coordinators_recipients(primary_audience_jurisdictions, jur) ? true : raise(ActiveRecord::Rollback))
         end 
       end
     end
@@ -55,7 +56,6 @@ module HAN
           # So we grab the lowest common ancestor; ancestry at the lowest level
           ((unioned - intersected) + [intersected.max{|x, y| x.level <=> y.level }]).compact
         end
-
         db = ActiveRecord::Base.connection()
         sql = "INSERT INTO audiences_recipients (audience_id, user_id, is_hacc)"
         sql += " SELECT DISTINCT #{id}, rm.user_id, true FROM role_memberships AS rm LEFT OUTER JOIN audiences_recipients AS ar ON ar.user_id = rm.user_id AND ar.audience_id = #{id}"

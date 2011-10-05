@@ -11,22 +11,22 @@ module HAN
     end
 
     module ClassMethods
+      def deliver(alert)
+        raise "#{alert.title} has no foreign jurisdiction" if alert.audiences.first.foreign_jurisdictions.blank?
+        #Dir.ensure_exists(Agency[:phin_ms_path])
+        #File.open(File.join(Agency[:phin_ms_path], "#{cascade_alert.distribution_id}.edxl"), 'w') {|f| f.write cascade_alert.to_edxl }
+        begin
+          CDCFileExchange.new.send_alert(alert)
+        rescue
+          # swallow exception for now. the file exchange logs
+        end
+      end
     end
 
     def han_coordinators
       users.with_role(::Role.han_coordinator)
     end
 
-    def deliver(alert)
-      raise "#{self.name} is not foreign jurisdiction" unless foreign?
-      #Dir.ensure_exists(Agency[:phin_ms_path])
-      #File.open(File.join(Agency[:phin_ms_path], "#{cascade_alert.distribution_id}.edxl"), 'w') {|f| f.write cascade_alert.to_edxl }
-      begin
-        CDCFileExchange.new.send_alert(alert)
-      rescue
-        # swallow exception for now. the file exchange logs
-      end
-    end
 
      def to_dsml(builder=nil)
       builder=Builder::XmlMarkup.new( :indent => 2) if builder.nil?
