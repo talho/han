@@ -28,6 +28,12 @@ class CDCFileExchange
     end
     unless @config['ssl_cert'].blank?
       @client.http.auth.ssl.cert_file = @config['ssl_cert']
+      @client.http.auth.ssl.ca_cert_file = @config['ssl_ca_cert'] if @config['ssl_ca_cert']
+      @client.http.auth.ssl.ca_file = @config['ssl_ca_file'] if @config['ssl_ca_file'] 
+      @client.http.auth.ssl.ca_path = @config['ssl_ca_path'] if @config['ssl_ca_path']
+      @client.http.auth.ssl.cert_key_file = @config['ssl_key_file'] if @config['ssl_key_file']
+      @client.http.auth.ssl.cert_key_password = @config['ssl_pass'] unless @config['ssl_pass'].blank?
+      @client.http.auth.ssl.verify_mode = :peer
     end
   end
   
@@ -52,6 +58,17 @@ class CDCFileExchange
     end
   end
   
+  def send_alert_ack(alert, sender)
+    begin
+      @client.request :tns, :send do |soap|
+        soap.body = {:arg0 => {:activity => {:id => 6}, :receiver => sender, :name => alert.distribution_id, :payload_file => {:binary => Base64.encode64(alert.to_ack_edxl) } } }
+      end
+    rescue Exception => e
+      logger.error "Could not send alert ack #{alert.id} to sender #{sender[:name]} (id #{sender[:id]}). Server returned error \"#{e.to_hash[:fault][:faultstring]}\""#log this exception
+      raise e # pass it on out of this method for flow control
+    end
+  end
+  
   def get_destinations_for_alert
     begin
       @client.request :tns, :get_destinations do |soap|
@@ -66,8 +83,11 @@ class CDCFileExchange
   def find_incoming_alerts(page = 0)
     begin
       @client.request :tns, :query do |soap|
-        soap.body = {:arg0 => {:direction => 'RECEIVED', :page_number => page} }
+        soap.body = {:arg0 => {:direction => 'RECEIVED', :page_number => page, :payload_statuses => 'SENT'} }
       end
+    rescue OpenSSL::SSL::SSLError => e
+      logger.error "SSL Error #{e.to_s}"
+      raise e
     rescue Exception => e
       logger.error "Could not find incoming alerts. Server returned error \"#{e.to_hash[:fault][:faultstring]}\""#log this exception
       raise e # pass it on out of this method for flow control
@@ -119,7 +139,7 @@ class CDCFileExchange
     0.upto(zeroed_pages) do |i| 
       alerts += ret[:results]
       ret[:results].each do |result|
-        #mark_alert_read(result[:id])
+        mark_alert_read(result[:id])
       end
       begin
         ret = find_incoming_alerts(i + 1)[:query_response][:return] if i < zeroed_pages
@@ -138,7 +158,7 @@ class CDCFileExchange
     recipients = []
     foreign_jurisdictions.each do |j|
       # try matching fips number
-      d = all_destinations.select {|d| d[:fips] == j.fips_code}.first
+      d = all_destinations.select {|d| d[:fips].to_s == j.fips_code.to_s}.first unless j.fips_code.blank?
       # try matching jurisdiction name
       if d.nil?
         d = all_destinations.select {|d| d[:name] =~ Regexp.new(j.name) || d[:oid] =~ Regexp.new(j.name) }.first

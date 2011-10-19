@@ -1,8 +1,8 @@
 require File.join(Rails.root,"config","initializers","system")
 require File.join(Rails.root,"vendor","plugins","han","app","models","edxl","message")
 
-class PhinmsPickupWorker < BackgrounDRb::MetaWorker
-  set_worker_name :phinms_pickup_worker
+class PhinmsPickupWorker #< BackgrounDRb::MetaWorker
+  #set_worker_name :phinms_pickup_worker
 
   def create(args = nil)
   end
@@ -10,18 +10,23 @@ class PhinmsPickupWorker < BackgrounDRb::MetaWorker
   def check(args = nil)
     alerts = CDCFileExchange.new.receive_all_incoming_alerts
     alerts.each do |alert|
-      next unless alert[:payloadFile] && alert[:payloadFile][:binary]
-      xml = Base64.decode64(alert[:payloadFile][:binary])
-      if EDXL::MessageContainer.parse(xml).distribution_type == 'Ack'
-        PHINMS_RECEIVE_LOGGER.debug "Parsing acknowledgement"
-        ack=EDXL::AckMessage.parse(xml)
-        PHINMS_RECEIVE_LOGGER.debug "Acknowledgement parsed: #{alert[:name]}"
-      else
-        PHINMS_RECEIVE_LOGGER.debug "Parsing cascade message #{alert[:name]}"
-        msg=EDXL::Message.parse(xml)
-        PHINMS_RECEIVE_LOGGER.debug "Cascade Message Parsed: #{msg.distribution_id}"
+      next unless alert[:payload_file] && alert[:payload_file][:binary]
+      xml = Base64.decode64(alert[:payload_file][:binary])
+      begin
+        if EDXL::MessageContainer.parse(xml).distribution_type == 'Ack'
+          PHINMS_RECEIVE_LOGGER.debug "Parsing acknowledgement"
+          ack=EDXL::AckMessage.parse(xml)
+          PHINMS_RECEIVE_LOGGER.debug "Acknowledgement parsed: #{alert[:name]}"
+        else
+          PHINMS_RECEIVE_LOGGER.debug "Parsing cascade message #{alert[:name]}"
+          msg=EDXL::Message.parse(xml, {:sender => alert[:sender]})
+          PHINMS_RECEIVE_LOGGER.debug "Cascade Message Parsed: #{msg.distribution_id}"
+        end
+      rescue
+        next
       end
     end
+    true
     # if File.exist?(PHINMS_INCOMING)
       # phindir=Dir.new PHINMS_INCOMING
       # phindir.each do |file|

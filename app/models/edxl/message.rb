@@ -128,7 +128,7 @@ module EDXL
           
           message.fips_codes.each do |code|
             j = Jurisdiction.find_by_fips_code(code)
-            audience.jurisdictions << j if j
+            audience.jurisdictions << j if j && !j.foreign # we don't want to create and send foreign alerts here. that would cause alerts to be sent back out through the exchange
           end
           message.roles.each do |role|
             role = Role.find_by_name(role.strip)
@@ -151,10 +151,12 @@ module EDXL
           end
 
           a.alert_device_types << AlertDeviceType.create!(:device => 'Device::EmailDevice')
-          Dir.ensure_exists(File.join(Agency[:phin_ms_path]))
-
-          File.open(File.join(Agency[:phin_ms_path], "#{a.identifier}-ACK.edxl"), 'w' ) do |f|
-            f.write(a.to_ack_edxl)
+          
+          # TODO: Fix acknowledgement to use file exchange
+          begin
+            CDCFileExchange.new.send_alert_ack(a, options[:sender])
+          rescue
+            #swallow this error, ack is not required.
           end
         end
       end

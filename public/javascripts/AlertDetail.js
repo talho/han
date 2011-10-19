@@ -122,12 +122,14 @@ Talho.AlertDetail = Ext.extend(Ext.Panel, {
         var acknowledgements = [];
         // let's go ahead and rewrite the alert attempts to something that works better for us
         Ext.each(alert_json.alert_attempts, function(attempt, index){
-            acknowledgements.push({name: attempt.user.display_name,
-                email: attempt.user.email,
-                device: attempt.acknowledged_alert_device_type ? attempt.acknowledged_alert_device_type.device : "",
-                response: attempt.call_down_response ? alert_json.alert.call_down_messages[attempt.call_down_response.toString()] : attempt.call_down_response === 0 ? "Acknowledged" : "",
-                acknowledged_at: attempt.acknowledged_at
-            });
+            if(attempt.user){
+              acknowledgements.push({name: attempt.user.display_name,
+                  email: attempt.user.email,
+                  device: attempt.acknowledged_alert_device_type ? attempt.acknowledged_alert_device_type.device : "",
+                  response: attempt.call_down_response ? alert_json.alert.call_down_messages[attempt.call_down_response.toString()] : attempt.call_down_response === 0 ? "Acknowledged" : "",
+                  acknowledged_at: attempt.acknowledged_at
+              });
+            }
         }, this);
 
         this.acknowledgement_store.loadData(acknowledgements);
@@ -172,7 +174,7 @@ Talho.AlertDetail = Ext.extend(Ext.Panel, {
                 leftPane.getComponent('alert_author').update(data['han_alert[author]']);
                 leftPane.getComponent('alert_author').show();
             }
-            if(data['han_alert[recipient_count]']){
+            if(!Ext.isEmpty(data['han_alert[recipient_count]'])){
                this.updateRecipientCount(data['han_alert[recipient_count]'], leftPane.getComponent('alert_recipient_count'));
             } else {
               this.buttons[1].disable();
