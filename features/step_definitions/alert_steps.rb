@@ -99,10 +99,10 @@ end
 When /^PhinMS delivers the message: (.*)$/ do |filename|
   require 'edxl/message'
   xml = File.read("#{Rails.root}/spec/fixtures/#{filename}")
-  if(EDXL::MessageContainer.parse(xml).distribution_type == "Ack")
-    EDXL::AckMessage.parse(xml)
+  if(Edxl::MessageContainer.parse(xml).distribution_type == "Ack")
+    Edxl::AckMessage.parse(xml)
   else
-    EDXL::Message.parse(xml)
+    Edxl::Message.parse(xml)
   end
   
   When "delayed jobs are processed"
@@ -417,7 +417,7 @@ end
 
 Then /^the system acknowledgment for alert "([^\"]*)" should contain the following:$/ do |alert_identifier, table |
   ack=File.read(File.join(Agency[:phin_ms_path], "#{alert_identifier}-ACK.edxl"))
-  ack_msg=EDXL::AckMessage.parse(ack, :no_delivery => true)
+  ack_msg=Edxl::AckMessage.parse(ack, :no_delivery => true)
   table.raw.each do |row|
     ack_msg.send(row[0]).should == row[1]
   end

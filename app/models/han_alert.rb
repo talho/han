@@ -43,7 +43,7 @@
 #  not_cross_jurisdictional       :boolean(1)     default(true)
 #
 
-require 'ftools'
+require 'fileutils'
 
 class HanAlert < Alert
   acts_as_MTI
@@ -249,7 +249,7 @@ class HanAlert < Alert
       new_file_name = "#{RAILS_ROOT}/message_recordings/#{id}.wav"
     end
     if File.exists?(original_file_name)
-      File.move(original_file_name, new_file_name)
+      FileUtils.move(original_file_name, new_file_name)
       m = self
       m.message_recording = File.open(new_file_name)
       m.message_recording.save
@@ -453,7 +453,7 @@ class HanAlert < Alert
           end unless self.caller_id.blank?
 
           delivery.Providers do |providers|
-            (self.alert_device_types.map{|device| device.device_type.display_name} & Service::SWN::Message::SUPPORTED_DEVICES.keys).each do |device|
+            (self.alert_device_types.map{|device| device.device_type.display_name} & Service::Swn::Message::SUPPORTED_DEVICES.keys).each do |device|
               email = YAML.load(IO.read(RAILS_ROOT+"/config/email.yml"))[RAILS_ENV] if device == 'E-mail'
               device_options = {:name => email.nil? ? 'swn' : email["alert"].to_s.downcase, :device => device}
               if self.acknowledge?
