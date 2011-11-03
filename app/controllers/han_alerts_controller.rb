@@ -251,7 +251,6 @@ class HanAlertsController < ApplicationController
   end
 
   def acknowledge
-    debugger
     alert_attempt = current_user.alert_attempts.find_by_alert_id(params[:id])
     respond_to do |format|
       if alert_attempt.nil? || alert_attempt.acknowledged?
@@ -300,7 +299,6 @@ class HanAlertsController < ApplicationController
   end
 
   def token_acknowledge
-    debugger
     alert_attempt = AlertAttempt.find_by_alert_id_and_token(params[:id], params[:token])
     if alert_attempt.nil? || alert_attempt.acknowledged?
       flash[:error] = "Unable to acknowledge alert.  You may have already acknowledged the alert.

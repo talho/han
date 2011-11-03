@@ -158,10 +158,10 @@ module FeatureHelpers
         end
       end
 
+      attributes["call_down_messages"] = {} if attributes["call_down_messages"].nil?
       attributes.each do |key, value|
         if key =~ /alert_response_/
           response = key.split("_").last
-          attributes["call_down_messages"] = {} if attributes["call_down_messages"].nil?
           attributes["call_down_messages"][response] = value
           attributes.delete(key)
         end

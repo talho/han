@@ -16,21 +16,16 @@ Feature: Sending alerts to SMS devices
     And delayed jobs are processed
 
   Scenario: Sending alerts to SMS devices
-    # using legacy code because we have not updated user profile yet
     Given I am logged in as "keith.gaddis@example.com"
-    When I go to the edit profile page
-    And I follow "Add Device"
-    And I select "SMS" from "Device Type"
-    And I fill in "SMS" with "2105551212"
-    And I press "Save"
-    Then I should see "Profile information saved."
-    When I go to the edit profile page
-    Then I should see "2105551212"
-    And I should have a SMS device with the SMS number "2105551212"
+    When I navigate to "Keith Gaddis > Edit My Account"
+    And I press "Add device"
+    And I select "SMS" from ext combo "Device type"
+    And I fill in "Address / Number" with "2105551212"
+    And I press "Add"
+    And I press "Apply Changes"
     And I sign out
-    # end legacy code
-
-    Given I log in as "john.smith@example.com"
+    
+    Given I am logged in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
     And I navigate to "HAN > Send an Alert"

@@ -127,7 +127,7 @@ Talho.SendAlert = Ext.extend(function(){}, {
                         defaults: {name: 'han_alert[device_types][]'}, items:[
                         {boxLabel: 'E-mail', inputValue: 'Device::EmailDevice'},
                         {boxLabel: 'Phone', inputValue: 'Device::PhoneDevice', handler: this.handlePhoneTypeCheck, scope: this},
-                        {itemId: 'sms_communication_method', boxLabel: 'SMS', inputValue: 'Device::SMSDevice', handler: this.handlePhoneTypeCheck, scope: this},
+                        {itemId: 'sms_communication_method', boxLabel: 'SMS', inputValue: 'Device::SmsDevice', handler: this.handlePhoneTypeCheck, scope: this},
                         {boxLabel: 'Fax', disabled: true, inputValue: 'Device::FaxDevice'},
                         {itemId: 'blackberry_pin_communication_method', boxLabel: 'Blackberry PIN', inputValue: 'Device::BlackberryDevice', handler: this.handlePhoneTypeCheck, scope: this},
                         {xtype: 'hidden', value:'Device::ConsoleDevice'}
@@ -379,7 +379,7 @@ Talho.SendAlert = Ext.extend(function(){}, {
     handlePhoneTypeCheck: function(){
         var cbs = this.getSelectedCommunicationDevices();
         var caller_id = this.form_card.getComponent('right_side_form').getComponent('caller_id_field');
-        if(cbs.indexOf('Device::SMSDevice') != -1 || cbs.indexOf('Device::PhoneDevice') != -1) // We should be showing the "Caller ID" box
+        if(cbs.indexOf('Device::SmsDevice') != -1 || cbs.indexOf('Device::PhoneDevice') != -1) // We should be showing the "Caller ID" box
         {
             if(!this.form_card.getComponent('right_side_form').getComponent('caller_id_field'))
             {
@@ -396,7 +396,7 @@ Talho.SendAlert = Ext.extend(function(){}, {
 
     validateShortMessage: function(value){
         var cbs = this.getSelectedCommunicationDevices();
-        if(Ext.isEmpty(value) && (cbs.indexOf('Device::SMSDevice') != -1 || cbs.indexOf('Device::BlackberryDevice') != -1))
+        if(Ext.isEmpty(value) && (cbs.indexOf('Device::SmsDevice') != -1 || cbs.indexOf('Device::BlackberryDevice') != -1))
         {
             return 'Short message is required to send via SMS or Blackberry Device';
         }
