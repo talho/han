@@ -1,8 +1,8 @@
 require File.join(Rails.root,"config","initializers","system")
 require File.join(Rails.root,"vendor","plugins","han","app","models","edxl","message")
 
-class PhinmsPickupWorker #< BackgrounDRb::MetaWorker
-  #set_worker_name :phinms_pickup_worker
+class PhinmsPickupWorker < BackgrounDRb::MetaWorker
+  set_worker_name :phinms_pickup_worker
 
   def create(args = nil)
   end
