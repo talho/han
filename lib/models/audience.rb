@@ -7,22 +7,19 @@ module HAN
 
       ::Audience.class_eval do
         alias_method_chain :refresh_recipients, :han
-
-        has_and_belongs_to_many :recipients_default, :join_table => 'audiences_recipients', :class_name => "User", :uniq => true, :conditions => ["audiences_recipients.is_hacc = ?", false] do
-          def with_hacc(options={})
-            options[:joins] = "JOIN \"audiences_recipients\" ON \"audiences_recipients\".user_id = \"users\".id"
-            options[:conditions] = "" if options[:conditions].blank?
-            options[:conditions] += " #{options[:conditions].blank? ? '' : 'AND'} audiences_recipients.audience_id = #{proxy_owner.id}"
-            ::User.send(:with_exclusive_scope) do
-              ::User.find(:all, options)
-              #scoped(options)
-            end
-          end
-        end
+        
+        has_many :recipients_default, :through => :audiences_recipients, :class_name => "User", :source => :user, :uniq => true, :conditions => ["audiences_recipients.is_hacc = ?", false]
+        has_many :recipients_hidden_with_hacc, :through => :audiences_recipients, :class_name => "User", :source => :user, :uniq => true
       end
     end
 
     module ClassMethods
+    end
+
+    def recipients_with_hacc(options={})
+      refresh_recipients(options)
+      options.delete(:force)
+      recipients_hidden_with_hacc(true).scoped(options)
     end
 
     def refresh_recipients_with_han(options = {}, &block)

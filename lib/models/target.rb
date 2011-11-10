@@ -16,7 +16,7 @@ module HAN
         if item.not_cross_jurisdictional
           audience.recipients(:force => true, :select => "id").map(&:id)
         else
-          audience.recipients(:force => true).with_hacc(:select => "id").map(&:id)
+          audience.recipients_with_hacc(:force => true, :select => "id").map(&:id)
         end
       end
     end

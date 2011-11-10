@@ -92,10 +92,14 @@ class HanAlert < Alert
   after_save :set_sender_id
   after_save :set_distribution_reference
   after_save :set_reference
-  has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s } }
+  has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s }, :app => Proc.new { |x| x.app } }
 
   named_scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
 
+  def app
+    'phin'
+  end
+  
   def self.new_with_defaults(options={})
     defaults = {:delivery_time => 4320, :severity => 'Minor'}
     self.new(options.merge(defaults))
@@ -388,7 +392,7 @@ class HanAlert < Alert
       ActiveRecord::Base.transaction do
         temp_aud = Audience.create(params[:audience])
         temp_aud.refresh_recipients( :force => true, :from_jurisdiction => Jurisdiction.find_by_id(params[:from_jurisdiction_id]) )
-        temp_recipients_size = params[:not_cross_jurisdictional] == '1' ? temp_aud.recipients.size : temp_aud.recipients.with_hacc.size
+        temp_recipients_size = params[:not_cross_jurisdictional] == '1' ? temp_aud.recipients.size : temp_aud.recipients_with_hacc.size
         raise ActiveRecord::Rollback
       end
     end
