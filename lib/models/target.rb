@@ -14,9 +14,9 @@ module HAN
     save_snapshot_of_users_without_han do
       if item(true).class.to_s == 'HanAlert'
         if item(true).not_cross_jurisdictional
-          audience.recipients(:force => true, :select => "id").map(&:id)
+          audience.recipients.map(&:id)
         else
-          audience.recipients(:force => true).with_hacc(:select => "id").map(&:id)
+          audience.recipients.with_hacc(item.from_jurisdiction).map(&:id)
         end
       end
     end

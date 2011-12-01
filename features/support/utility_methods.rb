@@ -170,7 +170,7 @@ module FeatureHelpers
       audience = Audience.new(:jurisdictions => jurisdictions, :roles => roles, :users => users, :groups => gps)
       attributes["audiences"] = [audience]
       alert = Factory(:han_alert, attributes)
-      alert.reload.audiences.first.refresh_recipients(:force => true)
+      #alert.reload.audiences.first.refresh_recipients(:force => true)
     end
   end
 end

@@ -387,8 +387,8 @@ class HanAlert < Alert
     else
       ActiveRecord::Base.transaction do
         temp_aud = Audience.create(params[:audience])
-        temp_aud.refresh_recipients( :force => true, :from_jurisdiction => Jurisdiction.find_by_id(params[:from_jurisdiction_id]) )
-        temp_recipients_size = params[:not_cross_jurisdictional] == '1' ? temp_aud.recipients.size : temp_aud.recipients.with_hacc.size
+        #temp_aud.refresh_recipients( :force => true, :from_jurisdiction => Jurisdiction.find_by_id(params[:from_jurisdiction_id]) )
+        temp_recipients_size = params[:not_cross_jurisdictional] == '1' ? temp_aud.recipients.size : temp_aud.recipients.with_hacc(params[:from_jurisdiction_id]).size
         raise ActiveRecord::Rollback
       end
     end

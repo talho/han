@@ -34,7 +34,7 @@ Feature: Audit Log
     Then I should see 4 rows in grid "grid-version-results"
     And I click model-selector-list-item "Alert Attempts"
     And I click model-selector-list-item "Audiences"
-    Then I should see 4 rows in grid "grid-version-results"
+    Then I should see 1 rows in grid "grid-version-results"
     And I click model-selector-list-item "Audiences"
     And I click model-selector-list-item "Deliveries"
     Then I should see 2 rows in grid "grid-version-results"
