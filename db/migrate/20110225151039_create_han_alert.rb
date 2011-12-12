@@ -35,10 +35,12 @@ class CreateHanAlert < ActiveRecord::Migration
       t.index :alert_id
     end
 
-    rename_column(:alerts, :references, :alert_references)
-    add_column(:alert_attempts, :alert_type, :string)
-    add_column(:alert_ack_logs, :alert_type, :string)
-    add_column(:alert_device_types, :alert_type, :string)
+    if Alert.column_names.include?('references')
+      rename_column(:alerts, :references, :alert_references)
+      add_column(:alert_attempts, :alert_type, :string)
+      add_column(:alert_ack_logs, :alert_type, :string)
+      add_column(:alert_device_types, :alert_type, :string)
+    end
 
 
     ::Alert.find_in_batches(:select => "id") do |alerts|
@@ -82,7 +84,7 @@ class CreateHanAlert < ActiveRecord::Migration
     remove_column(:alerts, :not_cross_jurisdictional)
 
     CreateMTIFor(HanAlert)
-    execute("UPDATE alerts SET alert_type = 'HanAlert'")
+    execute("UPDATE alerts SET alert_type = 'HanAlert' WHEN alert_type IS NULL")
   end
 
   def self.down
