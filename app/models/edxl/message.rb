@@ -19,7 +19,7 @@
 
 =end
 
-module EDXL
+module Edxl
   class MessageContainer
     include HappyMapper
 
@@ -45,7 +45,7 @@ module EDXL
     element :distribution_type, String, :tag => "distributionType"
     element :distribution_reference, String, :tag => "distributionReference"
     element :combined_confidentiality, String, :tag => "combinedConfidentiality"
-    has_many :alerts, EDXL::Alert
+    has_many :alerts, Edxl::Alert
     has_many :roles, String, :deep => true, :tag => 'recipientRole/value'
     has_many :users, String, :deep => true, :tag => 'explicitAddressValue'
     

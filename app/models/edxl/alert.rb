@@ -44,7 +44,7 @@
 
 require 'happymapper'
 
-module EDXL
+module Edxl
   class Alert
     include HappyMapper
     namespace "urn:oasis:names:tc:emergency:cap:1.1"

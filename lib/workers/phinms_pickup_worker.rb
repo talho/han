@@ -1,8 +1,8 @@
 require File.join(Rails.root,"config","initializers","system")
 require File.join(Rails.root,"vendor","plugins","han","app","models","edxl","message")
 
-class PhinmsPickupWorker #< BackgrounDRb::MetaWorker
-  #set_worker_name :phinms_pickup_worker
+class PhinmsPickupWorker < BackgrounDRb::MetaWorker
+  set_worker_name :phinms_pickup_worker
 
   def create(args = nil)
   end
@@ -13,13 +13,13 @@ class PhinmsPickupWorker #< BackgrounDRb::MetaWorker
       next unless alert[:payload_file] && alert[:payload_file][:binary]
       xml = Base64.decode64(alert[:payload_file][:binary])
       begin
-        if EDXL::MessageContainer.parse(xml).distribution_type == 'Ack'
+        if Edxl::MessageContainer.parse(xml).distribution_type == 'Ack'
           PHINMS_RECEIVE_LOGGER.debug "Parsing acknowledgement"
-          ack=EDXL::AckMessage.parse(xml)
+          ack=Edxl::AckMessage.parse(xml)
           PHINMS_RECEIVE_LOGGER.debug "Acknowledgement parsed: #{alert[:name]}"
         else
           PHINMS_RECEIVE_LOGGER.debug "Parsing cascade message #{alert[:name]}"
-          msg=EDXL::Message.parse(xml, {:sender => alert[:sender]})
+          msg=Edxl::Message.parse(xml, {:sender => alert[:sender]})
           PHINMS_RECEIVE_LOGGER.debug "Cascade Message Parsed: #{msg.distribution_id}"
         end
       rescue
@@ -38,13 +38,13 @@ class PhinmsPickupWorker #< BackgrounDRb::MetaWorker
           # begin
             # unless filename.first == "."
               # xml= File.read(filename)
-              # if EDXL::MessageContainer.parse(xml).distribution_type == 'Ack'
+              # if Edxl::MessageContainer.parse(xml).distribution_type == 'Ack'
                 # PHINMS_RECEIVE_LOGGER.debug "Parsing acknowledgement"
-                # ack=EDXL::AckMessage.parse(xml)
+                # ack=Edxl::AckMessage.parse(xml)
                 # PHINMS_RECEIVE_LOGGER.debug "Acknowledgement parsed: #{filename}"
               # else
                 # PHINMS_RECEIVE_LOGGER.debug "Parsing cascade message #{xml}"
-                # msg=EDXL::Message.parse(xml)
+                # msg=Edxl::Message.parse(xml)
                 # PHINMS_RECEIVE_LOGGER.debug "Cascade Message Parsed: #{msg.distribution_id}"
               # end
               # File.mv( filename, archive_filename)

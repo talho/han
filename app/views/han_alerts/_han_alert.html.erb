@@ -86,8 +86,8 @@
       </tr>
       <% attempts.each do |attempt| %>
         <tr class="user" style="border-top: 1px lightgray solid;" >
-        <td class="name"><%= attempt.user.display_name %> </td>
-        <td class="email"><%= attempt.user.email %> </td>
+        <td class="name"><%= attempt.user ? attempt.user.display_name : attempt.jurisdiction ? attempt.jurisdiction.name : '' %> </td>
+        <td class="email"><%= attempt.user ? attempt.user.email : ''%> </td>
         <% if @alert.acknowledge  %>
           <td class="device_type"><%= attempt.acknowledged_alert_device_type.device.constantize.display_name unless attempt.acknowledged_alert_device_type.nil? %></td>
           <td class="alert_response"><%=

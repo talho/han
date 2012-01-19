@@ -100,7 +100,7 @@ Feature: Viewing the HAN alert log
       | short_message         | Hello World                                 |
       | acknowledge           | Yes                                         |
       | audiences             |                                             |
-      | communication methods | Email, SMS                                  |
+      | communication methods | Email, Sms                                  |
       | caller_id             | 1234567890                                  |
       | roles                 | Health Alert and Communications Coordinator |
       | jurisdictions         | Texas, Dallas County                        |

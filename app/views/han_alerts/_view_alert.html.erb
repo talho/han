@@ -1,4 +1,4 @@
-<% content_tag_for :li, alert do %>
+<% content_tag_for :li, alert, :class => 'han_alert' do %>
     <div class="summary">
       <p class="title">
         <span class="title <%= alert.severity.downcase %>"><%=h alert.title %></span>

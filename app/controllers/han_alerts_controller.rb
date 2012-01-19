@@ -1,9 +1,9 @@
-require 'ftools'
+require 'fileutils'
 
 class HanAlertsController < ApplicationController
   before_filter :alerter_required, :only => [:index, :new, :create, :edit, :update, :calculate_recipient_count]
   before_filter :can_view_alert, :only => [:show]
-  skip_before_filter :login_required, :only => [:token_acknowledge, :upload, :playback]
+  skip_before_filter :authenticate, :only => [:token_acknowledge, :upload, :playback]
   protect_from_forgery :except => [:upload, :playback]
 
   app_toolbar "han"
@@ -341,7 +341,7 @@ class HanAlertsController < ApplicationController
     end
 
     newpath = "#{RAILS_ROOT}/message_recordings/tmp/#{user.token}.wav"
-    File.copy(temp.path,newpath)
+    FileUtils.copy(temp.path,newpath)
     if(!File.exists?(newpath))
       render :upload_error, :layout => false
     end
@@ -351,7 +351,7 @@ class HanAlertsController < ApplicationController
   def playback
     filename = "#{RAILS_ROOT}/message_recordings/tmp/#{params[:token]}.wav"
     if File.exists?(filename)
-      @file = File.read(filename)
+      @file = File.open(filename)
     end
     response.headers["Content-Type"] = 'audio/x-wav'
     render :play, :layout => false

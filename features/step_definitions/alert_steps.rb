@@ -99,10 +99,10 @@ end
 When /^PhinMS delivers the message: (.*)$/ do |filename|
   require 'edxl/message'
   xml = File.read("#{Rails.root}/spec/fixtures/#{filename}")
-  if(EDXL::MessageContainer.parse(xml).distribution_type == "Ack")
-    EDXL::AckMessage.parse(xml)
+  if(Edxl::MessageContainer.parse(xml).distribution_type == "Ack")
+    Edxl::AckMessage.parse(xml)
   else
-    EDXL::Message.parse(xml)
+    Edxl::Message.parse(xml)
   end
   
   When "delayed jobs are processed"
@@ -412,12 +412,14 @@ When /^I re\-submit an update for "([^\"]*)"$/ do |title|
 end
 
 Then /^there should be an file "([^\"]*)" in the PhinMS queue$/ do | filename |
-  File.exist?(File.join(Agency[:phin_ms_path], filename)).should be_true
+  filename[/-ACK\.edxl/] = ''
+  CDCFileExchange.deliveries.index{|a| a.is_a?(String) ? a =~ Regexp.new(filename) : false}.should_not be_nil
 end
 
 Then /^the system acknowledgment for alert "([^\"]*)" should contain the following:$/ do |alert_identifier, table |
-  ack=File.read(File.join(Agency[:phin_ms_path], "#{alert_identifier}-ACK.edxl"))
-  ack_msg=EDXL::AckMessage.parse(ack, :no_delivery => true)
+  i = CDCFileExchange.deliveries.index{|a| a.is_a?(String) ? a =~ Regexp.new(alert_identifier) : false}
+  ack=CDCFileExchange.deliveries[i]
+  ack_msg=Edxl::AckMessage.parse(ack, :no_delivery => true)
   table.raw.each do |row|
     ack_msg.send(row[0]).should == row[1]
   end

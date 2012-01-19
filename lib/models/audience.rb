@@ -20,13 +20,12 @@ module HAN
              )
           end
         end
-    
       end
     end
 
     module ClassMethods
     end
-    
+
   end
 
   Dispatcher.to_prepare do

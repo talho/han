@@ -48,7 +48,7 @@ module FeatureHelpers
 
     def find_han_alert_email_via_SWN(email_address, table=nil)
       When "delayed jobs are processed"
-      Service::SWN::Message.deliveries.detect do |email|
+      Service::Swn::Message.deliveries.detect do |email|
         xml = Nokogiri::XML(email.body)
         status = false
         status ||= (xml.search('//swn:rcpts/swn:rcpt/swn:contactPnts/swn:contactPntInfo[@type="Email"]/swn:address',
@@ -158,10 +158,10 @@ module FeatureHelpers
         end
       end
 
+      attributes["call_down_messages"] = {} if attributes["call_down_messages"].nil?
       attributes.each do |key, value|
         if key =~ /alert_response_/
           response = key.split("_").last
-          attributes["call_down_messages"] = {} if attributes["call_down_messages"].nil?
           attributes["call_down_messages"][response] = value
           attributes.delete(key)
         end

@@ -7,33 +7,41 @@ class CDCFileExchange
     end
   end
   
+  if Rails.env == 'cucumber'
+    def self.deliveries
+      @deliveries ||= []
+    end
+  end
+  
   def initialize
-    # load environment/config data from configuration yml
-    @config = {}
-    begin
-      @config = YAML.load_file("#{Rails.root}/config/cascade.yml")[RAILS_ENV]
-    rescue
-    end
-    
-    url = @config['url']
-    @client = Savon::Client.new do
-      wsdl.document = url
-    end
-    
-    unless @config['uname'].blank? || @config['pass'].blank?
-      @client.http.auth.basic @config['uname'], @config['pass']
-    end
-    unless @config['org_key'].blank?
-      @client.http.headers["ORG-KEY"] = @config['org_key']
-    end
-    unless @config['ssl_cert'].blank?
-      @client.http.auth.ssl.cert_file = @config['ssl_cert']
-      @client.http.auth.ssl.ca_cert_file = @config['ssl_ca_cert'] if @config['ssl_ca_cert']
-      @client.http.auth.ssl.ca_file = @config['ssl_ca_file'] if @config['ssl_ca_file'] 
-      @client.http.auth.ssl.ca_path = @config['ssl_ca_path'] if @config['ssl_ca_path']
-      @client.http.auth.ssl.cert_key_file = @config['ssl_key_file'] if @config['ssl_key_file']
-      @client.http.auth.ssl.cert_key_password = @config['ssl_pass'] unless @config['ssl_pass'].blank?
-      @client.http.auth.ssl.verify_mode = :peer
+    unless Rails.env == 'cucumber'
+      # load environment/config data from configuration yml
+      @config = {}
+      begin
+        @config = YAML.load_file("#{Rails.root}/config/cascade.yml")[RAILS_ENV]
+      rescue
+      end
+      
+      url = @config['url']
+      @client = Savon::Client.new do
+        wsdl.document = url
+      end
+      
+      unless @config['uname'].blank? || @config['pass'].blank?
+        @client.http.auth.basic @config['uname'], @config['pass']
+      end
+      unless @config['org_key'].blank?
+        @client.http.headers["ORG-KEY"] = @config['org_key']
+      end
+      unless @config['ssl_cert'].blank?
+        @client.http.auth.ssl.cert_file = @config['ssl_cert']
+        @client.http.auth.ssl.ca_cert_file = @config['ssl_ca_cert'] if @config['ssl_ca_cert']
+        @client.http.auth.ssl.ca_file = @config['ssl_ca_file'] if @config['ssl_ca_file'] 
+        @client.http.auth.ssl.ca_path = @config['ssl_ca_path'] if @config['ssl_ca_path']
+        @client.http.auth.ssl.cert_key_file = @config['ssl_key_file'] if @config['ssl_key_file']
+        @client.http.auth.ssl.cert_key_password = @config['ssl_pass'] unless @config['ssl_pass'].blank?
+        @client.http.auth.ssl.verify_mode = :peer
+      end
     end
   end
   
@@ -49,8 +57,12 @@ class CDCFileExchange
     cascade = CascadeHanAlert.new(alert)
     receivers = get_receivers(cascade)
     begin
-      @client.request :tns, :send do |soap|
-        soap.body = {:arg0 => {:activity => {:id => 4}, :receiver => receivers, :name => alert.distribution_id, :payload_file => {:binary => Base64.encode64(cascade.to_edxl) } } }
+      if Rails.env != 'cucumber'
+        @client.request :tns, :send do |soap|
+          soap.body = {:arg0 => {:activity => {:id => 4}, :receiver => receivers, :name => alert.distribution_id, :payload_file => {:binary => Base64.encode64(cascade.to_edxl) } } }
+        end
+      else
+        CDCFileExchange.deliveries << cascade
       end
     rescue Exception => e
       logger.error "Could not send alert id #{alert.id}. Server returned error \"#{e.to_hash[:fault][:faultstring]}\""#log this exception
@@ -60,8 +72,12 @@ class CDCFileExchange
   
   def send_alert_ack(alert, sender)
     begin
-      @client.request :tns, :send do |soap|
-        soap.body = {:arg0 => {:activity => {:id => 6}, :receiver => sender, :name => alert.distribution_id, :payload_file => {:binary => Base64.encode64(alert.to_ack_edxl) } } }
+      if Rails.env != 'cucumber'
+        @client.request :tns, :send do |soap|
+          soap.body = {:arg0 => {:activity => {:id => 6}, :receiver => sender, :name => alert.distribution_id, :payload_file => {:binary => Base64.encode64(alert.to_ack_edxl) } } }
+        end
+      else
+        CDCFileExchange.deliveries << alert.to_ack_edxl
       end
     rescue Exception => e
       logger.error "Could not send alert ack #{alert.id} to sender #{sender[:name]} (id #{sender[:id]}). Server returned error \"#{e.to_hash[:fault][:faultstring]}\""#log this exception
