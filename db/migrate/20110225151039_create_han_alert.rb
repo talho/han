@@ -84,7 +84,7 @@ class CreateHanAlert < ActiveRecord::Migration
     remove_column(:alerts, :not_cross_jurisdictional)
 
     CreateMTIFor(HanAlert)
-    execute("UPDATE alerts SET alert_type = 'HanAlert' WHEN alert_type IS NULL")
+    execute("UPDATE alerts SET alert_type = 'HanAlert' WHERE alert_type IS NULL")
   end
 
   def self.down
