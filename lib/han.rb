@@ -36,7 +36,7 @@ $menu_config[:han] = <<EOF
     nav += ",{name: 'Send an Alert', tab:{id: 'new_han_alert', title:'Send Alert', url:'\#{ new_han_alert_path }', initializer: 'Talho.SendAlert'}},"
     nav += "{name: 'Alert Log and Reporting', tab:{id: 'han_alert_log', title:'Alert Log and Reporting', url:'\#{ han_alerts_path }', initializer: 'Talho.Alerts'}}"
   end
-  nav += "]},"
+  nav += "]}"
 EOF
 
 # Register any required javascript or stylesheet files with the appropriate
