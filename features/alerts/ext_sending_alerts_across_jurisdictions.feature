@@ -47,6 +47,7 @@ Feature: Sending alerts across jurisdictions
     And I click breadCrumbItem "Preview"
     And I wait for the audience calculation to finish
     And I press "Send Alert"
+    And I wait for 1 seconds
     Then the "Alert Log and Reporting" tab should be open
 
     And the following users should receive the HAN alert email:

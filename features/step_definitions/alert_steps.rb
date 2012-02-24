@@ -356,7 +356,7 @@ end
 
 Then /^the alert should be acknowledged$/ do
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
-  attempt.acknowledged_at.to_i.should be_close(Time.zone.now.to_i, 5000)
+  attempt.acknowledged_at.to_i.should be_within(5000).of(Time.zone.now.to_i)
 end
 
 Then /^the latest alert should be acknowledged$/ do    # Same as above, but without the should_be_close
