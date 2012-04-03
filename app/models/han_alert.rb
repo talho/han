@@ -47,7 +47,6 @@ require 'fileutils'
 
 class HanAlert < Alert
   acts_as_MTI
-  include ActionController::UrlWriter
   
   belongs_to :from_organization, :class_name => 'Organization'
   belongs_to :from_jurisdiction, :class_name => 'Jurisdiction'
@@ -56,9 +55,9 @@ class HanAlert < Alert
   has_one :cancellation, :class_name => 'HanAlert', :foreign_key => :original_alert_id, :conditions => ['message_type = ?', "Cancel"], :include => [:original_alert, :cancellation, :updates, :author, :from_jurisdiction]
   has_many :updates, :class_name => 'HanAlert', :foreign_key => :original_alert_id, :conditions => ['message_type = ?', "Update"], :include => [:original_alert, :cancellation, :updates, :author, :from_jurisdiction]
   has_many :ack_logs, :class_name => 'AlertAckLog', :foreign_key => :alert_id
-  has_many :recipients, :class_name => "User", :finder_sql => 'SELECT users.* FROM users, targets, targets_users WHERE targets.item_type=\'HanAlert\' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id'
+  has_many :recipients, :class_name => "User", :finder_sql => proc{"SELECT users.* FROM users, targets, targets_users WHERE targets.item_type='HanAlert' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id"}
 
-  named_scope :devices, {
+  scope :devices, {
       :select => "DISTINCT devices.type",
       :joins => "INNER JOIN alert_attempts ON view_han_alerts.id=alert_attempts.alert_id INNER JOIN deliveries ON deliveries.alert_attempt_id=alert_attempts.id INNER JOIN devices ON deliveries.device_id=devices.id",
       :conditions => "view_han_alerts.id=#{object_id}"
@@ -92,9 +91,11 @@ class HanAlert < Alert
   after_save :set_sender_id
   after_save :set_distribution_reference
   after_save :set_reference
+  after_initialize :do_after_initialize
+  
   has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s }, :app => Proc.new { |x| x.app } }
 
-  named_scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
+  scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
 
   def app
     'phin'
@@ -216,7 +217,7 @@ class HanAlert < Alert
     end.flatten.compact.uniq
   end
 
-  def after_initialize
+  def do_after_initialize
     self.acknowledge = true if acknowledge.nil?
   end
 
@@ -246,11 +247,11 @@ class HanAlert < Alert
   end
 
   def integrate_voice
-    original_file_name = "#{RAILS_ROOT}/message_recordings/tmp/#{self.author.token}.wav"
-    if RAILS_ENV == "test"
-      new_file_name = "#{RAILS_ROOT}/message_recordings/test/#{id}.wav"
+    original_file_name = "#{Rails.root.to_s}/message_recordings/tmp/#{self.author.token}.wav"
+    if Rails.env == "test"
+      new_file_name = "#{Rails.root.to_s}/message_recordings/test/#{id}.wav"
     else
-      new_file_name = "#{RAILS_ROOT}/message_recordings/#{id}.wav"
+      new_file_name = "#{Rails.root.to_s}/message_recordings/#{id}.wav"
     end
     if File.exists?(original_file_name)
       FileUtils.move(original_file_name, new_file_name)
@@ -457,7 +458,7 @@ class HanAlert < Alert
 
           delivery.Providers do |providers|
             (self.alert_device_types.map{|device| device.device_type.display_name} & Service::Swn::Message::SUPPORTED_DEVICES.keys).each do |device|
-              email = YAML.load(IO.read(RAILS_ROOT+"/config/email.yml"))[RAILS_ENV] if device == 'E-mail'
+              email = YAML.load(IO.read(Rails.root.to_s+"/config/email.yml"))[Rails.env] if device == 'E-mail'
               device_options = {:name => email.nil? ? 'swn' : email["alert"].to_s.downcase, :device => device}
               if self.acknowledge?
                 device_options[:ivr] = "alert_responses" if (device == "Phone" && self.sensitive) || (!self.sensitive)
@@ -485,7 +486,7 @@ class HanAlert < Alert
     default_url_options[:host] = HOST
     header = "The following is an alert from the Texas Public Health Information Network.\r\n\r\n"
     footer = ""
-    more = "... \r\n\r\nPlease visit the TXPhin website at #{url_for(:action => "hud", :controller => "dashboard")} to read the rest of this alert.\r\n\r\n"
+    more = "... \r\n\r\nPlease visit the TXPhin website at #{Rails.application.routes.url_helpers.url_for(:action => "hud", :controller => "dashboard")} to read the rest of this alert.\r\n\r\n"
     if self.acknowledge?
       header += "This alert requires acknowledgment.  Please follow the instructions below to acknowledge this alert.\r\n\r\n"
     end
@@ -494,7 +495,7 @@ class HanAlert < Alert
       footer += "Reference: #{self.original_alert_id}\r\n" unless self.original_alert_id.blank?
       footer += "Status: #{self.status}\r\n" unless self.status == "Actual"
       footer += "Sensitive: use secure means of retrieval\r\n\r\n"
-      footer += "Please visit #{url_for(:action => "hud", :controller => "dashboard", :escape => false, :only_path => false, :protocol => "https")} to securely view this alert.\r\n"
+      footer += "Please visit #{Rails.application.routes.url_helpers.url_for(:action => "hud", :controller => "dashboard", :escape => false, :only_path => false, :protocol => "https")} to securely view this alert.\r\n"
       output = header + footer
     else
       footer += "\r\n\r\nTitle: #{self.title}\r\n"

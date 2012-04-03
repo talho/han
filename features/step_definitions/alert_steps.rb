@@ -50,8 +50,8 @@ When /I acknowledge the phone message for "([^"]*)"(?: with "([^"]*)")?$/ do |ti
   al = HanAlert.find_by_title(title)
   aa = al.alert_attempts.find_by_user_id(u)
   if aa.nil?
-    aa = Factory(:alert_attempt, :alert => al, :user => u, :acknowledged_at => nil, :acknowledged_alert_device_type_id => AlertDeviceType.find_by_device("Device::PhoneDevice"))
-    del = Factory(:delivery, :alert_attempt => aa, :device => u.devices.phone.first)
+    aa = FactoryGirl.create(:alert_attempt, :alert => al, :user => u, :acknowledged_at => nil, :acknowledged_alert_device_type_id => AlertDeviceType.find_by_device("Device::PhoneDevice"))
+    del = FactoryGirl.create(:delivery, :alert_attempt => aa, :device => u.devices.phone.first)
   end
   unless ack.nil?
     aa.acknowledge! :ack_response => al.call_down_messages.index(ack)
@@ -82,7 +82,7 @@ Given /^(\d*) random HAN alerts$/ do |count|
   size=Jurisdiction.all.size
   count.to_i.times do
     j=Jurisdiction.find(rand(size)+1)
-    Factory(:han_alert, :from_jurisdiction => j)
+    FactoryGirl.create(:han_alert, :from_jurisdiction => j)
   end
 end
 
@@ -92,13 +92,13 @@ Given /^(\d*) random HAN alerts in (.*)$/ do |count, jurisdiction|
   size=jurisdiction.children.size
   count.to_i.times do
     j=jurisdiction.self_and_descendants[rand(size)]
-    Factory(:han_alert, :from_jurisdiction => j)
+    FactoryGirl.create(:han_alert, :from_jurisdiction => j)
   end
 end
 
 When /^PhinMS delivers the message: (.*)$/ do |filename|
   require 'edxl/message'
-  xml = File.read("#{Rails.root}/spec/fixtures/#{filename}")
+  xml = File.read("#{Rails.root.to_s}/spec/fixtures/#{filename}")
   if(Edxl::MessageContainer.parse(xml).distribution_type == "Ack")
     Edxl::AckMessage.parse(xml)
   else
@@ -144,7 +144,7 @@ When 'I follow the acknowledge HAN alert link "$title"' do |title|
 end
 
 When 'I send a message recording "$filename"' do |filename|
-  File.new("#{RAILS_ROOT}/message_recordings/tmp/#{current_user.token}.wav","w").close
+  File.new("#{Rails.root.to_s}/message_recordings/tmp/#{current_user.token}.wav","w").close
 end
 
 Then 'I should see a preview of the message' do

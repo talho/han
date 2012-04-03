@@ -3,7 +3,7 @@ require 'fileutils'
 class HanAlertsController < ApplicationController
   before_filter :alerter_required, :only => [:index, :new, :create, :edit, :update, :calculate_recipient_count]
   before_filter :can_view_alert, :only => [:show]
-  skip_before_filter :authenticate, :only => [:token_acknowledge, :upload, :playback]
+  skip_before_filter :authorize, :only => [:token_acknowledge, :upload, :playback]
   protect_from_forgery :except => [:upload, :playback]
 
   app_toolbar "han"
@@ -340,7 +340,7 @@ class HanAlertsController < ApplicationController
       render :upload_error, :layout => false
     end
 
-    newpath = "#{RAILS_ROOT}/message_recordings/tmp/#{user.token}.wav"
+    newpath = "#{Rails.root.to_s}/message_recordings/tmp/#{user.token}.wav"
     FileUtils.copy(temp.path,newpath)
     if(!File.exists?(newpath))
       render :upload_error, :layout => false
@@ -349,7 +349,7 @@ class HanAlertsController < ApplicationController
   end
 
   def playback
-    filename = "#{RAILS_ROOT}/message_recordings/tmp/#{params[:token]}.wav"
+    filename = "#{Rails.root.to_s}/message_recordings/tmp/#{params[:token]}.wav"
     if File.exists?(filename)
       @file = File.open(filename)
     end

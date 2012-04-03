@@ -35,7 +35,7 @@ Then /^the following users should receive the HAN alert email:$/ do |table|
 
   recipients = headers.last.split(',').map{|u| User.find_by_email!(u.strip)} if headers.first == "People"
 
-  email = YAML.load(IO.read(RAILS_ROOT+"/config/email.yml"))[RAILS_ENV]
+  email = YAML.load(IO.read(Rails.root.to_s+"/config/email.yml"))[Rails.env]
   recipients.each do |user|
     if email["alert"] == "SWN"
       Then %Q{"#{user.email}" should receive the HAN alert email via SWN:}, table

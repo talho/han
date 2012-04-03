@@ -32,9 +32,10 @@ class CreateHanAlert < ActiveRecord::Migration
       t.string :sender_id
       t.text :call_down_messages
       t.boolean :not_cross_jurisdictional, :default => false
-      t.index :alert_id
     end
 
+    add_index :han_alerts, :alert_id
+    
     if Alert.column_names.include?('references')
       rename_column(:alerts, :references, :alert_references)
       add_column(:alert_attempts, :alert_type, :string)

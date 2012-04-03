@@ -1,4 +1,4 @@
-require 'dispatcher'
+require 'action_controller/deprecated/dispatcher'
 
 module HAN
   module Jurisdiction
@@ -61,7 +61,7 @@ module HAN
     end
   end
 
-  Dispatcher.to_prepare do
+  ActionController::Dispatcher.to_prepare do
     ::Jurisdiction.send(:include, HAN::Jurisdiction)
   end
 end

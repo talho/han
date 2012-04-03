@@ -1,4 +1,4 @@
-require 'dispatcher'
+require 'action_controller/deprecated/dispatcher'
 
 module HAN
   module User
@@ -28,7 +28,7 @@ module HAN
     end
   end
 
-  Dispatcher.to_prepare do
+  ActionController::Dispatcher.to_prepare do
     ::User.send(:include, HAN::User)
   end
 end

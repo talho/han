@@ -1,4 +1,4 @@
-require 'dispatcher'
+require 'action_controller/deprecated/dispatcher'
 
 module HAN
   module Role
@@ -15,7 +15,7 @@ module HAN
     end
   end
 
-  Dispatcher.to_prepare do
+  ActionController::Dispatcher.to_prepare do
     ::Role.send(:include, HAN::Role)
   end
 end

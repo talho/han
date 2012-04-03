@@ -169,7 +169,7 @@ module FeatureHelpers
 
       audience = Audience.new(:jurisdictions => jurisdictions, :roles => roles, :users => users, :groups => gps)
       attributes["audiences"] = [audience]
-      alert = Factory(:han_alert, attributes)
+      alert = FactoryGirl.create(:han_alert, attributes)
     end
   end
 end

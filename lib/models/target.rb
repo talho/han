@@ -1,4 +1,4 @@
-require 'dispatcher'
+require 'action_controller/deprecated/dispatcher'
 
 module HAN
   module Target
@@ -26,7 +26,7 @@ module HAN
     end
   end
 
-  Dispatcher.to_prepare do
+  ActionController::Dispatcher.to_prepare do
     ::Target.send(:include, HAN::Target)
   end
 end
