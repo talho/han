@@ -21,6 +21,12 @@ end
 # Load view helpers
 ActionView::Base.send :include, HanAlertsHelper
 
+# Load model overrides
+::Jurisdiction.send(:include, HAN::Jurisdiction)
+::Role.send(:include, HAN::Role)
+::Target.send(:include, HAN::Target)
+::Audience.send(:include, HAN::Audience)
+
 # Require any submodule dependencies here
 # For example, if this depended on open_flash_chart you would require init.rb as follows:
 #   require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'open_flash_chart', 'init.rb')

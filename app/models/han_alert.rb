@@ -47,7 +47,7 @@ require 'fileutils'
 
 class HanAlert < Alert
   acts_as_MTI
-  
+
   belongs_to :from_organization, :class_name => 'Organization'
   belongs_to :from_jurisdiction, :class_name => 'Jurisdiction'
   belongs_to :original_alert, :class_name => 'HanAlert'
@@ -86,11 +86,7 @@ class HanAlert < Alert
   before_create :set_message_type
   before_create :set_acknowledgment
   before_save :set_jurisdiction_level
-  after_save :set_identifier
-  after_save :set_distribution_id
-  after_save :set_sender_id
-  after_save :set_distribution_reference
-  after_save :set_reference
+  after_create :set_identifiers
   after_initialize :do_after_initialize
   
   has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s }, :app => Proc.new { |x| x.app } }
@@ -124,7 +120,17 @@ class HanAlert < Alert
       Time.now.to_i > (created_at.to_i + ((delivery_time + ExpirationGracePeriod) * 60) )
     end
   end
+  
+  def acknowledged_by_user?(user)
+    if attempt = self.alert_attempts.find_by_user_id(user)
+      attempt.acknowledged?
+    end
+  end
 
+  def ask_for_acknowledgement?(user)
+    self.acknowledge? && !self.new_record? && !acknowledged_by_user?(user)
+  end
+  
   def build_cancellation(attrs={})
     attrs = attrs.stringify_keys
     changeable_fields = ["message", "severity", "sensitive", "acknowledge", "delivery_time", "not_cross_jurisdictional","call_down_messages","short_message"]
@@ -483,10 +489,10 @@ class HanAlert < Alert
   end
 
   def construct_email_message
-    default_url_options[:host] = HOST
+    Rails.application.routes.default_url_options[:host] = HOST
     header = "The following is an alert from the Texas Public Health Information Network.\r\n\r\n"
     footer = ""
-    more = "... \r\n\r\nPlease visit the TXPhin website at #{Rails.application.routes.url_helpers.url_for(:action => "hud", :controller => "dashboard")} to read the rest of this alert.\r\n\r\n"
+    more = "... \r\n\r\nPlease visit the TXPhin website at #{Rails.application.routes.url_helpers.hud_url} to read the rest of this alert.\r\n\r\n"
     if self.acknowledge?
       header += "This alert requires acknowledgment.  Please follow the instructions below to acknowledge this alert.\r\n\r\n"
     end
@@ -537,39 +543,23 @@ class HanAlert < Alert
     self.message_type = MessageTypes[:alert] if self.message_type.blank?
   end
 
-  def set_identifier
+  def set_identifiers
     if identifier.nil?
       write_attribute(:identifier, "#{Agency[:agency_abbreviation]}-#{Time.zone.now.strftime("%Y")}-#{id}")
-      self.save!
     end
-  end
-
-  def set_distribution_id
     if distribution_id.nil? || (!original_alert.nil? && distribution_id == original_alert.distribution_id)
       write_attribute(:distribution_id, "#{Agency[:agency_abbreviation]}-#{created_at.strftime("%Y")}-#{id}")
-      self.save!
     end
-  end
-
-  def set_sender_id
     if sender_id.nil?
       write_attribute(:sender_id, "#{Agency[:agency_identifier]}@#{Agency[:agency_domain]}")
-      self.save!
     end
-  end
-
-  def set_distribution_reference
     if !original_alert.nil? && distribution_reference.nil?
       write_attribute(:distribution_reference, "#{original_alert.distribution_id},#{sender_id},#{original_alert.sent_at.utc.iso8601(3)}")
-      self.save!
     end
-  end
-
-  def set_reference
     if !original_alert.nil? && reference.nil?
       write_attribute(:reference, "#{Agency[:agency_identifier]},#{original_alert.distribution_id},#{original_alert.sent_at.utc.iso8601(3)}")
-      self.save!
     end
+    self.save!
   end
 
   def set_acknowledgment
@@ -609,4 +599,5 @@ class HanAlert < Alert
   def verify_audiences_not_empty
     errors.add_to_base("The audience must have a least one role, jurisdiction, or user specified.") unless audiences.length > 0
   end
+
 end

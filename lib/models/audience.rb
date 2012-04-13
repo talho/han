@@ -1,5 +1,3 @@
-require 'action_controller/deprecated/dispatcher'
-
 module HAN
   module Audience
     def self.included(base)
@@ -26,9 +24,5 @@ module HAN
     module ClassMethods
     end
 
-  end
-
-  ActionController::Dispatcher.to_prepare do
-    ::Audience.send(:include, HAN::Audience)
   end
 end

@@ -9,12 +9,12 @@ class HanAlertsController < ApplicationController
   app_toolbar "han"
 
   def index
-    @alerts = present_collection current_user.han_alerts_within_jurisdictions(params[:page])
+    @alerts = current_user.han_alerts_within_jurisdictions(params[:page])
   end
 
   def show
     alert = HanAlert.find(params[:id])
-    @alert = present alert
+    @alert = alert
     respond_to do |format|
       format.html
       format.pdf do
@@ -53,7 +53,7 @@ class HanAlertsController < ApplicationController
   end
 
   def new
-    @alert = present HanAlert.new_with_defaults
+    @alert = HanAlert.new_with_defaults
     @acknowledge_options = HanAlert::Acknowledgement
   end
 
@@ -61,7 +61,7 @@ class HanAlertsController < ApplicationController
     remove_blank_call_downs unless params[:han_alert][:call_down_messages].nil?
     set_acknowledge
     params[:han_alert][:author_id] = current_user.id
-    @alert = present HanAlert.new(params[:han_alert])
+    @alert = HanAlert.new(params[:han_alert])
     @acknowledge = if @alert.acknowledge
       @alert.call_down_messages.blank? || @alert.call_down_messages["1"] == "Please press one to acknowledge this alert." ? 'Normal' : 'Advanced'
     else
@@ -153,7 +153,7 @@ class HanAlertsController < ApplicationController
 
     respond_to do |format|
       format.html do
-        @alert = present alert, :action => params[:_action]
+        @alert = alert
         @update = true if params[:_action].downcase == "update"
         @cancel = true if params[:_action].downcase == "cancel"
       end
@@ -244,7 +244,7 @@ class HanAlertsController < ApplicationController
         end
       end
     else
-      @alert = present @alert
+      @alert = @alert
       @preview = true
       render :edit
     end
@@ -272,7 +272,8 @@ class HanAlertsController < ApplicationController
         else
           device = "Device::EmailDevice" unless params[:email].blank?
           alert_attempt.acknowledge! :ack_device => device, :ack_response => params[:alert_attempt][:call_down_response]
-          expire_log_entry(alert_attempt.alert)
+# TODO: Figure out what this does and fix for rails 3
+#          expire_log_entry(alert_attempt.alert)
           flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
           format.json {
             headers["Access-Control-Allow-Origin"] = "*"
@@ -281,7 +282,8 @@ class HanAlertsController < ApplicationController
           }
         end
         if alert_attempt.errors.empty?
-          expire_log_entry(alert_attempt.alert)
+          
+#          expire_log_entry(alert_attempt.alert)
           flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
         else
           flash[:notice] = nil
@@ -290,12 +292,6 @@ class HanAlertsController < ApplicationController
       end
       format.html {redirect_to hud_path}
     end
-    # respond_to will look for templates, so I avoid that
-#    unless params[:format] == "json"
-#      redirect_to hud_path
-#    else
-#      # this header is a must for CORS
-#    end
   end
 
   def token_acknowledge
@@ -308,11 +304,11 @@ class HanAlertsController < ApplicationController
         flash[:error] = "You are not authorized to view this page."
       else
         alert_attempt.acknowledge! :ack_device => "Device::EmailDevice", :ack_response => params[:call_down_response]
-        expire_log_entry(alert_attempt.alert)
+#       expire_log_entry(alert_attempt.alert)
         flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
       end
     end
-    redirect_to hud_path
+    redirect_to root_path
   end
 
   def calculate_recipient_count

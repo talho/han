@@ -60,8 +60,4 @@ module HAN
       end
     end
   end
-
-  ActionController::Dispatcher.to_prepare do
-    ::Jurisdiction.send(:include, HAN::Jurisdiction)
-  end
 end

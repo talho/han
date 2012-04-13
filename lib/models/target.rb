@@ -1,13 +1,9 @@
-require 'action_controller/deprecated/dispatcher'
-
 module HAN
   module Target
     def self.included(base)
       base.send :extend, ClassMethods
 
-      ::Target.class_eval do
-        alias_method_chain :save_snapshot_of_users, :han
-      end
+      base.alias_method_chain :save_snapshot_of_users, :han unless base.method_defined?(:save_snapshot_of_users_without_han)
     end
 
   def save_snapshot_of_users_with_han &block
@@ -24,9 +20,5 @@ module HAN
 
     module ClassMethods
     end
-  end
-
-  ActionController::Dispatcher.to_prepare do
-    ::Target.send(:include, HAN::Target)
   end
 end

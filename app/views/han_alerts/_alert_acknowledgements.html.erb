@@ -22,7 +22,7 @@
 <h3>Acknowledgments (by alert response)</h3>
 <div class="response_ackpct">
   <% alert.ack_logs.find_all_by_item_type("alert_response").each do |response| %>
-    <div id="response<%= h alert.call_down_messages.index(response.item) %>">
+    <div id="response<%= h alert.call_down_messages.key(response.item) %>">
       <h5><%= h response.item %></h5>
       
       <p class="percentage"><%= (response.acknowledged_percent * 100).round %>%</p>

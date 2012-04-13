@@ -4,7 +4,7 @@ end
 
 Given "a sent alert with:" do |table|
   alert = create_han_alert_with table.rows_hash
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
 end
 
 Given /^(\d+) (?:more alerts are|more alert is) sent to me$/ do |n|
@@ -18,11 +18,11 @@ end
 Given "I've sent an alert with:" do |table|
   visit new_han_alert_path
       #And I follow "Send an Alert"
-  And %{I select "Advanced" from "Acknowledge"}
-  And %{delayed jobs are processed}
+  step %{I select "Advanced" from "Acknowledge"}
+  step %{delayed jobs are processed}
   fill_in_han_alert_form table
-  And %{I press "Preview Message"}
-  And %{I press "Send"}
+  step %{I press "Preview Message"}
+  step %{I press "Send"}
 #  visit new_alert_path
 #  fill_in_han_alert_form table
 #  click_button "Preview Message"
@@ -74,7 +74,7 @@ Given /^"([^\"]*)" has acknowledged the HAN alert "([^\"]*)" with "([^\"]*)" (\d
   aa = alert.alert_attempts(true).find_by_user_id(u.id)
   aa.created_at += (delta)
   aa.save
-  aa.acknowledge! :ack_response => alert.call_down_messages.index(message)
+  aa.acknowledge! :ack_response => alert.call_down_messages.key(message)
 end
 
 Given /^(\d*) random HAN alerts$/ do |count|
@@ -105,7 +105,7 @@ When /^PhinMS delivers the message: (.*)$/ do |filename|
     Edxl::Message.parse(xml)
   end
   
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
 end
 
 When /I fill out the alert form with:/ do |table|
@@ -126,7 +126,7 @@ end
 
 When /^I follow the acknowledge HAN alert link$/ do
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
-  visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
+  visit token_acknowledge_alert_url(attempt.alert.id, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
 end
 
 When 'I follow the acknowledge HAN alert link "$title"' do |title|
@@ -165,14 +165,14 @@ Then 'I should see a preview of the message with:' do |table|
 end
 
 Then 'a foreign alert "$title" is sent to $name' do |title, name|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
   cascade_alert = CascadeHanAlert.new(HanAlert.find_by_title(title))
   organization = Organization.find_by_name!(name)
   File.exist?(File.join(organization.phin_ms_queue, "#{cascade_alert.distribution_id}.edxl")).should be_true
 end
 
 Then 'no foreign alert "$title" is sent to $name' do |title, name|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
   cascade_alert = CascadeHanAlert.new(HanAlert.find_by_title(title))
   organization = Organization.find_by_name!(name)
   File.exist?(File.join(organization.phin_ms_queue, "#{cascade_alert.distribution_id}.edxl")).should be_false
@@ -197,7 +197,7 @@ Then 'a HAN alert exists with:' do |table|
     when 'delivery_time'
       alert.delivery_time.should == value.to_i
     when 'sent_at'
-      alert.sent_at.should be_close(Time.zone.parse(value), 1)
+      alert.sent_at.should be_within(1).of(Time.zone.parse(value))
     when 'acknowledge'
       alert.acknowledge.should == (value == "true" ? true : false)
     when 'acknowledged_at'
@@ -390,13 +390,13 @@ Then /^the cancelled alert "([^\"]*)" has an original alert "([^\"]*)"$/ do |ale
 end
 
 When /^a foreign alert "([^\"]*)" is sent$/ do |title|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
   alert=HanAlert.find_by_title!(title)
   File.exist?(File.join(Agency[:phin_ms_path], "#{alert.distribution_id}.edxl")).should be_true
 
 end
 When /^no foreign alert "([^\"]*)" is sent$/ do |title|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
   alert=HanAlert.find_by_title(title)
   File.exist?(File.join(Agency[:phin_ms_path],"#{alert.distribution_id}.edxl")).should_not be_true
 end

@@ -24,7 +24,7 @@ Then /^"([^\"]*)" should receive the HAN alert email via SWN:$/ do |email_addres
 end
 
 Then /^the following users should receive the HAN alert email:$/ do |table|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
 
   headers = table.headers
   recipients = if headers.first == "roles"
@@ -38,15 +38,15 @@ Then /^the following users should receive the HAN alert email:$/ do |table|
   email = YAML.load(IO.read(Rails.root.to_s+"/config/email.yml"))[Rails.env]
   recipients.each do |user|
     if email["alert"] == "SWN"
-      Then %Q{"#{user.email}" should receive the HAN alert email via SWN:}, table
+      step %Q{"#{user.email}" should receive the HAN alert email via SWN:}, table
     else
-      Then %Q{"#{user.email}" should receive the HAN alert email:}, table
+      step %Q{"#{user.email}" should receive the HAN alert email:}, table
     end
   end
 end
 
 Then "the following users should not receive any HAN alert emails" do |table|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
 
   headers = table.headers
   recipients = if headers.first == "roles"
@@ -58,6 +58,6 @@ Then "the following users should not receive any HAN alert emails" do |table|
   end
 
   recipients.each do |user|
-    Then %Q{"#{user.email}" should not receive a HAN alert email via SWN}
+    step %Q{"#{user.email}" should not receive a HAN alert email via SWN}
   end
 end

@@ -14,8 +14,4 @@ module HAN
       end
     end
   end
-
-  ActionController::Dispatcher.to_prepare do
-    ::Role.send(:include, HAN::Role)
-  end
 end

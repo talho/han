@@ -28,7 +28,7 @@ Feature: Audit Log
     And I navigate to "Admin > Audit Log"
     Then the "Audit Log" tab should be open
     And I click model-selector-list-item "Han Alerts"
-    Then I should see 8 rows in grid "grid-version-results"
+    Then I should see 2 rows in grid "grid-version-results"
     And I click model-selector-list-item "Han Alerts"
     And I click model-selector-list-item "Alert Attempts"
     Then I should see 4 rows in grid "grid-version-results"
