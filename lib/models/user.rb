@@ -1,4 +1,3 @@
-require 'action_controller/deprecated/dispatcher'
 
 module HAN
   module User
@@ -26,9 +25,5 @@ module HAN
                      :page => page,
                      :per_page => 10)
     end
-  end
-
-  ActionController::Dispatcher.to_prepare do
-    ::User.send(:include, HAN::User)
   end
 end

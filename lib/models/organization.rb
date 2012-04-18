@@ -1,4 +1,3 @@
-require 'action_controller/deprecated/dispatcher'
 
 module HAN
   module Organization
@@ -18,9 +17,5 @@ module HAN
       end
     end
 
-  end
-
-  ActionController::Dispatcher.to_prepare do
-    ::Organization.send(:include, HAN::Organization)
   end
 end

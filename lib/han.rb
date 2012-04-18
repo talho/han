@@ -22,10 +22,14 @@ end
 ActionView::Base.send :include, HanAlertsHelper
 
 # Load model overrides
-::Jurisdiction.send(:include, HAN::Jurisdiction)
-::Role.send(:include, HAN::Role)
-::Target.send(:include, HAN::Target)
-::Audience.send(:include, HAN::Audience)
+Rails.configuration.after_initialize do
+  ::Jurisdiction.send(:include, HAN::Jurisdiction)
+  ::Role.send(:include, HAN::Role)
+  ::Target.send(:include, HAN::Target)
+  ::Audience.send(:include, HAN::Audience)
+  ::User.send(:include, HAN::User)
+  ::Organization.send(:include, HAN::Organization)
+end
 
 # Require any submodule dependencies here
 # For example, if this depended on open_flash_chart you would require init.rb as follows:
