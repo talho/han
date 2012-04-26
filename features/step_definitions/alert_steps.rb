@@ -17,7 +17,7 @@ end
 
 Given "I've sent an alert with:" do |table|
   visit new_han_alert_path
-      #And I follow "Send an Alert"
+  #And I follow "Send an Alert"
   And %{I select "Advanced" from "Acknowledge"}
   And %{delayed jobs are processed}
   fill_in_han_alert_form table
@@ -43,6 +43,7 @@ Given "\"$email_address\" has acknowledged the HAN alert \"$title\"" do |email_a
   alert = HanAlert.find_by_title(title)
   aa = alert.alert_attempts(true).find_by_user_id(u.id)
   aa.acknowledge!
+  1==1
 end
 
 When /I acknowledge the phone message for "([^"]*)"(?: with "([^"]*)")?$/ do |title, ack|
@@ -74,7 +75,7 @@ Given /^"([^\"]*)" has acknowledged the HAN alert "([^\"]*)" with "([^\"]*)" (\d
   aa = alert.alert_attempts(true).find_by_user_id(u.id)
   aa.created_at += (delta)
   aa.save
-  aa.acknowledge! :ack_response => alert.call_down_messages.index(message)
+  aa.acknowledge! :ack_response => alert.call_down_messages.key(message)
 end
 
 Given /^(\d*) random HAN alerts$/ do |count|
@@ -104,7 +105,7 @@ When /^PhinMS delivers the message: (.*)$/ do |filename|
   else
     Edxl::Message.parse(xml)
   end
-  
+
   When "delayed jobs are processed"
 end
 
@@ -154,12 +155,12 @@ end
 Then 'I should see a preview of the message with:' do |table|
   table.rows_hash.each do |key, value|
     case key
-    when /(Jurisdiction|Role|Organization|People)s?/
-      value.split(',').each do |item|
-        page.should have_css(".#{key.parameterize('_')}", :content => Regexp.new(Regexp.escape(item.strip)))
-      end
-    else
-      page.should have_css(".#{key.parameterize('_')}", :content => Regexp.new(Regexp.escape(value)))
+      when /(Jurisdiction|Role|Organization|People)s?/
+        value.split(',').each do |item|
+          page.should have_css(".#{key.parameterize('_')}", :content => Regexp.new(Regexp.escape(item.strip)))
+        end
+      else
+        page.should have_css(".#{key.parameterize('_')}", :content => Regexp.new(Regexp.escape(value)))
     end
   end
 end
@@ -183,41 +184,41 @@ Then 'a HAN alert exists with:' do |table|
   conditions = attrs['identifier'].blank? ? "" : "identifier = :identifier OR "
   conditions += attrs['message'].blank? ? "title = :title" : "(title = :title AND message = :message)"
   alert = HanAlert.find(:first, :conditions => [conditions,
-      {:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
+                                                {:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
   attrs.each do |attr, value|
     case attr
-    when 'from_jurisdiction'
-      alert.from_jurisdiction.should == Jurisdiction.find_by_name!(value)
-    when 'jurisdiction'
-      alert.audiences.map(&:jurisdictions).flatten.should include(Jurisdiction.find_by_name!(value))
-    when 'role'
-      alert.audiences.map(&:roles).flatten.should include(Role.find_by_name(value))
-    when 'from_organization'
-      alert.from_organization.should == Organization.find_by_name!(value)
-    when 'delivery_time'
-      alert.delivery_time.should == value.to_i
-    when 'sent_at'
-      alert.sent_at.should be_close(Time.zone.parse(value), 1)
-    when 'acknowledge'
-      alert.acknowledge.should == (value == "true" ? true : false)
-    when 'acknowledged_at'
-      alert.acknowledged_at.to_s.should == value
-    when 'people'
-      value.split(",").each do |user|
-        first_name, last_name = user.split(" ")
-        alert.recipients.should include(User.find_by_first_name_and_last_name(first_name, last_name))
-      end
-    when 'call_down_messages'
+      when 'from_jurisdiction'
+        alert.from_jurisdiction.should == Jurisdiction.find_by_name!(value)
+      when 'jurisdiction'
+        alert.audiences.map(&:jurisdictions).flatten.should include(Jurisdiction.find_by_name!(value))
+      when 'role'
+        alert.audiences.map(&:roles).flatten.should include(Role.find_by_name(value))
+      when 'from_organization'
+        alert.from_organization.should == Organization.find_by_name!(value)
+      when 'delivery_time'
+        alert.delivery_time.should == value.to_i
+      when 'sent_at'
+        alert.sent_at.should be_close(Time.zone.parse(value), 1)
+      when 'acknowledge'
+        alert.acknowledge.should == (value == "true" ? true : false)
+      when 'acknowledged_at'
+        alert.acknowledged_at.to_s.should == value
+      when 'people'
+        value.split(",").each do |user|
+          first_name, last_name = user.split(" ")
+          alert.recipients.should include(User.find_by_first_name_and_last_name(first_name, last_name))
+        end
+      when 'call_down_messages'
 
-      alert.call_down_messages.values.include?(value).should be_true
-    when 'not_cross_jurisdictional'
-      alert.not_cross_jurisdictional.to_s.should == value
-    when 'targets'
-      value.split(",").each do |email|                                                                                                             
-        alert.targets.map(&:users).flatten.map(&:email).include?(email.strip).should be_true
-      end
-    else
-      alert.send(attr).should == value
+        alert.call_down_messages.values.include?(value).should be_true
+      when 'not_cross_jurisdictional'
+        alert.not_cross_jurisdictional.to_s.should == value
+      when 'targets'
+        value.split(",").each do |email|
+          alert.targets.map(&:users).flatten.map(&:email).include?(email.strip).should be_true
+        end
+      else
+        alert.send(attr).should == value
     end
   end
 end
@@ -227,23 +228,23 @@ Then 'an alert should not exist with:' do |table|
   conditions = attrs['identifier'].blank? ? "" : "identifier = :identifier OR "
   conditions += attrs['message'].blank? ? "title = :title" : "(title = :title AND message = :message)"
   alert = HanAlert.find(:first, :conditions => [conditions,
-      {:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
+                                                {:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
   if alert.nil?
     alert.should be_nil
   else
     attrs.each do |attr, value|
       case attr
-      when 'people'
-        value.split(",").each do |name|
-          display_name = name.split(" ").join(" ")
-          alert.audiences.map(&:users).flatten.collect(&:display_name).should_not include(display_name)
-        end
-          when 'targets'
-        value.split(",").each do |email|
-          alert.targets.map(&:users).flatten.map(&:email).include?(email.strip).should be_false
-        end
-      else
-        alert.send(attr).should == value
+        when 'people'
+          value.split(",").each do |name|
+            display_name = name.split(" ").join(" ")
+            alert.audiences.map(&:users).flatten.collect(&:display_name).should_not include(display_name)
+          end
+        when 'targets'
+          value.split(",").each do |email|
+            alert.targets.map(&:users).flatten.map(&:email).include?(email.strip).should be_false
+          end
+        else
+          alert.send(attr).should == value
       end
     end
   end
@@ -283,7 +284,7 @@ Then /^I should see a contacted user "([^\"]*)" with a "([^\"]*)" device$/ do |e
       rescue
         is_good = false
       end
-      
+
       break if is_good
     end
     is_good.should be_true
@@ -307,15 +308,15 @@ Then 'I should see an alert with the summary:' do |table|
 end
 
 Then 'I should see an alert with the detail:' do |table|
- table.rows_hash.each do |field, value|
-   page.should have_css(".han_alert .details .#{field}", :content => value)
- end
+  table.rows_hash.each do |field, value|
+    page.should have_css(".han_alert .details .#{field}", :content => value)
+  end
 end
 
 Then 'the alert "$alert_id" should be acknowledged' do |alert_id|
   pending "This is very fragile and needs to be re-thought."
   alert = Alert.find_by_identifier(alert_id)
-    Jurisdiction.federal.first.alert_attempts.find_by_alert_id(alert.id).deliveries.first.sys_acknowledged_at?.should be_true
+  Jurisdiction.federal.first.alert_attempts.find_by_alert_id(alert.id).deliveries.first.sys_acknowledged_at?.should be_true
 end
 
 Then /^I can see the alert for "([^\"]*)" is (\d*)\% acknowledged$/ do |title,percent|
@@ -450,10 +451,10 @@ end
 
 Given /^(?:|I )am using (.+)$/ do |browser|
   case browser
-  when "mobile safari"
-    agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_2 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7D11 Safari/528.16"
-    add_headers({'User-Agent' => agent})
-  else
-    # don't set a special User-Agent header
+    when "mobile safari"
+      agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_2 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7D11 Safari/528.16"
+      add_headers({'User-Agent' => agent})
+    else
+      # don't set a special User-Agent header
   end
 end

@@ -525,7 +525,25 @@ class HanAlert < Alert
     output
   end
 
+  def as_report(options={})
+    json_columns = attributes.keys.reject{|k| /^id$|_id$|_at$|^lock_version$/.match(k)}
+    json = as_json(:only => json_columns)
+    json["author"] = User.find(author_id).display_name
+    audiences_report = []
+    audiences.each do |audience|
+      audience_report = {}
+      audience_report["jurisdictions"] = audience.jurisdictions.map(&:name).to_sentence
+      audience_report["roles"] = audience.roles.map(&:name).to_sentence
+      audience_report["people"] = audience.users.map(&:name).to_sentence
+      audiences_report.push(audience_report)
+    end
+    json["audiences"] = audiences_report
+    options[:inject].each {|key,value| json[key] = value} if options[:inject]
+    json
+  end
+
   private
+
   def set_sent_at
     if sent_at.blank?
       write_attribute("sent_at", Time.zone.now)

@@ -1,0 +1,24 @@
+<%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
+
+  <%- content_tag(:tr) do -%>
+    <%= content_tag(:th,"Severity")%>
+    <%= content_tag(:td, alert["severity"]) %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+    <%= content_tag(:th,"Status")%>
+    <%= content_tag(:td, alert["status"]) %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+      <%= content_tag(:th,"Acknowledge")%>
+      <%= content_tag(:td, alert["Acknowledge"]?"Yes":"None") %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+    <%= content_tag(:th,"Sensitive")%>
+    <%= content_tag(:td, alert["sensitive"].present? ? alert["sensitive"]:"&nbsp;") %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+      <%= content_tag(:th,"Delivery Time")%>
+      <%= content_tag(:td, (alert["delivery_time"].to_i/60).to_s + " hours") %>
+  <%- end -%>
+
+<%- end -%>

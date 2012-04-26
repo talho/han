@@ -1,0 +1,41 @@
+  <%- content_tag(:tr) do -%>
+    <%= content_tag(:td,"Title")%>
+    <%= content_tag(:td, alert["title"], :colspan=>"18") %>
+    <%= content_tag(:td,"Severity")%>
+    <%= content_tag(:td, alert["severity"]) %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+    <%= content_tag(:td,"Message", :class=>"RowWrap")%>
+    <%= content_tag(:td,alert["message"], :colspan=>"18")%>
+    <%= content_tag(:td,"Status")%>
+    <%= content_tag(:td, alert["status"]) %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+    <%=content_tag(:td, "Short Message", :class=>"RowWrap") %>
+    <%=content_tag(:td,alert["short_message"].present? ? alert["short_message"]:"&nbsp;", :colspan=>"18")%>
+    <%= content_tag(:td,"Acknowledge")%>
+    <%= content_tag(:td, alert["Acknowledge"]?"Yes":"None") %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+    <%= content_tag(:td,"Author")%>
+    <%= content_tag(:td, alert["author"], :colspan=>"18") %>
+    <%= content_tag(:td,"Sensitive")%>
+    <%= content_tag(:td, alert["sensitive"].present? ? alert["sensitive"]:"&nbsp;") %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+    <%= content_tag(:td,"Created At")%>
+    <%= content_tag(:td, alert["created_at"].strftime("%B %d, %Y %I:%M %p %Z"), :colspan=>"18") %>
+    <%= content_tag(:td,"Delivery Time")%>
+    <%= content_tag(:td, (alert["delivery_time"].to_i/60).to_s + " hours") %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+    <%= content_tag(:td,"Cross-Jurisdictional")%>
+    <%= content_tag(:td, alert["not_cross_jurisdictional"]?"Yes":"No", :colspan=>"18") %>
+    <%= content_tag(:td,"Methods")%>
+    <%= content_tag(:td, alert["comm_methods"], :colspan=>"18") %>
+  <%- end -%>
+  <%- content_tag(:tr) do -%>
+    <%# total recipients %>
+  <%- end -%>
+
+

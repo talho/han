@@ -6,34 +6,34 @@ Ext.ns('Talho');
  * extension due to its very specific implementation.
  */
 Talho.AlertDetail = Ext.extend(Ext.Panel, {
-  border:false,
+    border:false,
     constructor: function(config){
-        
+
         this.acknowledgement_store = new Ext.data.Store({reader: new Ext.data.JsonReader({fields: ['name', 'email', 'device', 'response', 'acknowledged_at']})});
 
         Ext.apply(config, { // we want to absolutely override the items passed in the constructor.
             items:[
                 {xtype: 'box', html: 'This is a Preview:  Please review carefully before sending.', style: 'text-align: center; font-weight: bold;', itemId: 'preview_message'},
                 {xtype: 'container', itemId: 'alert_detail_panel', layout: 'column',  defaults:{style: 'padding:5px;'}, items: [
-                        {xtype: 'container', itemId: 'left_detail', columnWidth: .66, layout: 'form', labelWidth: 175, items:[
-                            {xtype: 'displayfield', itemId: 'alert_title', fieldLabel: 'Alert Title'},
-                            {xtype: 'displayfield', itemId: 'alert_message', fieldLabel: 'Message'},
-                            {xtype: 'displayfield', itemId: 'alert_short_text', fieldLabel: 'Short Text'},
-                            {xtype: 'displayfield', hidden: true, actionMode: 'itemCt',  itemId: 'alert_author', fieldLabel: 'Author'},
-                            {xtype: 'container', layout: 'form', labelWidth: 175, itemId: 'alert_response_container', hideLabel: true},
-                            {xtype: 'displayfield', hidden: true, actionMode: 'itemCt',  itemId: 'alert_created_at', fieldLabel: 'Created at'},
-                            {xtype: 'displayfield', itemId: 'alert_disable_cross_jurisdictional', fieldLabel: 'Disable Cross-Jurisdictional alerting?'} ,
-                            {xtype: 'displayfield', itemId: 'alert_recipient_count', actionMode: 'itemCt', fieldLabel: 'Total Recipients', html:'Calculating...', cls: 'working-notice recipient_count'}
-                        ]},
-                        {xtype: 'container', itemId: 'right_detail', columnWidth: .34, layout: 'form', items: [
-                            {xtype: 'displayfield', itemId: 'alert_severity', fieldLabel: 'Severity'},
-                            {xtype: 'displayfield', itemId: 'alert_status', fieldLabel: 'Status'},
-                            {xtype: 'displayfield', itemId: 'alert_acknowledge', fieldLabel: 'Acknowledge'},
-                            {xtype: 'displayfield', itemId: 'alert_sensitive', fieldLabel: 'Sensitive (confidential)'},
-                            {xtype: 'displayfield', itemId: 'alert_delivery_time', fieldLabel: 'Delivery Time'},
-                            {xtype: 'displayfield', itemId: 'alert_delivery_methods', fieldLabel: 'Methods'}
-                        ]}
-                    ]
+                    {xtype: 'container', itemId: 'left_detail', columnWidth: .66, layout: 'form', labelWidth: 175, items:[
+                        {xtype: 'displayfield', itemId: 'alert_title', fieldLabel: 'Alert Title'},
+                        {xtype: 'displayfield', itemId: 'alert_message', fieldLabel: 'Message'},
+                        {xtype: 'displayfield', itemId: 'alert_short_text', fieldLabel: 'Short Text'},
+                        {xtype: 'displayfield', hidden: true, actionMode: 'itemCt',  itemId: 'alert_author', fieldLabel: 'Author'},
+                        {xtype: 'container', layout: 'form', labelWidth: 175, itemId: 'alert_response_container', hideLabel: true},
+                        {xtype: 'displayfield', hidden: true, actionMode: 'itemCt',  itemId: 'alert_created_at', fieldLabel: 'Created at'},
+                        {xtype: 'displayfield', itemId: 'alert_disable_cross_jurisdictional', fieldLabel: 'Disable Cross-Jurisdictional alerting?'} ,
+                        {xtype: 'displayfield', itemId: 'alert_recipient_count', actionMode: 'itemCt', fieldLabel: 'Total Recipients', html:'Calculating...', cls: 'working-notice recipient_count'}
+                    ]},
+                    {xtype: 'container', itemId: 'right_detail', columnWidth: .34, layout: 'form', items: [
+                        {xtype: 'displayfield', itemId: 'alert_severity', fieldLabel: 'Severity'},
+                        {xtype: 'displayfield', itemId: 'alert_status', fieldLabel: 'Status'},
+                        {xtype: 'displayfield', itemId: 'alert_acknowledge', fieldLabel: 'Acknowledge'},
+                        {xtype: 'displayfield', itemId: 'alert_sensitive', fieldLabel: 'Sensitive (confidential)'},
+                        {xtype: 'displayfield', itemId: 'alert_delivery_time', fieldLabel: 'Delivery Time'},
+                        {xtype: 'displayfield', itemId: 'alert_delivery_methods', fieldLabel: 'Methods'}
+                    ]}
+                ]
                 },
                 {collapsible: true, collapsed: true, titleCollapse: true, itemId: 'audience_holder',
                     title: 'Alert Recipients (Primary Audience)', width: 800,
@@ -53,8 +53,9 @@ Talho.AlertDetail = Ext.extend(Ext.Panel, {
                         //store: this.acknowledgement_store,
                         //pageSize: 10,
                         //prependButtons: true,
-                        items: [{text:'Export as CSV', handler: function(){window.open("/han_alerts/" + this.alertId + ".csv");}, scope: this},
-                            {text:'Export as PDF', handler: function(){window.open("/han_alerts/" + this.alertId + ".pdf");}, scope: this}, '->'],
+                        items: [
+                            {xtype: 'button', text:'Generate Report', scope: this, handler: function(button){this.create_report(button);}}
+                        ],
                         listeners:{'beforechange': function(toolbar, o){return toolbar.cursor != o.start;}}
                     })
                 }
@@ -123,12 +124,12 @@ Talho.AlertDetail = Ext.extend(Ext.Panel, {
         // let's go ahead and rewrite the alert attempts to something that works better for us
         Ext.each(alert_json.alert_attempts, function(attempt, index){
             if(attempt.user){
-              acknowledgements.push({name: attempt.user.display_name,
-                  email: attempt.user.email,
-                  device: attempt.acknowledged_alert_device_type ? attempt.acknowledged_alert_device_type.device : "",
-                  response: attempt.call_down_response ? alert_json.alert.call_down_messages[attempt.call_down_response.toString()] : attempt.call_down_response === 0 ? "Acknowledged" : "",
-                  acknowledged_at: attempt.acknowledged_at
-              });
+                acknowledgements.push({name: attempt.user.display_name,
+                    email: attempt.user.email,
+                    device: attempt.acknowledged_alert_device_type ? attempt.acknowledged_alert_device_type.device : "",
+                    response: attempt.call_down_response ? alert_json.alert.call_down_messages[attempt.call_down_response.toString()] : attempt.call_down_response === 0 ? "Acknowledged" : "",
+                    acknowledged_at: attempt.acknowledged_at
+                });
             }
         }, this);
 
@@ -138,9 +139,9 @@ Talho.AlertDetail = Ext.extend(Ext.Panel, {
     },
 
     /**
-         *  Loads the data from a passed object. This is expected to be used mostly as part of the new alert preview, taking data built from the form.
-         * @param data
-         */
+     *  Loads the data from a passed object. This is expected to be used mostly as part of the new alert preview, taking data built from the form.
+     * @param data
+     */
     loadData: function(data){
         if(!this.rendered)
         {
@@ -175,28 +176,28 @@ Talho.AlertDetail = Ext.extend(Ext.Panel, {
                 leftPane.getComponent('alert_author').show();
             }
             if(!Ext.isEmpty(data['han_alert[recipient_count]'])){
-               this.updateRecipientCount(data['han_alert[recipient_count]'], leftPane.getComponent('alert_recipient_count'));
+                this.updateRecipientCount(data['han_alert[recipient_count]'], leftPane.getComponent('alert_recipient_count'));
             } else {
-              this.buttons[1].disable();
-              leftPane.getComponent('alert_recipient_count').removeClass('large-bold');
-              leftPane.getComponent('alert_recipient_count').removeClass('big-red');
-              leftPane.getComponent('alert_recipient_count').addClass('working-notice');
-              leftPane.getComponent('alert_recipient_count').update('Calculating...');
-              Ext.Ajax.request({
-                url: '/han_alerts/calculate_recipient_count.json',
-                method: 'POST',
-                params: this.buildAudienceParams(),
-                scope: this,
-                success: function(result){
-                    this.data[ 'han_alert[recipient_count]'] = result.responseText * 1;
-                    this.updateRecipientCount(result.responseText, leftPane.getComponent('alert_recipient_count'));
-                    this.buttons[1].enable(); //Send Alert button
-                },
-                failure: function(){
-                  leftPane.getComponent('alert_recipient_count').update('Server Error.');
-                  this.buttons[1].enable(); //Send Alert button
-                }
-              });
+                this.buttons[1].disable();
+                leftPane.getComponent('alert_recipient_count').removeClass('large-bold');
+                leftPane.getComponent('alert_recipient_count').removeClass('big-red');
+                leftPane.getComponent('alert_recipient_count').addClass('working-notice');
+                leftPane.getComponent('alert_recipient_count').update('Calculating...');
+                Ext.Ajax.request({
+                    url: '/han_alerts/calculate_recipient_count.json',
+                    method: 'POST',
+                    params: this.buildAudienceParams(),
+                    scope: this,
+                    success: function(result){
+                        this.data[ 'han_alert[recipient_count]'] = result.responseText * 1;
+                        this.updateRecipientCount(result.responseText, leftPane.getComponent('alert_recipient_count'));
+                        this.buttons[1].enable(); //Send Alert button
+                    },
+                    failure: function(){
+                        leftPane.getComponent('alert_recipient_count').update('Server Error.');
+                        this.buttons[1].enable(); //Send Alert button
+                    }
+                });
             }
 
             leftPane.getComponent('alert_disable_cross_jurisdictional').update(data['han_alert[not_cross_jurisdictional]'] ? 'Yes' : 'No');
@@ -240,27 +241,58 @@ Talho.AlertDetail = Ext.extend(Ext.Panel, {
     },
 
     updateRecipientCount: function(value, recipientField){
-      var warning_level = 100;
-      recipientField.removeClass('working-notice');
-      if (value > warning_level){ recipientField.addClass('big-red'); } else { recipientField.addClass('large-bold');  }
-      recipientField.update(value);
+        var warning_level = 100;
+        recipientField.removeClass('working-notice');
+        if (value > warning_level){ recipientField.addClass('big-red'); } else { recipientField.addClass('large-bold');  }
+        recipientField.update(value);
     },
 
     buildAudienceParams: function(){
-      var params = {'user_ids[]': [], 'group_ids[]': [], 'jurisdiction_ids[]': [], 'role_ids[]': []};
-      Ext.each(this.data.users, function(user){params['user_ids[]'].push(user.id)});
-      Ext.each(this.data.groups, function(group){params['group_ids[]'].push(group.id)});
-      Ext.each(this.data.jurisdictions, function(jurisdiction){params['jurisdiction_ids[]'].push(jurisdiction.id)});
-      Ext.each(this.data.roles, function(role){params['role_ids[]'].push(role.id)});
-      if ( this.data["han_alert[not_cross_jurisdictional]"]) { params['not_cross_jurisdictional'] = 1; }
-      params['from_jurisdiction_id'] = this.data["han_alert[from_jurisdiction_id]"]  ;
-      return params;
+        var params = {'user_ids[]': [], 'group_ids[]': [], 'jurisdiction_ids[]': [], 'role_ids[]': []};
+        Ext.each(this.data.users, function(user){params['user_ids[]'].push(user.id)});
+        Ext.each(this.data.groups, function(group){params['group_ids[]'].push(group.id)});
+        Ext.each(this.data.jurisdictions, function(jurisdiction){params['jurisdiction_ids[]'].push(jurisdiction.id)});
+        Ext.each(this.data.roles, function(role){params['role_ids[]'].push(role.id)});
+        if ( this.data["han_alert[not_cross_jurisdictional]"]) { params['not_cross_jurisdictional'] = 1; }
+        params['from_jurisdiction_id'] = this.data["han_alert[from_jurisdiction_id]"]  ;
+        return params;
     },
 
     triggerRecipientStoreLoad: function(panel){
-      var params = this.buildAudienceParams();
-      panel.getComponent('audience_panel').loadRecipientStoreFromAjax('/audiences/determine_recipients.json', params);
+        var params = this.buildAudienceParams();
+        panel.getComponent('audience_panel').loadRecipientStoreFromAjax('/audiences/determine_recipients.json', params);
+    },
+
+//  criteria = {:model=>"Group",:method=>:find_by_id,:params=>@group[:id]}
+//  report = create_data_set("Report::GroupWithRecipientsRecipeInternal",criteria)
+
+    create_report: function(button){
+        button.disable();
+        var criteria = {'recipe': 'RecipeInternal::HanAlertLogRecipe', 'model': 'HanAlert', 'method': 'find_by_id', 'params': this.alertId};
+        Ext.Ajax.request({
+            url: '/report/reports.json',
+            method: 'POST',
+            params: Ext.encode({'criteria': criteria}),
+            headers: {"Content-Type":"application/json","Accept":"application/json"},
+            scope:  this,
+            success: function(responseObj, options){
+                var response = Ext.decode(responseObj.responseText);
+                this.report_msg(response.report['name']);
+                button.enable();
+            },
+            failure: function(){
+                button.enable();
+                this.ajax_err_cb();
+            }
+        });
+    },
+
+    report_msg: function(response, opts) {
+        var msg = '<br><b>Report: ' + response + '</b><br><br>' +
+            '<div style="height:80px;">' + 'has been scheduled. Please check the Reports panel or your email for status.' + '<\div>';
+        Ext.Msg.show({title: 'Success', msg: msg, minWidth: 420, maxWidth: 420, buttons: Ext.Msg.OK, icon: Ext.Msg.INFO});
     }
+
 });
 
 Talho.AlertDetail.initialize = function(config){

@@ -1,0 +1,40 @@
+<%- filtered = filters.present? ? "(FILTERED)" : "" -%>
+<%- alert = report -%>
+<%- caption = "Alert ID: #{report['identifier']} #{filtered} as of #{report['created_at']}"  -%>
+
+<%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
+
+  <%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
+      <%= content_tag(:caption, caption, :style=>"text-align:center")%>
+      <%= render :partial => "detail", :locals => {:alert => alert} %>
+   <%- end -%>
+
+  <%- if alert['audiences'] -%>
+    <%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
+      <%= content_tag(:caption, "Audiences", :style=>"text-align:left")%>
+      <%=  render :partial => 'audience', :collection => alert['audiences'] %>
+    <%- end -%>
+  <%- end -%>
+
+  <%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
+    <%= content_tag(:caption, "Acknowledgements", :style=>"text-align:left")%>
+    <%- if attempts -%>
+      <%- unless attempts.empty? -%>
+        <%- content_tag(:tr) do -%>
+          <%= content_tag(:th, 'Name') %>
+          <%= content_tag(:th, 'Email Address') %>
+          <%= content_tag(:th, 'Acknowledged with Device') %>
+          <%= content_tag(:th, 'Alert Response') %>
+        <%- end -%>
+        <%= render :partial => 'acknowledger', :collection => attempts %>
+      <%- else -%>
+        <%= content_tag(:td, 'No Acknowledgements Found') %>
+      <%- end -%>
+    <%- end -%>
+  <%- end -%>
+
+<%- end -%>
+<%= content_tag(:br) %>
+<%= content_tag(:p,"Report Generated #{filtered} on: #{Time.now.utc} for #{current_user.display_name}") %>
+
+
