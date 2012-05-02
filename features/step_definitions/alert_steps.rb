@@ -134,7 +134,7 @@ When 'I follow the acknowledge HAN alert link "$title"' do |title|
   if title.blank?
     visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
   else
-    call_down_response = attempt.alert.becomes(HanAlert).reload.call_down_messages.index(title).to_i
+    call_down_response = attempt.alert.becomes(HanAlert).reload.call_down_messages.key(title).to_i
     if current_user.nil?
       raise "Step not yet supported if no user is logged in"
     else

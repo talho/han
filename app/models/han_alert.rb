@@ -323,7 +323,7 @@ class HanAlert < Alert
   end
 
   def to_ack_edxl
-    xml = Builder::XmlMarkup.new(:indent => 2)
+    xml = ::Builder::XmlMarkup.new(:indent => 2)
     xml.instruct!
     xml.EDXLDistribution(:xmlns => 'urn:oasis:names:tc:emergency:EDXL:DE:1.0') do
       xml.distributionID "#{identifier},#{Agency[:agency_identifier]}"
@@ -597,7 +597,7 @@ class HanAlert < Alert
   end
 
   def verify_audiences_not_empty
-    errors.add_to_base("The audience must have a least one role, jurisdiction, or user specified.") unless audiences.length > 0
+    errors.add(:base, "The audience must have a least one role, jurisdiction, or user specified.") unless audiences.length > 0
   end
 
 end
