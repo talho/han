@@ -1,4 +1,4 @@
-dominoes.property('han', '/javascripts/han');
+dominoes.property('han', '/assets/han');
 dominoes.rule('AlertDetail', 'AudienceDisplayPanel $(ext_extensions)/CenterLayout.js $(han)/AlertDetail.js');
 
 Talho.ScriptManager.addInitializer('Talho.SendAlert', {js:'$(ext_extensions)/CenterLayout.js $(ext_extensions)/BreadCrumb.js AlertDetail AudiencePanel > $(han)/SendAlert.js'})

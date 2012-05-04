@@ -129,6 +129,7 @@ Feature: Viewing the HAN alert log
     And I cannot see the device alert acknowledgement rate for "Hello World" in "Phone"
     And I cannot see the device alert acknowledgement rate for "Hello World" in "Fax"
     And I cannot see the device alert acknowledgement rate for "Hello World" in "Blackberry"
+    And I close the active tab
     And I navigate to "HAN > HAN Alerts"
     And I click summary "Hello World"
     And I press "Acknowledge"

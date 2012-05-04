@@ -93,7 +93,7 @@ module Edxl
     end
 
     def self.parse(xml, options = {})
-      returning super do |message|
+      super.tap do |message|
         message.alerts.each do |alert|
           next if options[:no_delivery]
           a = ::HanAlert.new(
@@ -139,18 +139,17 @@ module Edxl
             audience.users << user if user
           end
           
-          a.jurisdictions_per_level
-          a.save!
-
-          original_alert = ::HanAlert.find_by_identifier(a.alert_references.split(',')[1].strip) if !a.alert_references.blank?
+          a.alert_device_types << AlertDeviceType.create!(:device => 'Device::EmailDevice')
           
+          a.jurisdictions_per_level
+          
+          original_alert = ::HanAlert.find_by_identifier(a.alert_references.split(',')[1].strip) if !a.alert_references.blank?
           if a.message_type == "Cancel" || a.message_type == "Update"
             a.title = "[#{a.message_type}] - #{a.title}"
             a.original_alert_id = original_alert.id
-            a.save!
           end
-
-          a.alert_device_types << AlertDeviceType.create!(:device => 'Device::EmailDevice')
+          
+          a.save!
           
           # TODO: Fix acknowledgement to use file exchange
           begin
@@ -194,7 +193,7 @@ module Edxl
     end
 
     def self.parse(xml, options = {})
-      returning super do |message|
+      super.tap do |message|
         message.acknowledge unless options[:no_delivery]
       end
     end

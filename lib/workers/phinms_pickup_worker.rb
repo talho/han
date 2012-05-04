@@ -1,5 +1,5 @@
-require File.join(Rails.root,"config","initializers","system")
-require File.join(Rails.root,"vendor","plugins","han","app","models","edxl","message")
+require File.join(Rails.root.to_s,"config","initializers","system")
+require File.join(Rails.root.to_s,"vendor","plugins","han","app","models","edxl","message")
 
 class PhinmsPickupWorker < BackgrounDRb::MetaWorker
   set_worker_name :phinms_pickup_worker
@@ -52,7 +52,7 @@ class PhinmsPickupWorker < BackgrounDRb::MetaWorker
           # rescue Exception => e
             # PHINMS_RECEIVE_LOGGER.error "Error parsing PHIN-MS message:\n#{e}\n#{xml}"
             # File.mv( filename, error_filename)
-            # AppMailer.deliver_system_error(e, "Filename: #{filename}\nContents:\n#{xml}")
+            # AppMailer.system_error(e, "Filename: #{filename}\nContents:\n#{xml}").deliver
           # end
         # end
       # end

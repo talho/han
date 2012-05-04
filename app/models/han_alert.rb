@@ -47,8 +47,7 @@ require 'fileutils'
 
 class HanAlert < Alert
   acts_as_MTI
-  include ActionController::UrlWriter
-  
+
   belongs_to :from_organization, :class_name => 'Organization'
   belongs_to :from_jurisdiction, :class_name => 'Jurisdiction'
   belongs_to :original_alert, :class_name => 'HanAlert'
@@ -56,9 +55,9 @@ class HanAlert < Alert
   has_one :cancellation, :class_name => 'HanAlert', :foreign_key => :original_alert_id, :conditions => ['message_type = ?', "Cancel"], :include => [:original_alert, :cancellation, :updates, :author, :from_jurisdiction]
   has_many :updates, :class_name => 'HanAlert', :foreign_key => :original_alert_id, :conditions => ['message_type = ?', "Update"], :include => [:original_alert, :cancellation, :updates, :author, :from_jurisdiction]
   has_many :ack_logs, :class_name => 'AlertAckLog', :foreign_key => :alert_id
-  has_many :recipients, :class_name => "User", :finder_sql => 'SELECT users.* FROM users, targets, targets_users WHERE targets.item_type=\'HanAlert\' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id'
+  has_many :recipients, :class_name => "User", :finder_sql => proc{"SELECT users.* FROM users, targets, targets_users WHERE targets.item_type='HanAlert' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id"}
 
-  named_scope :devices, {
+  scope :devices, {
       :select => "DISTINCT devices.type",
       :joins => "INNER JOIN alert_attempts ON view_han_alerts.id=alert_attempts.alert_id INNER JOIN deliveries ON deliveries.alert_attempt_id=alert_attempts.id INNER JOIN devices ON deliveries.device_id=devices.id",
       :conditions => "view_han_alerts.id=#{object_id}"
@@ -87,14 +86,12 @@ class HanAlert < Alert
   before_create :set_message_type
   before_create :set_acknowledgment
   before_save :set_jurisdiction_level
-  after_save :set_identifier
-  after_save :set_distribution_id
-  after_save :set_sender_id
-  after_save :set_distribution_reference
-  after_save :set_reference
+  after_create :set_identifiers
+  after_initialize :do_after_initialize
+  
   has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s }, :app => Proc.new { |x| x.app } }
 
-  named_scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
+  scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
 
   def app
     'phin'
@@ -123,7 +120,17 @@ class HanAlert < Alert
       Time.now.to_i > (created_at.to_i + ((delivery_time + ExpirationGracePeriod) * 60) )
     end
   end
+  
+  def acknowledged_by_user?(user)
+    if attempt = self.alert_attempts.find_by_user_id(user)
+      attempt.acknowledged?
+    end
+  end
 
+  def ask_for_acknowledgement?(user)
+    self.acknowledge? && !self.new_record? && !acknowledged_by_user?(user)
+  end
+  
   def build_cancellation(attrs={})
     attrs = attrs.stringify_keys
     changeable_fields = ["message", "severity", "sensitive", "acknowledge", "delivery_time", "not_cross_jurisdictional","call_down_messages","short_message"]
@@ -216,7 +223,7 @@ class HanAlert < Alert
     end.flatten.compact.uniq
   end
 
-  def after_initialize
+  def do_after_initialize
     self.acknowledge = true if acknowledge.nil?
   end
 
@@ -246,11 +253,11 @@ class HanAlert < Alert
   end
 
   def integrate_voice
-    original_file_name = "#{RAILS_ROOT}/message_recordings/tmp/#{self.author.token}.wav"
-    if RAILS_ENV == "test"
-      new_file_name = "#{RAILS_ROOT}/message_recordings/test/#{id}.wav"
+    original_file_name = "#{Rails.root.to_s}/message_recordings/tmp/#{self.author.token}.wav"
+    if Rails.env == "test"
+      new_file_name = "#{Rails.root.to_s}/message_recordings/test/#{id}.wav"
     else
-      new_file_name = "#{RAILS_ROOT}/message_recordings/#{id}.wav"
+      new_file_name = "#{Rails.root.to_s}/message_recordings/#{id}.wav"
     end
     if File.exists?(original_file_name)
       FileUtils.move(original_file_name, new_file_name)
@@ -316,7 +323,7 @@ class HanAlert < Alert
   end
 
   def to_ack_edxl
-    xml = Builder::XmlMarkup.new(:indent => 2)
+    xml = ::Builder::XmlMarkup.new(:indent => 2)
     xml.instruct!
     xml.EDXLDistribution(:xmlns => 'urn:oasis:names:tc:emergency:EDXL:DE:1.0') do
       xml.distributionID "#{identifier},#{Agency[:agency_identifier]}"
@@ -457,7 +464,7 @@ class HanAlert < Alert
 
           delivery.Providers do |providers|
             (self.alert_device_types.map{|device| device.device_type.display_name} & Service::Swn::Message::SUPPORTED_DEVICES.keys).each do |device|
-              email = YAML.load(IO.read(RAILS_ROOT+"/config/email.yml"))[RAILS_ENV] if device == 'E-mail'
+              email = YAML.load(IO.read(Rails.root.to_s+"/config/email.yml"))[Rails.env] if device == 'E-mail'
               device_options = {:name => email.nil? ? 'swn' : email["alert"].to_s.downcase, :device => device}
               if self.acknowledge?
                 device_options[:ivr] = "alert_responses" if (device == "Phone" && self.sensitive) || (!self.sensitive)
@@ -482,10 +489,10 @@ class HanAlert < Alert
   end
 
   def construct_email_message
-    default_url_options[:host] = HOST
+    Rails.application.routes.default_url_options[:host] = HOST
     header = "The following is an alert from the Texas Public Health Information Network.\r\n\r\n"
     footer = ""
-    more = "... \r\n\r\nPlease visit the TXPhin website at #{url_for(:action => "hud", :controller => "dashboard")} to read the rest of this alert.\r\n\r\n"
+    more = "... \r\n\r\nPlease visit the TXPhin website at #{Rails.application.routes.url_helpers.hud_url} to read the rest of this alert.\r\n\r\n"
     if self.acknowledge?
       header += "This alert requires acknowledgment.  Please follow the instructions below to acknowledge this alert.\r\n\r\n"
     end
@@ -494,7 +501,7 @@ class HanAlert < Alert
       footer += "Reference: #{self.original_alert_id}\r\n" unless self.original_alert_id.blank?
       footer += "Status: #{self.status}\r\n" unless self.status == "Actual"
       footer += "Sensitive: use secure means of retrieval\r\n\r\n"
-      footer += "Please visit #{url_for(:action => "hud", :controller => "dashboard", :escape => false, :only_path => false, :protocol => "https")} to securely view this alert.\r\n"
+      footer += "Please visit #{Rails.application.routes.url_helpers.url_for(:action => "hud", :controller => "dashboard", :escape => false, :only_path => false, :protocol => "https")} to securely view this alert.\r\n"
       output = header + footer
     else
       footer += "\r\n\r\nTitle: #{self.title}\r\n"
@@ -554,39 +561,23 @@ class HanAlert < Alert
     self.message_type = MessageTypes[:alert] if self.message_type.blank?
   end
 
-  def set_identifier
+  def set_identifiers
     if identifier.nil?
       write_attribute(:identifier, "#{Agency[:agency_abbreviation]}-#{Time.zone.now.strftime("%Y")}-#{id}")
-      self.save!
     end
-  end
-
-  def set_distribution_id
     if distribution_id.nil? || (!original_alert.nil? && distribution_id == original_alert.distribution_id)
       write_attribute(:distribution_id, "#{Agency[:agency_abbreviation]}-#{created_at.strftime("%Y")}-#{id}")
-      self.save!
     end
-  end
-
-  def set_sender_id
     if sender_id.nil?
       write_attribute(:sender_id, "#{Agency[:agency_identifier]}@#{Agency[:agency_domain]}")
-      self.save!
     end
-  end
-
-  def set_distribution_reference
     if !original_alert.nil? && distribution_reference.nil?
       write_attribute(:distribution_reference, "#{original_alert.distribution_id},#{sender_id},#{original_alert.sent_at.utc.iso8601(3)}")
-      self.save!
     end
-  end
-
-  def set_reference
     if !original_alert.nil? && reference.nil?
       write_attribute(:reference, "#{Agency[:agency_identifier]},#{original_alert.distribution_id},#{original_alert.sent_at.utc.iso8601(3)}")
-      self.save!
     end
+    self.save!
   end
 
   def set_acknowledgment
@@ -624,6 +615,7 @@ class HanAlert < Alert
   end
 
   def verify_audiences_not_empty
-    errors.add_to_base("The audience must have a least one role, jurisdiction, or user specified.") unless audiences.length > 0
+    errors.add(:base, "The audience must have a least one role, jurisdiction, or user specified.") unless audiences.length > 0
   end
+
 end

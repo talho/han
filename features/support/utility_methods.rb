@@ -2,7 +2,7 @@ module FeatureHelpers
   module UtilityMethods
     
     def find_han_alert_email(email_address, table=nil)
-      When "delayed jobs are processed"
+      step "delayed jobs are processed"
       ActionMailer::Base.deliveries.detect do |email|
         status = false
         if(!email.bcc.blank?)
@@ -47,7 +47,7 @@ module FeatureHelpers
     end
 
     def find_han_alert_email_via_SWN(email_address, table=nil)
-      When "delayed jobs are processed"
+      step "delayed jobs are processed"
       Service::Swn::Message.deliveries.detect do |email|
         xml = Nokogiri::XML(email.body)
         status = false
@@ -156,7 +156,11 @@ module FeatureHelpers
           else
             raise "You picked an invalid delivery time"
         end
+      else
+        attributes['delivery_time'] = 60
       end
+      
+      
 
       attributes["call_down_messages"] = {} if attributes["call_down_messages"].nil?
       attributes.each do |key, value|
@@ -169,7 +173,7 @@ module FeatureHelpers
 
       audience = Audience.new(:jurisdictions => jurisdictions, :roles => roles, :users => users, :groups => gps)
       attributes["audiences"] = [audience]
-      alert = Factory(:han_alert, attributes)
+      alert = FactoryGirl.create(:han_alert, attributes)
     end
   end
 end

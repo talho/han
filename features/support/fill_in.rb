@@ -82,7 +82,7 @@ module FeatureHelpers
         fill_in label, :with => value
 
       when "Message Recording"
-        attach_file(:alert_message_recording, File.join(RAILS_ROOT, 'features', 'fixtures', value), "audio/x-wav")
+        attach_file(:alert_message_recording, File.join(Rails.root.to_s, 'features', 'fixtures', value), "audio/x-wav")
       when "Short Message"
         fill_in "han_alert_short_message", :with => value
       when "Title"

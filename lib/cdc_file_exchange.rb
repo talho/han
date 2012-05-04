@@ -18,7 +18,7 @@ class CDCFileExchange
       # load environment/config data from configuration yml
       @config = {}
       begin
-        @config = YAML.load_file("#{Rails.root}/config/cascade.yml")[RAILS_ENV]
+        @config = YAML.load_file("#{Rails.root.to_s}/config/cascade.yml")[Rails.env]
       rescue
       end
       
@@ -46,7 +46,7 @@ class CDCFileExchange
   end
   
   def logger
-    @logger ||= ExchangeLogger.new("#{RAILS_ROOT}/log/cdc_file_exchange.log", 3, 10 * 1024**2)
+    @logger ||= ExchangeLogger.new("#{Rails.root.to_s}/log/cdc_file_exchange.log", 3, 10 * 1024**2)
   end
   
   def client

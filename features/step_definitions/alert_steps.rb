@@ -4,7 +4,7 @@ end
 
 Given "a sent alert with:" do |table|
   alert = create_han_alert_with table.rows_hash
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
 end
 
 Given /^(\d+) (?:more alerts are|more alert is) sent to me$/ do |n|
@@ -17,12 +17,12 @@ end
 
 Given "I've sent an alert with:" do |table|
   visit new_han_alert_path
-  #And I follow "Send an Alert"
-  And %{I select "Advanced" from "Acknowledge"}
-  And %{delayed jobs are processed}
+      #And I follow "Send an Alert"
+  step %{I select "Advanced" from "Acknowledge"}
+  step %{delayed jobs are processed}
   fill_in_han_alert_form table
-  And %{I press "Preview Message"}
-  And %{I press "Send"}
+  step %{I press "Preview Message"}
+  step %{I press "Send"}
 #  visit new_alert_path
 #  fill_in_han_alert_form table
 #  click_button "Preview Message"
@@ -51,8 +51,8 @@ When /I acknowledge the phone message for "([^"]*)"(?: with "([^"]*)")?$/ do |ti
   al = HanAlert.find_by_title(title)
   aa = al.alert_attempts.find_by_user_id(u)
   if aa.nil?
-    aa = Factory(:alert_attempt, :alert => al, :user => u, :acknowledged_at => nil, :acknowledged_alert_device_type_id => AlertDeviceType.find_by_device("Device::PhoneDevice"))
-    del = Factory(:delivery, :alert_attempt => aa, :device => u.devices.phone.first)
+    aa = FactoryGirl.create(:alert_attempt, :alert => al, :user => u, :acknowledged_at => nil, :acknowledged_alert_device_type_id => AlertDeviceType.find_by_device("Device::PhoneDevice"))
+    del = FactoryGirl.create(:delivery, :alert_attempt => aa, :device => u.devices.phone.first)
   end
   unless ack.nil?
     aa.acknowledge! :ack_response => al.call_down_messages.index(ack)
@@ -83,7 +83,7 @@ Given /^(\d*) random HAN alerts$/ do |count|
   size=Jurisdiction.all.size
   count.to_i.times do
     j=Jurisdiction.find(rand(size)+1)
-    Factory(:han_alert, :from_jurisdiction => j)
+    FactoryGirl.create(:han_alert, :from_jurisdiction => j)
   end
 end
 
@@ -93,20 +93,19 @@ Given /^(\d*) random HAN alerts in (.*)$/ do |count, jurisdiction|
   size=jurisdiction.children.size
   count.to_i.times do
     j=jurisdiction.self_and_descendants[rand(size)]
-    Factory(:han_alert, :from_jurisdiction => j)
+    FactoryGirl.create(:han_alert, :from_jurisdiction => j)
   end
 end
 
 When /^PhinMS delivers the message: (.*)$/ do |filename|
   require 'edxl/message'
-  xml = File.read("#{Rails.root}/spec/fixtures/#{filename}")
+  xml = File.read("#{Rails.root.to_s}/spec/fixtures/#{filename}")
   if(Edxl::MessageContainer.parse(xml).distribution_type == "Ack")
     Edxl::AckMessage.parse(xml)
   else
     Edxl::Message.parse(xml)
   end
-
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
 end
 
 When /I fill out the alert form with:/ do |table|
@@ -127,7 +126,7 @@ end
 
 When /^I follow the acknowledge HAN alert link$/ do
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
-  visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
+  visit token_acknowledge_alert_url(attempt.alert.id, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
 end
 
 When 'I follow the acknowledge HAN alert link "$title"' do |title|
@@ -135,7 +134,7 @@ When 'I follow the acknowledge HAN alert link "$title"' do |title|
   if title.blank?
     visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
   else
-    call_down_response = attempt.alert.becomes(HanAlert).reload.call_down_messages.index(title).to_i
+    call_down_response = attempt.alert.becomes(HanAlert).reload.call_down_messages.key(title).to_i
     if current_user.nil?
       raise "Step not yet supported if no user is logged in"
     else
@@ -145,7 +144,7 @@ When 'I follow the acknowledge HAN alert link "$title"' do |title|
 end
 
 When 'I send a message recording "$filename"' do |filename|
-  File.new("#{RAILS_ROOT}/message_recordings/tmp/#{current_user.token}.wav","w").close
+  File.new("#{Rails.root.to_s}/message_recordings/tmp/#{current_user.token}.wav","w").close
 end
 
 Then 'I should see a preview of the message' do
@@ -166,14 +165,14 @@ Then 'I should see a preview of the message with:' do |table|
 end
 
 Then 'a foreign alert "$title" is sent to $name' do |title, name|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
   cascade_alert = CascadeHanAlert.new(HanAlert.find_by_title(title))
   organization = Organization.find_by_name!(name)
   File.exist?(File.join(organization.phin_ms_queue, "#{cascade_alert.distribution_id}.edxl")).should be_true
 end
 
 Then 'no foreign alert "$title" is sent to $name' do |title, name|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
   cascade_alert = CascadeHanAlert.new(HanAlert.find_by_title(title))
   organization = Organization.find_by_name!(name)
   File.exist?(File.join(organization.phin_ms_queue, "#{cascade_alert.distribution_id}.edxl")).should be_false
@@ -187,38 +186,37 @@ Then 'a HAN alert exists with:' do |table|
                                                 {:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
   attrs.each do |attr, value|
     case attr
-      when 'from_jurisdiction'
-        alert.from_jurisdiction.should == Jurisdiction.find_by_name!(value)
-      when 'jurisdiction'
-        alert.audiences.map(&:jurisdictions).flatten.should include(Jurisdiction.find_by_name!(value))
-      when 'role'
-        alert.audiences.map(&:roles).flatten.should include(Role.find_by_name(value))
-      when 'from_organization'
-        alert.from_organization.should == Organization.find_by_name!(value)
-      when 'delivery_time'
-        alert.delivery_time.should == value.to_i
-      when 'sent_at'
-        alert.sent_at.should be_close(Time.zone.parse(value), 1)
-      when 'acknowledge'
-        alert.acknowledge.should == (value == "true" ? true : false)
-      when 'acknowledged_at'
-        alert.acknowledged_at.to_s.should == value
-      when 'people'
-        value.split(",").each do |user|
-          first_name, last_name = user.split(" ")
-          alert.recipients.should include(User.find_by_first_name_and_last_name(first_name, last_name))
-        end
-      when 'call_down_messages'
-
-        alert.call_down_messages.values.include?(value).should be_true
-      when 'not_cross_jurisdictional'
-        alert.not_cross_jurisdictional.to_s.should == value
-      when 'targets'
-        value.split(",").each do |email|
-          alert.targets.map(&:users).flatten.map(&:email).include?(email.strip).should be_true
-        end
-      else
-        alert.send(attr).should == value
+    when 'from_jurisdiction'
+      alert.from_jurisdiction.should == Jurisdiction.find_by_name!(value)
+    when 'jurisdiction'
+      alert.audiences.map(&:jurisdictions).flatten.should include(Jurisdiction.find_by_name!(value))
+    when 'role'
+      alert.audiences.map(&:roles).flatten.should include(Role.find_by_name(value))
+    when 'from_organization'
+      alert.from_organization.should == Organization.find_by_name!(value)
+    when 'delivery_time'
+      alert.delivery_time.should == value.to_i
+    when 'sent_at'
+      alert.sent_at.should be_within(1).of(Time.zone.parse(value))
+    when 'acknowledge'
+      alert.acknowledge.should == (value == "true" ? true : false)
+    when 'acknowledged_at'
+      alert.acknowledged_at.to_s.should == value
+    when 'people'
+      value.split(",").each do |user|
+        first_name, last_name = user.split(" ")
+        alert.recipients.should include(User.find_by_first_name_and_last_name(first_name, last_name))
+      end
+    when 'call_down_messages'
+      alert.call_down_messages.values.include?(value).should be_true
+    when 'not_cross_jurisdictional'
+      alert.not_cross_jurisdictional.to_s.should == value
+    when 'targets'
+      value.split(",").each do |email|                                                                                                             
+        alert.targets.map(&:users).flatten.map(&:email).include?(email.strip).should be_true
+      end
+    else
+      alert.send(attr).should == value
     end
   end
 end
@@ -391,13 +389,13 @@ Then /^the cancelled alert "([^\"]*)" has an original alert "([^\"]*)"$/ do |ale
 end
 
 When /^a foreign alert "([^\"]*)" is sent$/ do |title|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
   alert=HanAlert.find_by_title!(title)
   File.exist?(File.join(Agency[:phin_ms_path], "#{alert.distribution_id}.edxl")).should be_true
 
 end
 When /^no foreign alert "([^\"]*)" is sent$/ do |title|
-  When "delayed jobs are processed"
+  step "delayed jobs are processed"
   alert=HanAlert.find_by_title(title)
   File.exist?(File.join(Agency[:phin_ms_path],"#{alert.distribution_id}.edxl")).should_not be_true
 end
