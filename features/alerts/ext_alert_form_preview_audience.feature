@@ -32,7 +32,6 @@ Feature: Alert Preview Audience Calculation
   Scenario: A non-cross-jurisdictional alert is sent within a single jurisdiction
     Given I am logged in as "dal.hacc@example.com"
     And I am allowed to send alerts
-    When I am on the ext dashboard page
     And I navigate to "HAN > Send an Alert"
     When I fill in the following:
       | Title                 | H1N1 SNS push packs to be delivered tomorrow |
@@ -52,7 +51,6 @@ Feature: Alert Preview Audience Calculation
   Scenario: A cross-jurisdictional alert is sent to a sibling jurisdiction
     Given I am logged in as "dal.hacc@example.com"
     And I am allowed to send alerts
-    When I am on the ext dashboard page
     And I navigate to "HAN > Send an Alert"
     When I fill in the following:
       | Title                 | H1N1 SNS push packs to be delivered tomorrow |
@@ -71,7 +69,6 @@ Feature: Alert Preview Audience Calculation
   Scenario: A cross-jurisdictional alert is sent to a cousin jurisdiction
     Given I am logged in as "dal.hacc@example.com"
     And I am allowed to send alerts
-    When I am on the ext dashboard page
     And I navigate to "HAN > Send an Alert"
     When I fill in the following:
       | Title                 | H1N1 SNS push packs to be delivered tomorrow |
@@ -91,7 +88,6 @@ Feature: Alert Preview Audience Calculation
   Scenario: A cross-jurisdictional alert is sent to a role
     Given I am logged in as "dal.hacc@example.com"
     And I am allowed to send alerts
-    When I am on the ext dashboard page
     And I navigate to "HAN > Send an Alert"
     When I fill in the following:
       | Title                 | H1N1 SNS push packs to be delivered tomorrow |
@@ -110,7 +106,6 @@ Feature: Alert Preview Audience Calculation
   Scenario: An alert is sent to nobody
     Given I am logged in as "dal.hacc@example.com"
     And I am allowed to send alerts
-    When I am on the ext dashboard page
     And I navigate to "HAN > Send an Alert"
     When I fill in the following:
       | Title                 | H1N1 SNS push packs to be delivered tomorrow |
@@ -137,7 +132,6 @@ Feature: Alert Preview Audience Calculation
       | jurisdiction | Dallas County  |
     And I am logged in as "dal.hacc@example.com"
     And I am allowed to send alerts
-    When I am on the ext dashboard page
     And I navigate to "HAN > Send an Alert"
     When I fill in the following:
       | Title                 | H1N1 SNS push packs to be delivered tomorrow |
@@ -164,21 +158,21 @@ Feature: Alert Preview Audience Calculation
     And I click breadCrumbItem "Preview"
     Then I should see "51" within ".recipient_count"
     When I press "Send Alert"
-    Then I should see "Viewing Alerts"
+    Then I should see "Alert Log and Reporting"
     And I should see "H1N1 SNS push packs"
 
   Scenario: Malicious user cannot get recipient counts
     Given I am logged in as "pot.epid@example.com"
-    And I am on the ext dashboard page
-    And I will confirm on next step
-    When I maliciously post data to "/han_alerts/calculate_recipient_count.json"
+    When I override alert
+    And I maliciously post data to "/han_alerts/calculate_recipient_count.json"
       | from_jurisdiction_id | 1 |
       | jurisdiction_ids[]   | 2 |
     Then I should see "You do not have permission" within the alert box
 
   Scenario: Malicious anon cannot get recipient counts
     Given I am on the login page
-    When I maliciously post formdata to "/han_alerts/calculate_recipient_count.json"
+    When I override alert
+    When I maliciously post data to "/han_alerts/calculate_recipient_count.json"
       | from_jurisdiction_id | 1 |
       | jurisdiction_ids[]   | 2 |
-    And I should see "Sign In "
+    Then I should see "<title>TXPhin: sessions/new</title>" within the alert box

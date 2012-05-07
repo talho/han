@@ -10,6 +10,6 @@ csv << ['Name', 'Email', 'Acknowledged by', 'Alert Response', 'Alert Response Me
   end
   row << (attempt.acknowledged_alert_device_type.nil? ? "" : attempt.acknowledged_alert_device_type.device.constantize.display_name)
   row << (attempt.call_down_response.nil? ? "" : attempt.call_down_response.to_s)
-  row << (attempt.call_down_response.nil? ? "" : @alert.call_down_messages[attempt.call_down_response.to_s])
+  row << (attempt.call_down_response.nil? ? "" : @alert.call_down_messages.blank? ? 'Ack' : @alert.call_down_messages[attempt.call_down_response.to_s])
   csv << row
 end

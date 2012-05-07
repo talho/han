@@ -100,7 +100,7 @@ Feature: Viewing the HAN alert log
       | short_message         | Hello World                                 |
       | acknowledge           | Yes                                         |
       | audiences             |                                             |
-      | communication methods | Email, SMS                                  |
+      | communication methods | Email, Sms                                  |
       | caller_id             | 1234567890                                  |
       | roles                 | Health Alert and Communications Coordinator |
       | jurisdictions         | Texas, Dallas County                        |
@@ -109,7 +109,7 @@ Feature: Viewing the HAN alert log
     And I am logged in as "jane.smith@example.com"
     When I am on the ext dashboard page
     And I navigate to "HAN > HAN Alerts"
-    And I click han_alert "Hello World"
+    And I click summary "Hello World"
     And I press "Acknowledge"
     And I wait for the "Saving" mask to go away
     And I sign out
@@ -119,7 +119,7 @@ Feature: Viewing the HAN alert log
     When I am on the ext dashboard page
     And I navigate to "HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
-    And I click han_alert "Hello World"
+    And I click summary "Hello World"
     And I can see the alert for "Hello World" is 33% acknowledged
     And I can see the jurisdiction alert acknowledgement rate for "Hello World" in "Texas" is 33%
     And I can see the jurisdiction alert acknowledgement rate for "Hello World" in "Dallas County" is 0%
@@ -129,12 +129,13 @@ Feature: Viewing the HAN alert log
     And I cannot see the device alert acknowledgement rate for "Hello World" in "Phone"
     And I cannot see the device alert acknowledgement rate for "Hello World" in "Fax"
     And I cannot see the device alert acknowledgement rate for "Hello World" in "Blackberry"
+    And I close the active tab
     And I navigate to "HAN > HAN Alerts"
-    And I click han_alert "Hello World"
+    And I click summary "Hello World"
     And I press "Acknowledge"
     And I navigate to "HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
-    And I click han_alert "Hello World"
+    And I click summary "Hello World"
     And I should see "Acknowledge: Normal"
     And I can see the alert for "Hello World" is 67% acknowledged
     And I can see the jurisdiction alert acknowledgement rate for "Hello World" in "Texas" is 67%
@@ -199,9 +200,9 @@ Feature: Viewing the HAN alert log
     And I navigate to "HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
     And I should see "Acknowledge: Advanced"
-    When I click han_alert "Hello World"
+    When I click summary "Hello World"
     And I navigate to "HAN > HAN Alerts"
-    And I click han_alert "Hello World"
+    And I click summary "Hello World"
     And I should see "Alert Response"
 
   Scenario: Viewing acknowledged advanced alerts with alert responses from view
@@ -232,7 +233,7 @@ Feature: Viewing the HAN alert log
     When I am on the ext dashboard page
     And I navigate to "HAN > HAN Alerts"
     Then I should see "Alert Response"
-    When I click han_alert "Hello World"
+    When I click summary "Hello World"
     And I select "if you can respond within 15 minutes" from "Alert Response"
     And I press "Acknowledge"
     And I navigate to "HAN > Alert Log and Reporting"
@@ -326,5 +327,4 @@ Feature: Viewing the HAN alert log
       | Texas          | Jurisdiction |
       | Health Officer | Role         |
       | John Smith     | User         |
-    And I should see "Acknowledged" for user "Daniel Smith"
-
+    And I should see "Please press one to acknowledge this alert." for user "Daniel Smith"

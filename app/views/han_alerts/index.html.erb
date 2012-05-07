@@ -1,23 +1,23 @@
 <h2>Viewing Alerts</h2>
 
 <%= page_entries_info @alerts unless @alerts.empty? %>
-<% paginated_section @alerts do %>
+<%= paginated_section @alerts do %>
   <ul id="alerts">
     <% @alerts.each do |alert| %>
       <% cache(:key => ["alert_log_entry", alert.id]) do %>
-        <% content_tag_for :li, alert do %>
+        <%= content_tag_for :li, alert, :class => 'han_alert' do %>
           <div class="summary">
             <p class="title">
               <span class="title <%= alert.severity.downcase %>"><%= h alert.title %></span>
             <span class="actions">
-              <%= link_to 'View', alert %>
+              <%= link_to 'View', han_alert_path(alert.id) %>
               <%= link_to 'Update', edit_han_alert_path(alert, :_action => 'update') if alert.original_alert.nil? && !alert.cancelled? %>
               <%= link_to 'Cancel', edit_han_alert_path(alert, :_action => 'cancel') if alert.original_alert.nil? && !alert.cancelled? %>
             </span>
             </p>
 
             <p class="meta">
-              <span class="created_at">Posted at <%= alert.created_at.strftime("%B %d, %Y %I:%M %p %Z") %> <%= 'by '+link_to(alert.author.display_name, user_profile_path(alert.author)) unless alert.author.blank? || alert.author.display_name.blank? %></span>
+              <span class="created_at">Posted at <%= alert.created_at.strftime("%B %d, %Y %I:%M %p %Z") %> <%= raw('by '+link_to(alert.author.display_name, user_profile_path(alert.author))) unless alert.author.blank? || alert.author.display_name.blank? %></span>
               <%- if alert.status.blank? || alert.status.downcase != "actual" -%>
                 <span class="status <%= alert.status.downcase %>"><strong>Status:</strong> [<%= alert.status.capitalize %>
                   ]</span>
@@ -37,10 +37,10 @@
               <p class="brief"><strong>Sensitive:</strong> <%= h alert.sensitive? ? 'Yes' : 'No' %></p>
 
               <%- if alert.acknowledge? -%>
-                <%- if alert.has_alert_response_messages? -%>
-                  <p class="brief"><strong>Acknowledge:</strong> Advanced</p>
-                <%- else -%>
+                <%- if alert.call_down_messages["1"] == "Please press one to acknowledge this alert." -%>
                   <p class="brief"><strong>Acknowledge:</strong> Normal</p>
+                <%- else -%>
+                  <p class="brief"><strong>Acknowledge:</strong> Advanced</p>
                 <%- end -%>
               <%- else -%>
                 <p class="brief"><strong>Acknowledge:</strong> None</p>

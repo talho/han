@@ -43,10 +43,11 @@
 #  not_cross_jurisdictional       :boolean(1)     default(true)
 #
 
-require 'ftools'
+require 'fileutils'
 
 class HanAlert < Alert
   acts_as_MTI
+
   belongs_to :from_organization, :class_name => 'Organization'
   belongs_to :from_jurisdiction, :class_name => 'Jurisdiction'
   belongs_to :original_alert, :class_name => 'HanAlert'
@@ -54,9 +55,9 @@ class HanAlert < Alert
   has_one :cancellation, :class_name => 'HanAlert', :foreign_key => :original_alert_id, :conditions => ['message_type = ?', "Cancel"], :include => [:original_alert, :cancellation, :updates, :author, :from_jurisdiction]
   has_many :updates, :class_name => 'HanAlert', :foreign_key => :original_alert_id, :conditions => ['message_type = ?', "Update"], :include => [:original_alert, :cancellation, :updates, :author, :from_jurisdiction]
   has_many :ack_logs, :class_name => 'AlertAckLog', :foreign_key => :alert_id
-  has_many :recipients, :class_name => "User", :finder_sql => 'SELECT users.* FROM users, targets, targets_users WHERE targets.item_type=\'HanAlert\' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id'
+  has_many :recipients, :class_name => "User", :finder_sql => proc{"SELECT users.* FROM users, targets, targets_users WHERE targets.item_type='HanAlert' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id"}
 
-  named_scope :devices, {
+  scope :devices, {
       :select => "DISTINCT devices.type",
       :joins => "INNER JOIN alert_attempts ON view_han_alerts.id=alert_attempts.alert_id INNER JOIN deliveries ON deliveries.alert_attempt_id=alert_attempts.id INNER JOIN devices ON deliveries.device_id=devices.id",
       :conditions => "view_han_alerts.id=#{object_id}"
@@ -71,8 +72,6 @@ class HanAlert < Alert
   DeliveryTimes = [15, 30, 45, 60, 75, 90, 1440, 4320]
   ExpirationGracePeriod = 240 # in minutes
 
-  serialize :call_down_messages, Hash
-  
   validates_inclusion_of :status, :in => Statuses
   validates_inclusion_of :severity, :in => Severities
 
@@ -85,19 +84,26 @@ class HanAlert < Alert
 
   before_create :set_sent_at
   before_create :set_message_type
+  before_create :set_acknowledgment
   before_save :set_jurisdiction_level
-  after_save :set_identifier
-  after_save :set_distribution_id
-  after_save :set_sender_id
-  after_save :set_distribution_reference
-  after_save :set_reference
-  has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s } }
+  after_create :set_identifiers
+  after_initialize :do_after_initialize
+  
+  has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s }, :app => Proc.new { |x| x.app } }
 
-  named_scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
+  scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
 
+  def app
+    'phin'
+  end
+  
   def self.new_with_defaults(options={})
     defaults = {:delivery_time => 4320, :severity => 'Minor'}
     self.new(options.merge(defaults))
+  end
+
+  def alert_identifier
+    self.distribution_id
   end
 
   def cancelled?
@@ -114,7 +120,17 @@ class HanAlert < Alert
       Time.now.to_i > (created_at.to_i + ((delivery_time + ExpirationGracePeriod) * 60) )
     end
   end
+  
+  def acknowledged_by_user?(user)
+    if attempt = self.alert_attempts.find_by_user_id(user)
+      attempt.acknowledged?
+    end
+  end
 
+  def ask_for_acknowledgement?(user)
+    self.acknowledge? && !self.new_record? && !acknowledged_by_user?(user)
+  end
+  
   def build_cancellation(attrs={})
     attrs = attrs.stringify_keys
     changeable_fields = ["message", "severity", "sensitive", "acknowledge", "delivery_time", "not_cross_jurisdictional","call_down_messages","short_message"]
@@ -127,7 +143,7 @@ class HanAlert < Alert
       alert.message_type = MessageTypes[:cancel]
       alert.original_alert = self
 
-      if alert.has_alert_response_messages?
+      if alert.acknowledge?
         self.audiences.each do |audience|
           attrs = audience.attributes
           ["id","updated_at","created_at"].each{|item| attrs.delete(item)}
@@ -153,7 +169,7 @@ class HanAlert < Alert
       alert.message_type = MessageTypes[:update]
       alert.original_alert = self
 
-      if alert.has_alert_response_messages?
+      if alert.acknowledge?
         self.audiences.each do |audience|
           attrs = audience.attributes
           ["id","updated_at","created_at"].each{|item| attrs.delete(item)}
@@ -194,7 +210,7 @@ class HanAlert < Alert
           "path",   (id && acknowledge && !acknowledged_by_user) ? path : ""
         ],
       ]
-      if has_alert_response_messages?
+      if acknowledge?
         format["detail"]["response"] = call_down_messages
       end
       return format
@@ -207,11 +223,7 @@ class HanAlert < Alert
     end.flatten.compact.uniq
   end
 
-  def has_alert_response_messages?
-    !(call_down_messages.nil? || call_down_messages.empty?)
-  end
-
-  def after_initialize
+  def do_after_initialize
     self.acknowledge = true if acknowledge.nil?
   end
 
@@ -224,18 +236,14 @@ class HanAlert < Alert
   end
 
   def batch_deliver
-    recipients.each do |user|
-      alert_attempts.create!(:user => user).batch_deliver
-    end
-    audiences(true).each do |audience|
-      audience.foreign_jurisdictions.each do |jurisdiction|
-        alert_attempts.create!(:jurisdiction => jurisdiction).batch_deliver
+    super do
+      audiences(true).each do |audience|
+        aas = audience.foreign_jurisdictions.map do |jurisdiction|
+          alert_attempts.create!(:jurisdiction => jurisdiction)
+        end
+        aas.first.batch_deliver unless aas.blank?
       end
     end
-    alert_device_types(true).each do |device_type|
-      device_type.device_type.batch_deliver(self)
-    end
-    initialize_statistics
   end
 
   handle_asynchronously :batch_deliver
@@ -245,14 +253,14 @@ class HanAlert < Alert
   end
 
   def integrate_voice
-    original_file_name = "#{RAILS_ROOT}/message_recordings/tmp/#{self.author.token}.wav"
-    if RAILS_ENV == "test"
-      new_file_name = "#{RAILS_ROOT}/message_recordings/test/#{id}.wav"
+    original_file_name = "#{Rails.root.to_s}/message_recordings/tmp/#{self.author.token}.wav"
+    if Rails.env == "test"
+      new_file_name = "#{Rails.root.to_s}/message_recordings/test/#{id}.wav"
     else
-      new_file_name = "#{RAILS_ROOT}/message_recordings/#{id}.wav"
+      new_file_name = "#{Rails.root.to_s}/message_recordings/#{id}.wav"
     end
     if File.exists?(original_file_name)
-      File.move(original_file_name, new_file_name)
+      FileUtils.move(original_file_name, new_file_name)
       m = self
       m.message_recording = File.open(new_file_name)
       m.message_recording.save
@@ -286,26 +294,15 @@ class HanAlert < Alert
       ack_logs.create(:item_type => "jurisdiction", :item => jur.name, :total => attempted_users.with_jurisdiction(jur).size.to_f, :acks => 0)
     end
 
-    types = (alert_device_types.map(&:device) << "Device::ConsoleDevice").uniq
-    types.each do |type|
-      ack_logs.create(:item_type => "device", :item => type, :acks => 0, :total => aa_size)
-    end
+    call_down_messages.each do |key, value|
+      ack_logs.create(:item_type => "alert_response", :item => value, :acks => 0, :total => aa_size)
+    end if acknowledge?
 
-    if has_alert_response_messages?
-      call_down_messages.each do |key, value|
-        ack_logs.create(:item_type => "alert_response", :item => value, :acks => 0, :total => aa_size)
-      end
-    end
-    ack_logs.create(:item_type => "total", :acks => 0, :total => aa_size)
+    super
   end
 
   def update_statistics(options)
     aa_size = nil
-    if options[:device]
-      ack = ack_logs.find_by_item_type_and_item("device",options[:device])
-      ack.update_attribute(:acks, ack[:acks] + 1) unless ack.nil?
-    end
-
     if options[:jurisdiction]
       options[:jurisdiction] = [options[:jurisdiction]].flatten
       options[:jurisdiction].map(&:name).each { |name|
@@ -314,14 +311,7 @@ class HanAlert < Alert
       }
     end
 
-    if options[:response] && options[:response].to_i > 0
-      response = options[:response]
-      ack = ack_logs.find_by_item_type_and_item("alert_response", call_down_messages[options[:response]])
-      ack.update_attribute(:acks, ack[:acks] + 1) unless ack.nil?
-    end
-
-    ack = ack_logs.find_by_item_type("total")
-    ack.update_attribute(:acks, ack[:acks] + 1) unless ack.nil?
+    super
   end
 
   def sender
@@ -333,7 +323,7 @@ class HanAlert < Alert
   end
 
   def to_ack_edxl
-    xml = Builder::XmlMarkup.new(:indent => 2)
+    xml = ::Builder::XmlMarkup.new(:indent => 2)
     xml.instruct!
     xml.EDXLDistribution(:xmlns => 'urn:oasis:names:tc:emergency:EDXL:DE:1.0') do
       xml.distributionID "#{identifier},#{Agency[:agency_identifier]}"
@@ -400,16 +390,15 @@ class HanAlert < Alert
     end
   end
 
-  def preview_recipients_size(params)
+  def self.preview_recipients_size(params)
     temp_recipients_size = nil
     if ( params["action"] == "update" || params["action"] == "cancel")
       original_alert = HanAlert.find_by_id(params[:id])
       temp_recipients_size = original_alert.targets.first.users.size
     else
       ActiveRecord::Base.transaction do
-        temp_alert = HanAlert.new(params[:han_alert])
-        temp_alert.save!
-        temp_recipients_size = temp_alert.recipients({:force => true}).size
+        temp_aud = Audience.create(params[:audience])
+        temp_recipients_size = params[:not_cross_jurisdictional] == '1' ? temp_aud.recipients.size : temp_aud.recipients.with_hacc(params[:from_jurisdiction_id]).size
         raise ActiveRecord::Rollback
       end
     end
@@ -437,7 +426,131 @@ class HanAlert < Alert
     title
   end
 
+  def to_xml
+    options = {:messageId => self.distribution_id}
+    options[:Messages] = {}
+    options[:Messages][:override] = Proc.new do |messages|
+      messages.Message(:name => "title", :lang => "en/us", :encoding => "utf8", :content_type => "text/plain") do |message|
+        message.Value "Health Alert \"#{self.title}\""
+      end
+
+      messages.Message(:name => "short_message", :lang => "en/us", :encoding => "utf8", :content_type => "text/plain") do |message|
+        message.Value self.short_message
+      end unless self.short_message.blank?
+
+      messages.Message(:name => "email_message", :lang => "en/us", :enconding => "utf8", :content_type => "text/plain") do |message|
+        message.Value self.construct_email_message
+      end
+
+      messages.Message(:name => "phone_message", :lang => "en/us", :enconding => "utf8", :content_type => "text/plain") do |message|
+        message.Value self.construct_phone_message
+      end
+    end
+
+    options[:Behavior] = {}
+    options[:Behavior][:override] = Proc.new do |behavior|
+      introOrganization = self.from_organization unless self.from_organization.blank?
+      introOrganization = self.from_jurisdiction unless self.from_jurisdiction.blank?
+
+      behavior.Delivery do |delivery|
+        delivery.customAttributes do |customAttributes|
+          customAttributes.customAttribute(:name => "introOrganization") do |customAttribute|
+            customAttribute.Value introOrganization
+          end unless introOrganization.blank?
+
+          customAttributes.customAttribute(:name => "phone") do |customAttribute|
+            customAttribute.Value self.caller_id
+          end unless self.caller_id.blank?
+
+          delivery.Providers do |providers|
+            (self.alert_device_types.map{|device| device.device_type.display_name} & Service::Swn::Message::SUPPORTED_DEVICES.keys).each do |device|
+              email = YAML.load(IO.read(Rails.root.to_s+"/config/email.yml"))[Rails.env] if device == 'E-mail'
+              device_options = {:name => email.nil? ? 'swn' : email["alert"].to_s.downcase, :device => device}
+              if self.acknowledge?
+                device_options[:ivr] = "alert_responses" if (device == "Phone" && self.sensitive) || (!self.sensitive)
+              end
+
+              providers.Provider(device_options) do |provider|
+                provider.Messages do |messages|
+                  messages.ProviderMessage(:name => "title", :ref => "title")
+                  messages.ProviderMessage(:name => "message", :ref => "short_message") if device == "Blackberry PIN" || device == "Fax" || device == "SMS"
+                  messages.ProviderMessage(:name => "message", :ref => "email_message") if device == "E-mail"
+                  messages.ProviderMessage(:name => "message", :ref => "phone_message") if device == "Phone"
+                end
+              end
+            end
+          end
+
+        end
+      end
+    end
+
+    super(options)
+  end
+
+  def construct_email_message
+    Rails.application.routes.default_url_options[:host] = HOST
+    header = "The following is an alert from the Texas Public Health Information Network.\r\n\r\n"
+    footer = ""
+    more = "... \r\n\r\nPlease visit the TXPhin website at #{Rails.application.routes.url_helpers.hud_url} to read the rest of this alert.\r\n\r\n"
+    if self.acknowledge?
+      header += "This alert requires acknowledgment.  Please follow the instructions below to acknowledge this alert.\r\n\r\n"
+    end
+    if self.sensitive?
+      footer += "\r\n\r\nAlert ID: #{self.identifier}\r\n"
+      footer += "Reference: #{self.original_alert_id}\r\n" unless self.original_alert_id.blank?
+      footer += "Status: #{self.status}\r\n" unless self.status == "Actual"
+      footer += "Sensitive: use secure means of retrieval\r\n\r\n"
+      footer += "Please visit #{Rails.application.routes.url_helpers.url_for(:action => "hud", :controller => "dashboard", :escape => false, :only_path => false, :protocol => "https")} to securely view this alert.\r\n"
+      output = header + footer
+    else
+      footer += "\r\n\r\nTitle: #{self.title}\r\n"
+      footer += "Alert ID: #{self.identifier}\r\n"
+      footer += "Reference: #{self.original_alert_id}\r\n" unless self.original_alert_id.blank?
+      footer += "Agency: #{self.from_jurisdiction.nil? ? self.from_organization_name : self.from_jurisdiction.name}\r\n"
+      footer += "Sender: #{self.author.display_name}\r\n" unless self.author.nil?
+      footer += "Status: #{self.status}\r\n" unless self.status == "Actual"
+      footer += "Time Sent: #{self.created_at.strftime("%B %d, %Y %I:%M %p %Z")}\r\n\r\n"
+      if self.message.size + header.size + footer.size > 1000
+        output = header + self.message[0..(1000 - header.size - more.size - footer.size)] + more + footer
+      else
+        output = header + self.message + footer
+      end
+    end
+    output
+  end
+
+
+  def construct_phone_message
+    output = "The following is an alert from the Texas Public Health Information Network.  "
+    if output.size + self.message.size > 1000
+      footer = ".  The rest of this message is unavailable.  Please visit the T X Fin website for the rest of this alert."
+      output += self.message[0..(1000 - output.size - footer.size)] + footer
+    else
+      output += self.message
+    end
+    output
+  end
+
+  def as_report(options={})
+    json_columns = attributes.keys.reject{|k| /^id$|_id$|_at$|^lock_version$/.match(k)}
+    json = as_json(:only => json_columns)
+    json["author"] = User.find(author_id).display_name
+    audiences_report = []
+    audiences.each do |audience|
+      audience_report = {}
+      audience_report["jurisdictions"] = audience.jurisdictions.map(&:name).to_sentence
+      audience_report["roles"] = audience.roles.map(&:name).to_sentence
+      audience_report["people"] = audience.users.map(&:name).to_sentence
+      audiences_report.push(audience_report)
+    end
+    json["audiences"] = audiences_report
+    options[:inject].each {|key,value| json[key] = value} if options[:inject]
+    json
+  end
+
   private
+
   def set_sent_at
     if sent_at.blank?
       write_attribute("sent_at", Time.zone.now)
@@ -448,38 +561,29 @@ class HanAlert < Alert
     self.message_type = MessageTypes[:alert] if self.message_type.blank?
   end
 
-  def set_identifier
+  def set_identifiers
     if identifier.nil?
       write_attribute(:identifier, "#{Agency[:agency_abbreviation]}-#{Time.zone.now.strftime("%Y")}-#{id}")
-      self.save!
     end
-  end
-
-  def set_distribution_id
     if distribution_id.nil? || (!original_alert.nil? && distribution_id == original_alert.distribution_id)
       write_attribute(:distribution_id, "#{Agency[:agency_abbreviation]}-#{created_at.strftime("%Y")}-#{id}")
-      self.save!
     end
-  end
-
-  def set_sender_id
     if sender_id.nil?
       write_attribute(:sender_id, "#{Agency[:agency_identifier]}@#{Agency[:agency_domain]}")
-      self.save!
     end
-  end
-
-  def set_distribution_reference
     if !original_alert.nil? && distribution_reference.nil?
       write_attribute(:distribution_reference, "#{original_alert.distribution_id},#{sender_id},#{original_alert.sent_at.utc.iso8601(3)}")
-      self.save!
     end
-  end
-
-  def set_reference
     if !original_alert.nil? && reference.nil?
       write_attribute(:reference, "#{Agency[:agency_identifier]},#{original_alert.distribution_id},#{original_alert.sent_at.utc.iso8601(3)}")
-      self.save!
+    end
+    self.save!
+  end
+
+  def set_acknowledgment
+    if self.acknowledge && self.call_down_messages.blank?
+      self.call_down_messages = {}
+      self.call_down_messages["1"] = "Please press one to acknowledge this alert."
     end
   end
 
@@ -511,6 +615,7 @@ class HanAlert < Alert
   end
 
   def verify_audiences_not_empty
-    errors.add_to_base("The audience must have a least one role, jurisdiction, or user specified.") unless audiences.length > 0
+    errors.add(:base, "The audience must have a least one role, jurisdiction, or user specified.") unless audiences.length > 0
   end
+
 end

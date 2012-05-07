@@ -1,20 +1,20 @@
-require 'ftools'
+require 'fileutils'
 
 class HanAlertsController < ApplicationController
   before_filter :alerter_required, :only => [:index, :new, :create, :edit, :update, :calculate_recipient_count]
-  before_filter :can_view_alert, :only => [:show, :acknowledgements]
-  skip_before_filter :login_required, :only => [:token_acknowledge, :upload, :playback]
+  before_filter :can_view_alert, :only => [:show]
+  skip_before_filter :authorize, :only => [:token_acknowledge, :upload, :playback]
   protect_from_forgery :except => [:upload, :playback]
 
   app_toolbar "han"
 
   def index
-    @alerts = present_collection current_user.han_alerts_within_jurisdictions(params[:page])
+    @alerts = current_user.han_alerts_within_jurisdictions(params[:page])
   end
 
   def show
     alert = HanAlert.find(params[:id])
-    @alert = present alert
+    @alert = alert
     respond_to do |format|
       format.html
       format.pdf do
@@ -52,7 +52,7 @@ class HanAlertsController < ApplicationController
   end
 
   def new
-    @alert = present HanAlert.new_with_defaults
+    @alert = HanAlert.new_with_defaults
     @acknowledge_options = HanAlert::Acknowledgement
   end
 
@@ -60,11 +60,9 @@ class HanAlertsController < ApplicationController
     remove_blank_call_downs unless params[:han_alert][:call_down_messages].nil?
     set_acknowledge
     params[:han_alert][:author_id] = current_user.id
-    @alert = present HanAlert.new(params[:han_alert])
-    @acknowledge = if @alert.acknowledge && !(@alert.call_down_messages.blank? || @alert.call_down_messages.empty?)
-      'Advanced'
-    elsif @alert.acknowledge
-      'Normal'
+    @alert = HanAlert.new(params[:han_alert])
+    @acknowledge = if @alert.acknowledge
+      @alert.call_down_messages.blank? || @alert.call_down_messages["1"] == "Please press one to acknowledge this alert." ? 'Normal' : 'Advanced'
     else
       'None'
     end
@@ -74,8 +72,8 @@ class HanAlertsController < ApplicationController
       if @alert.valid?
 
         @alert.save
-        @alert.integrate_voice
-        @alert.batch_deliver
+        #@alert.integrate_voice
+        #@alert.batch_deliver
         respond_to do |format|
           format.html {
             flash[:notice] = "Successfully sent the alert."
@@ -113,11 +111,16 @@ class HanAlertsController < ApplicationController
     end
 
     unless error
-      @acknowledge_options = HanAlert::Acknowledgement.reject{|x| x=="Advanced"}
+      @acknowledge_options = HanAlert::Acknowledgement #.reject{|x| x=="Advanced"}
       # TODO : Remove when devices refactored
       @device_types = []
       alert.device_types.each do |device_type|
         @device_types << device_type
+      end
+      @acknowledge = if alert.acknowledge?
+        alert.call_down_messages.blank? || alert.call_down_messages["1"] == "Please press one to acknowledge this alert." ? 'Normal' : 'Advanced'
+      else
+        'None'
       end
     end
 
@@ -149,7 +152,7 @@ class HanAlertsController < ApplicationController
 
     respond_to do |format|
       format.html do
-        @alert = present alert, :action => params[:_action]
+        @alert = alert
         @update = true if params[:_action].downcase == "update"
         @cancel = true if params[:_action].downcase == "cancel"
       end
@@ -208,17 +211,17 @@ class HanAlertsController < ApplicationController
       @update = true
       original_alert.build_update(params[:han_alert])
     end
-     @acknowledge = if @alert.acknowledge
-       'Normal'
-     else
-       'None'
-     end
-     @acknowledge_options = HanAlert::Acknowledgement.reject{|x| x=="Advanced"}
+    @acknowledge = if @alert.acknowledge
+      'Normal'
+    else
+      'None'
+    end
+     @acknowledge_options = HanAlert::Acknowledgement #.reject{|x| x=="Advanced"}
     if params[:send]
       @alert.save
       if @alert.valid?
-        @alert.integrate_voice
-        @alert.batch_deliver
+        #@alert.integrate_voice
+        #@alert.batch_deliver
         respond_to do |format|
           format.html do
             flash[:notice] = "Successfully sent the alert."
@@ -240,7 +243,7 @@ class HanAlertsController < ApplicationController
         end
       end
     else
-      @alert = present @alert
+      @alert = @alert
       @preview = true
       render :edit
     end
@@ -264,15 +267,12 @@ class HanAlertsController < ApplicationController
           params[:alert_attempt][:call_down_response] = params[:call_down_response]
         end
         if params[:alert_attempt].blank?
-            alert_attempt.acknowledge! :ack_device => device
+            alert_attempt.acknowledge! :ack_device => device, :ack_response => "1"
         else
           device = "Device::EmailDevice" unless params[:email].blank?
-          if params[:alert_attempt].nil? || params[:alert_attempt][:call_down_response].nil? || params[:alert_attempt][:call_down_response].empty?
-            alert_attempt.acknowledge! :ack_device => device
-          else
-            alert_attempt.acknowledge! :ack_device => device, :ack_response => params[:alert_attempt][:call_down_response]
-          end
-          expire_log_entry(alert_attempt.alert)
+          alert_attempt.acknowledge! :ack_device => device, :ack_response => params[:alert_attempt][:call_down_response]
+# TODO: Figure out what this does and fix for rails 3
+#          expire_log_entry(alert_attempt.alert)
           flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
           format.json {
             headers["Access-Control-Allow-Origin"] = "*"
@@ -281,7 +281,8 @@ class HanAlertsController < ApplicationController
           }
         end
         if alert_attempt.errors.empty?
-          expire_log_entry(alert_attempt.alert)
+          
+#          expire_log_entry(alert_attempt.alert)
           flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
         else
           flash[:notice] = nil
@@ -290,12 +291,6 @@ class HanAlertsController < ApplicationController
       end
       format.html {redirect_to hud_path}
     end
-    # respond_to will look for templates, so I avoid that
-#    unless params[:format] == "json"
-#      redirect_to hud_path
-#    else
-#      # this header is a must for CORS
-#    end
   end
 
   def token_acknowledge
@@ -307,38 +302,21 @@ class HanAlertsController < ApplicationController
       if alert_attempt.alert.sensitive?
         flash[:error] = "You are not authorized to view this page."
       else
-        alert_attempt.acknowledge! :ack_device => "Device::EmailDevice"
-        expire_log_entry(alert_attempt.alert)
+        alert_attempt.acknowledge! :ack_device => "Device::EmailDevice", :ack_response => params[:call_down_response]
+#       expire_log_entry(alert_attempt.alert)
         flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
       end
     end
-    redirect_to hud_path
+    redirect_to root_path
   end
 
   def calculate_recipient_count
-    # TODO: is there a smarter way to build up a dummy alert with received data?  This works but it makes me cringe. --Andrew
-    params2 = HashWithIndifferentAccess.new
-    params2[:han_alert] = HashWithIndifferentAccess.new
-    params2[:han_alert][:title] = "DUMMY TITLE"
-    params2[:han_alert][:message] = "DUMMY MESSAGE"
-    params2[:han_alert][:short_message] = "DUMMY SHORT MESSAGE"
-    params2[:han_alert][:caller_id] = "0000000000"
-    params2[:han_alert][:call_down_messages] = {}
-    params2[:han_alert][:author_id] = current_user.id
-    params2[:han_alert][:audiences_attributes] = HashWithIndifferentAccess.new
-    params2[:han_alert][:audiences_attributes][:"0"] = HashWithIndifferentAccess.new
-    params2[:han_alert][:audiences_attributes][:"0"][:jurisdiction_ids] = params[:jurisdiction_ids]
-    params2[:han_alert][:audiences_attributes][:"0"][:user_ids] = params[:user_ids]
-    params2[:han_alert][:audiences_attributes][:"0"][:role_ids] = params[:role_ids]
-    params2[:han_alert][:audience_ids] = params[:group_ids]
-    params2[:han_alert][:from_jurisdiction_id] = params[:from_jurisdiction_id]
-    params2[:han_alert][:not_cross_jurisdictional] = params[:not_cross_jurisdictional]
-    params2[:han_alert][:severity] = "Minor"
-    params2[:han_alert][:status] = "Test"
-    params2[:han_alert][:delivery_time] = 4320
-    @alert = present HanAlert.new_with_defaults
+    parms = { :audience => {:jurisdiction_ids => params[:jurisdiction_ids], :user_ids => params[:user_ids], 
+              :role_ids => params[:role_ids], :group_ids => params[:group_ids]},
+              :not_cross_jurisdictional => params[:not_cross_jurisdictional],
+              :from_jurisdiction_id => params[:from_jurisdiction_id]}
     respond_to do |format|
-        format.json { render :json => @alert.preview_recipients_size(params2) }
+        format.json { render :json => HanAlert.preview_recipients_size(parms) }
     end
   end
 
@@ -357,8 +335,8 @@ class HanAlertsController < ApplicationController
       render :upload_error, :layout => false
     end
 
-    newpath = "#{RAILS_ROOT}/message_recordings/tmp/#{user.token}.wav"
-    File.copy(temp.path,newpath)
+    newpath = "#{Rails.root.to_s}/message_recordings/tmp/#{user.token}.wav"
+    FileUtils.copy(temp.path,newpath)
     if(!File.exists?(newpath))
       render :upload_error, :layout => false
     end
@@ -366,9 +344,9 @@ class HanAlertsController < ApplicationController
   end
 
   def playback
-    filename = "#{RAILS_ROOT}/message_recordings/tmp/#{params[:token]}.wav"
+    filename = "#{Rails.root.to_s}/message_recordings/tmp/#{params[:token]}.wav"
     if File.exists?(filename)
-      @file = File.read(filename)
+      @file = File.open(filename)
     end
     response.headers["Content-Type"] = 'audio/x-wav'
     render :play, :layout => false
@@ -416,15 +394,15 @@ private
   def expire_log_entry(alert)
     expire_fragment(:controller => "alerts", :action => "index", :key => ['alert_log_entry', alert.id])
   end
-
+  
   def alerter_required
     unless current_user.alerter?
       respond_to do |format|
+        format.json {render :json => {:message => "You do not have permission to send an alert."}, :status => 400}
         format.html do
           flash[:error] = "You do not have permission to send an alert."
           redirect_to root_path
         end
-        format.json {render :json => {:success => false, :flash => "You do not have permission to send an alert."}}
       end
     end
   end
@@ -446,7 +424,7 @@ private
   end
 
   def reduce_call_down_messages_from_responses(original_alert)
-    if params[:han_alert][:call_down_messages].nil? && original_alert.has_alert_response_messages?
+    if params[:han_alert][:call_down_messages].nil? && original_alert.acknowledge? && !params[:han_alert][:responders].blank?
       params[:han_alert][:call_down_messages] = {}
 
       msgs = original_alert.call_down_messages.select{|key, value| params[:han_alert][:responders].include?(key)}

@@ -11,7 +11,7 @@ Feature: Sending alerts using groups
       | Role          | Health Alert and Communications Coordinator |
       | Role          | BT Coordinator |
       | Jurisdiction  | Potter County  |
-    And "Texas" is the parent jurisdiction of:
+    And Texas is the parent jurisdiction of:
       | Tarrant County |
       | Potter County  |
     And the role "Admin" is an alerter

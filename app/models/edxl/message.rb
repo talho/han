@@ -19,7 +19,7 @@
 
 =end
 
-module EDXL
+module Edxl
   class MessageContainer
     include HappyMapper
 
@@ -45,7 +45,7 @@ module EDXL
     element :distribution_type, String, :tag => "distributionType"
     element :distribution_reference, String, :tag => "distributionReference"
     element :combined_confidentiality, String, :tag => "combinedConfidentiality"
-    has_many :alerts, EDXL::Alert
+    has_many :alerts, Edxl::Alert
     has_many :roles, String, :deep => true, :tag => 'recipientRole/value'
     has_many :users, String, :deep => true, :tag => 'explicitAddressValue'
     
@@ -93,7 +93,7 @@ module EDXL
     end
 
     def self.parse(xml, options = {})
-      returning super do |message|
+      super.tap do |message|
         message.alerts.each do |alert|
           next if options[:no_delivery]
           a = ::HanAlert.new(
@@ -128,7 +128,7 @@ module EDXL
           
           message.fips_codes.each do |code|
             j = Jurisdiction.find_by_fips_code(code)
-            audience.jurisdictions << j if j
+            audience.jurisdictions << j if j && !j.foreign # we don't want to create and send foreign alerts here. that would cause alerts to be sent back out through the exchange
           end
           message.roles.each do |role|
             role = Role.find_by_name(role.strip)
@@ -139,23 +139,23 @@ module EDXL
             audience.users << user if user
           end
           
-          a.jurisdictions_per_level
-          a.save!
-
-          original_alert = ::HanAlert.find_by_identifier(a.alert_references.split(',')[1].strip) if !a.alert_references.blank?
+          a.alert_device_types << AlertDeviceType.create!(:device => 'Device::EmailDevice')
           
+          a.jurisdictions_per_level
+          
+          original_alert = ::HanAlert.find_by_identifier(a.alert_references.split(',')[1].strip) if !a.alert_references.blank?
           if a.message_type == "Cancel" || a.message_type == "Update"
             a.title = "[#{a.message_type}] - #{a.title}"
             a.original_alert_id = original_alert.id
-            a.save!
           end
-
-          a.alert_device_types << AlertDeviceType.create!(:device => 'Device::EmailDevice')
-          a.batch_deliver
-          Dir.ensure_exists(File.join(Agency[:phin_ms_path]))
-
-          File.open(File.join(Agency[:phin_ms_path], "#{a.identifier}-ACK.edxl"), 'w' ) do |f|
-            f.write(a.to_ack_edxl)
+          
+          a.save!
+          
+          # TODO: Fix acknowledgement to use file exchange
+          begin
+            CDCFileExchange.new.send_alert_ack(a, options[:sender])
+          rescue
+            #swallow this error, ack is not required.
           end
         end
       end
@@ -193,7 +193,7 @@ module EDXL
     end
 
     def self.parse(xml, options = {})
-      returning super do |message|
+      super.tap do |message|
         message.acknowledge unless options[:no_delivery]
       end
     end

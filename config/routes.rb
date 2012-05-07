@@ -1,9 +1,15 @@
-ActionController::Routing::Routes.draw do |map|
-  map.connect "han_alerts/calculate_recipient_count.:format", :controller => "han_alerts", :action => "calculate_recipient_count", :method => [:get, :post]
-  map.upload "han_alerts/index/upload", :controller => "alerts", :action => "upload", :method => [:get, :post]
-  map.playback "han_alerts/new/playback.wav", :controller => "han_alerts", :action => "playback", :method => [:get]
-  map.email_acknowledge_alert "han_alerts/:id/emailack/:call_down_response", :controller => "han_alerts", :action => "acknowledge", :email => "1"
-  map.connect "han_alerts/:id/acknowledge.:format", :controller => "application", :action => "options", :conditions => {:method => [:options]}
-  map.token_acknowledge_alert "han_alerts/:id/acknowledge/:token.:format", :controller => "han_alerts", :action => "token_acknowledge"
-  map.resources :han_alerts, :member => {:acknowledge => [:get, :put], :acknowledgements => :get}
+
+Openphin::Application.routes.draw do
+  resources :han_alerts do
+      member do
+        get :acknowledge
+        put :acknowledge
+      end
+  end
+  match "/han_alerts/index/upload", :to => "han_alerts#upload", :as => 'upload', :via => [:get, :post]
+  match "/han_alerts/new/playback.wav", :to => "han_alerts#playback", :as => 'playback', :via => [:get]
+  match "/han_alerts/calculate_recipient_count.:format", :to => "han_alerts#calculate_recipient_count"
+  match "/han_alerts/:id/emailack/:call_down_response", :to => "han_alerts#acknowledge", :email => "1", :as => 'email_acknowledge_alert'
+  match "/han_alerts/:id/acknowledge(.:format)", :to => "application#options", :via => [:options]
+  match "/han_alerts/:id/acknowledge/:token(.:format)", :to => "han_alerts#token_acknowledge", :as => 'token_acknowledge_alert'
 end

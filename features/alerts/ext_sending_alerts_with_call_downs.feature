@@ -5,10 +5,10 @@ Feature: Sending alerts with call downs
   As an alerter
   Users should receive alerts with call down response options
 
-  Background:
-    Given the following entities exists:
-      | Role | Health Alert and Communications Coordinator |
-    And the role "Health Alert and Communications Coordinator" is an alerter
+  # Background:
+    # Given the following entities exists:
+      # | Role | Health Alert and Communications Coordinator |
+    # And the role "Health Alert and Communications Coordinator" is an alerter
 
 
 

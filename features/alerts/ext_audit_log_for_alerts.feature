@@ -12,10 +12,8 @@ Feature: Audit Log
     And Region 1 is the parent jurisdiction of:
      | Dallas County, Travis County |
     And the following users exist:
-      | Jane Smith | janesmith@example.com | Boss                                        | Dallas County |
-      | Bill Smith | billsmith@example.com | SysAdmin                                    | Texas         |
-      | Bill Smith | billsmith@example.com | Health Alert and Communications Coordinator | Dallas County |
-    And the role "Health Alert and Communications Coordinator" is an alerter
+      | Jane Smith | janesmith@example.com | Boss       | Dallas County |
+      | Bill Smith | billsmith@example.com | SysAdmin   | Texas         |
 
   Scenario: Audit log for Han Alert model
     Given I am logged in as "billsmith@example.com"
@@ -29,27 +27,20 @@ Feature: Audit Log
       | people                | Jane Smith              |
     And I navigate to "Admin > Audit Log"
     Then the "Audit Log" tab should be open
-    And I wait for the "Loading..." mask to go away for 1 second
     And I click model-selector-list-item "Han Alerts"
-    And I wait for the "Loading..." mask to go away for 1 second
-    Then I should see 8 rows in grid "grid-version-results"
+    Then I should see 2 rows in grid "grid-version-results"
     And I click model-selector-list-item "Han Alerts"
     And I click model-selector-list-item "Alert Attempts"
-    And I wait for the "Loading..." mask to go away for 1 second
     Then I should see 4 rows in grid "grid-version-results"
     And I click model-selector-list-item "Alert Attempts"
     And I click model-selector-list-item "Audiences"
-    And I wait for the "Loading..." mask to go away for 1 second
-    Then I should see 2 rows in grid "grid-version-results"
+    Then I should see 1 rows in grid "grid-version-results"
     And I click model-selector-list-item "Audiences"
     And I click model-selector-list-item "Deliveries"
-    And I wait for the "Loading..." mask to go away for 1 second
     Then I should see 2 rows in grid "grid-version-results"
     And I click model-selector-list-item "Deliveries"
     And I click model-selector-list-item "Targets"
-    And I wait for the "Loading..." mask to go away for 1 second
     Then I should see 2 rows in grid "grid-version-results"
     And I click model-selector-list-item "Targets"
     And I click model-selector-list-item "Alert Ack Logs"
-    And I wait for the "Loading..." mask to go away for 1 second
     Then I should see 8 rows in grid "grid-version-results"

@@ -38,7 +38,7 @@ Feature: Acknowledging an alert
   Scenario: Acknowledging an alert through an email without signing in
     Given I am logged in as "john.smith@example.com"
     And I am allowed to send alerts
-    Given a sent alert with:
+    And a sent alert with:
       | title                 | H1N1 SNS push packs to be delivered tomorrow |
       | message               | For more details, keep on reading...         |
       | severity              | Moderate                                     |
@@ -161,21 +161,9 @@ Feature: Acknowledging an alert
     # end legacy code: replace when acknowledgement is implemented
 
   Scenario: Acknowledging an alert through phone with call downs
-    # legacy code here because we have not update the user profile
-    Given I am logged in as "keith.gaddis@example.com"
-    When I go to the edit profile page    
-    And I follow "Add Device"
-    And I select "Phone" from "Device Type"
-    And I fill in "Phone" with "2105551212"
-    And I press "Save"
-    Then I should see "Profile information saved."
-    When I go to the edit profile page
-    Then I should see "2105551212"
-    And I should have a phone device with the phone "2105551212"
-    And I sign out
-    # end legacy code: replace when user profile has been updated to work in ext
-
-    Given I log in as "john.smith@example.com"
+    Given keith.gaddis@example.com has the following devices:
+      | phone | 2105551212 |
+    And I log in as "john.smith@example.com"
     When I navigate to the ext dashboard page
     And I navigate to "HAN > Send an Alert"
 

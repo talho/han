@@ -32,13 +32,16 @@ class CreateHanAlert < ActiveRecord::Migration
       t.string :sender_id
       t.text :call_down_messages
       t.boolean :not_cross_jurisdictional, :default => false
-      t.index :alert_id
     end
 
-    rename_column(:alerts, :references, :alert_references)
-    add_column(:alert_attempts, :alert_type, :string)
-    add_column(:alert_ack_logs, :alert_type, :string)
-    add_column(:alert_device_types, :alert_type, :string)
+    add_index :han_alerts, :alert_id
+    
+    if Alert.column_names.include?('references')
+      rename_column(:alerts, :references, :alert_references)
+      add_column(:alert_attempts, :alert_type, :string)
+      add_column(:alert_ack_logs, :alert_type, :string)
+      add_column(:alert_device_types, :alert_type, :string)
+    end
 
 
     ::Alert.find_in_batches(:select => "id") do |alerts|
@@ -82,11 +85,7 @@ class CreateHanAlert < ActiveRecord::Migration
     remove_column(:alerts, :not_cross_jurisdictional)
 
     CreateMTIFor(HanAlert)
-    execute("UPDATE alerts SET alert_type = 'HanAlert'")
-    execute("UPDATE alert_attempts SET alert_type = 'HanAlert'");
-    execute("UPDATE targets SET item_type = 'HanAlert' WHERE item_type = 'Alert'");
-    execute("UPDATE alert_device_types SET alert_type = 'HanAlert'");
-    execute("UPDATE alert_ack_logs SET alert_type = 'HanAlert'");
+    execute("UPDATE alerts SET alert_type = 'HanAlert' WHERE alert_type IS NULL")
   end
 
   def self.down

@@ -178,6 +178,8 @@ Feature: Viewing the HAN alert log
       | jurisdictions     | Texas, Dallas County |
       | roles             | Health Alert and Communications Coordinator |
       | title             | Hello World          |
+      | message           | Hello World          |
+      | short_message     | Hello World          |
       | communication methods | Email, SMS       |
       | caller_id         | 1234567890           |
       | alert_response_1  | if you can respond within 15 minutes |
@@ -209,6 +211,8 @@ Feature: Viewing the HAN alert log
       | jurisdictions         | Texas, Dallas County                        |
       | roles                 | Health Alert and Communications Coordinator |
       | title                 | Hello World                                 |
+      | message               | Hello World                                 |
+      | short_message         | Hello World                                 |
       | communication methods | Email, SMS                                  |
       | caller_id             | 1234567890                                  |
       | alert_response_1      | if you can respond within 15 minutes        |

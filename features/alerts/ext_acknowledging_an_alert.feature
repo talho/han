@@ -23,10 +23,10 @@ Feature: Acknowledging an alert
       | jurisdictions     | Dallas County        |
     And I navigate to "HAN > HAN Alerts"
     Then I can see the alert summary for "Piggy Pox"
-    When I click han_alert "Piggy Pox"
+    When I click summary "Piggy Pox"
     And I press "Acknowledge"
     And I wait for the "Saving" mask to go away
-    When I click han_alert "Piggy Pox"
+    When I click summary "Piggy Pox"
     Then I have acknowledged the HAN alert for "Piggy Pox"
 
     Then I should not see an "Acknowledge" button
@@ -48,8 +48,8 @@ Feature: Acknowledging an alert
       | alert_response_5  | if you cannot respond                |
     And I navigate to "HAN > HAN Alerts"
     Then I can see the alert summary for "Piggy Pox"
-    When I click han_alert "Piggy Pox"
-    And I select "if you can respond within 30 minutes" from "Alert Response"
+    When I click summary "Piggy Pox"
+    When I select "if you can respond within 30 minutes" from "Alert Response"
     When I press "Acknowledge"
     And I wait for the "Saving" mask to go away
     When I click han_alert "Piggy Pox"
@@ -76,7 +76,7 @@ Feature: Acknowledging an alert
       | alert_response_5  | if you cannot respond                |
     And I navigate to "HAN > HAN Alerts"
     Then I can see the alert summary for "Piggy Pox"
-    When I click han_alert "Piggy Pox"
+    When I click summary "Piggy Pox"
     Then I press "Acknowledge"
     Then I should see "Please select an alert response before acknowledging"
     And the alert should not be acknowledged
