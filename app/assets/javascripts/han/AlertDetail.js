@@ -114,7 +114,7 @@ Talho.AlertDetail = Ext.extend(Ext.Panel, {
             'han_alert[device_types][]': Ext.pluck(alert_json.alert.alert_device_types, 'device'),
             'han_alert[author]': alert_json.alert.author ? alert_json.alert.author.display_name : '',
             'han_alert[recipient_count]': alert_json.recipient_count,
-            'han_alert[from_jurisdiction_id]': alert_json.from_jurisdiction_id
+            'han_alert[from_jurisdiction_id]': alert_json.from_jurisdiction_id || alert_json.alert.from_jurisdiction_id
         };
 
         Ext.apply(data, alert_json.audiences);

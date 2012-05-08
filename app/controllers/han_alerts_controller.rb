@@ -36,7 +36,8 @@ class HanAlertsController < ApplicationController
           end
         end
         render :json => {:alert => alert.as_json(:include => {:alert_device_types => {:only => ['device']}, :author => {:only => ["display_name"]} },
-                                                 :only => ['acknowledge', 'call_down_messages', 'created_at', 'delivery_time', 'message', 'not_cross_jurisdictional', 'severity', 'short_message', 'status', 'sensitive', 'title']),
+                                                 :only => ['acknowledge', 'call_down_messages', 'created_at', 'delivery_time', 'message', 'not_cross_jurisdictional', 'severity', 'short_message', 'status', 'sensitive', 'title', 'from_jurisdiction_id']),
+                         :alert_attempts => alert.alert_attempts,
                          :audiences => audiences,
                          :recipient_count => @alert.recipients.count
         }
