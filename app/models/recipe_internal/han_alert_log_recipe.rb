@@ -1,4 +1,4 @@
-class RecipeInternal::HanAlertLogRecipe < Recipe
+class RecipeInternal::HanAlertLogRecipe < RecipeInternal
 
   class << self
 
@@ -11,7 +11,8 @@ class RecipeInternal::HanAlertLogRecipe < Recipe
     end
 
     def template_path
-      File.join(Rails.root, 'vendor','plugins','han','app','views', 'reports','han_alert', 'han_alert_log.html.erb')
+
+      File.join(File.dirname(__FILE__),'..','..','views','reports','han_alert','han_alert_log.html.erb')
     end
 
     def layout_path
@@ -31,23 +32,24 @@ class RecipeInternal::HanAlertLogRecipe < Recipe
     def capture_to_db(report)
       @current_user = report.author
       dataset = report.dataset
+      id = {:report_id => report.id}
       if report.criteria.present?
         criteria = report.criteria
         begin
           # i.e. Invitation.find(params)
           result = criteria[:model].constantize.send(criteria[:method],criteria[:params])
-          dataset.insert({:report=>result.as_report(:inject=>{:created_at=>Time.now.utc}),:report_id=>report.id})
-          dataset.insert( {:meta=>{:template_directives=>template_directives},:report_id=>report.id} )
+          dataset.insert( id.merge( {:report=>result.as_report(:inject=>{:created_at=>Time.now.utc})}))
+          dataset.insert( id.merge( {:meta=>{:template_directives=>template_directives}} ))
           index = 0
           result.alert_attempts.each do |attempt|
             begin
-              doc = {:i => index += 1}
-              doc[:report_id] = report.id
+              doc = id.clone
               doc[:display_name]= attempt.user.display_name
               doc[:email] = attempt.user.email
               doc[:device_type] = attempt.acknowledged_alert_device_type.device.constantize.display_name
               doc[:response] = attempt.call_down_response > 0 ? result.call_down_messages[attempt.call_down_response.to_s] : "Acknowledged"
               doc[:time] = attempt.acknowledged_at.utc
+              doc[:i] = index += 1
               dataset.insert(doc)
             rescue NoMethodError => error
               # skip this illegitimate attempt
@@ -62,6 +64,7 @@ class RecipeInternal::HanAlertLogRecipe < Recipe
 
     def generate_rendering( report, view, template, filters=nil )
       filtered_at = nil
+      id = {:report_id => report.id}
       pre_where = {"i"=>{'$exists'=>true},:report_id=>report.id}
       if filters.present?
         filtered_at = filters["filtered_at"]
@@ -73,13 +76,13 @@ class RecipeInternal::HanAlertLogRecipe < Recipe
         filename = "#{report.name}.html"
         where = pre_where
       end
-      subject = report.dataset.find({:report=>{:$exists=>true},:report_id=>report.id}).first['report']
+      subject = report.dataset.find( id.merge( {:report=>{:$exists=>true}})).first['report']
       results = []
       report.dataset.find(where).each{|e| results << e}
       Dir.mktmpdir do |dir|
         path = File.join dir, filename
         File.open(path, 'wb') do |f|
-          rendering = view.render(:inline=>template,:type=>'html',
+          rendering = view.render(:file=>template,
                                   :locals=>{:report=>subject,
                                             :attempts=>results,
                                             :filters=>filters},

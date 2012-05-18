@@ -1,13 +1,24 @@
-<%- content_tag(:tr) do -%>
-  <%= content_tag(:td, "Jurisdictions") %>
-  <%= content_tag(:td, audience['jurisdictions'].blank? ? 'None' : audience['jurisdictions']) %>
-<%- end -%>
-<%- content_tag(:tr) do -%>
-  <%= content_tag(:td, "Roles") %>
-  <%= content_tag(:td, audience['roles'].blank? ? 'None' : audience['roles']) %>
-<%- end -%>
-<%- content_tag(:tr) do -%>
-  <%= content_tag(:td, "People") %>
-  <%= content_tag(:td, audience['users'].blank? ? 'No additional people selected' : audience['users']) %>
-<%- end -%>
-
+<tr>
+  <td>
+    Jurisdictions
+  </td>
+  <td>
+    <%= audience['jurisdictions'].blank? ? 'None' : audience['jurisdictions'] %>
+  </td>
+</tr>
+<tr>
+  <td>
+    Roles
+  </td>
+  <td>
+    <%= audience['roles'].blank? ? 'None' : audience['roles'] %>
+  </td>
+</tr>
+<tr>
+  <td>
+    People
+  </td>
+  <td>
+    <%= audience['users'].blank? ? 'No additional people selected' : audience['users'] %>
+  </td>
+</tr>

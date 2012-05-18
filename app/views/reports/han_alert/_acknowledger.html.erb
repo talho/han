@@ -1,10 +1,18 @@
 <%- unless acknowledger -%>
-  <%- content_tag(:tr) do -%>
-    <%= content_tag(:td, acknowledger['display_name'].blank? ? 'None' : acknowledger['display_name']) %>
-    <%= content_tag(:td, acknowledger['email'].blank? ? 'None' : acknowledger['email']) %>
-    <%= content_tag(:td, acknowledger['device_type'].blank? ? '' : acknowledger['device_type'] ) %>
-    <%= content_tag(:td, acknowledger['response']) %>
-  <%- end -%>
+  <tr>
+    <td>
+      <%= acknowledger['display_name'].blank? ? 'None' : acknowledger['display_name'] %>
+    </td>
+    <td>
+      <%= acknowledger['email'].blank? ? 'None' : acknowledger['email'] %>
+    </td>
+    <td>
+      <%= acknowledger['device_type'].blank? ? '' : acknowledger['device_type'] %>
+    </td>
+    <td>
+      <%= acknowledger['response'] %>
+    </td>
+  </tr>
 <%- end -%>
 
 

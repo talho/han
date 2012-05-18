@@ -1,40 +1,59 @@
 <%- filtered = filters.present? ? "(FILTERED)" : "" -%>
 <%- alert = report -%>
-<%- caption = "Alert ID: #{report['identifier']} #{filtered} as of #{report['created_at']}"  -%>
 
-<%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
+<table cellpadding="0" class="BreadnButter">
 
-  <%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
-      <%= content_tag(:caption, caption, :style=>"text-align:center")%>
+  <% if alert %>
+    <table cellspacing="0" class="BreadnButter">
+      <caption style="text-align:center">
+        <%=  "Alert ID: #{alert['identifier']} #{filtered} as of #{alert['created_at']}" %>
+      </caption>
       <%= render :partial => "detail", :locals => {:alert => alert} %>
-   <%- end -%>
+    </table>
+  <% end %>
 
-  <%- if alert['audiences'] -%>
-    <%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
-      <%= content_tag(:caption, "Audiences", :style=>"text-align:left")%>
+  <% if alert && alert['audiences'] %>
+    <table cellspacing="0" class="BreadnButter">
+      <caption style="text-align:left">
+        Audiences
+      </caption>
       <%=  render :partial => 'audience', :collection => alert['audiences'] %>
-    <%- end -%>
-  <%- end -%>
+    </table>
+  <% end %>
 
-  <%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
-    <%= content_tag(:caption, "Acknowledgements", :style=>"text-align:left")%>
-    <%- if attempts -%>
-      <%- unless attempts.empty? -%>
-        <%- content_tag(:tr) do -%>
-          <%= content_tag(:th, 'Name') %>
-          <%= content_tag(:th, 'Email Address') %>
-          <%= content_tag(:th, 'Acknowledged with Device') %>
-          <%= content_tag(:th, 'Alert Response') %>
-        <%- end -%>
-        <%= render :partial => 'acknowledger', :collection => attempts %>
-      <%- else -%>
-        <%= content_tag(:td, 'No Acknowledgements Found') %>
-      <%- end -%>
-    <%- end -%>
-  <%- end -%>
+  <table cellspacing="0" class="BreadnButter">
+    <caption style="text-align:left">
+      Acknowledgements
+    </caption>
+    <% if attempts && !attempts.empty? %>
+      <tr>
+        <th>
+          Name
+        </th>
+        <th>
+          Email Address
+        </th>
+        <th>
+          Acknowledged with Device
+        </th>
+        <th>
+          Alert Response
+        </th>
+      </tr>
+      <%= render :partial => 'acknowledger', :collection => attempts %>
+    <% else %>
+      <td>
+        No Acknowledgements Found
+      </td>
 
-<%- end -%>
-<%= content_tag(:br) %>
-<%= content_tag(:p,"Report Generated #{filtered} on: #{Time.now.utc} for #{current_user.display_name}") %>
+    <% end %>
+  </table>
+
+</table>
+
+<br>
+<p>
+  <%= "Report Generated #{filtered} on: #{Time.now.utc} for #{current_user.display_name}" %>
+</p>
 
 
