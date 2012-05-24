@@ -131,6 +131,7 @@ end
 
 When 'I follow the acknowledge HAN alert link "$title"' do |title|
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
+  debugger
   if title.blank?
     visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
   else

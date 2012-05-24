@@ -6,7 +6,7 @@ namespace :db do
     desc description
     task :han => :environment do
       ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
-      ActiveRecord::Migrator.migrate("vendor/plugins/han/db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+      ActiveRecord::Migrator.migrate("vendor/extensions/han/db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
       Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
     end
   end
@@ -17,7 +17,7 @@ namespace :db do
     desc description
     task :han => :environment do
       ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
-      ActiveRecord::Migrator.rollback("vendor/plugins/han/db/migrate/")
+      ActiveRecord::Migrator.rollback("vendor/extensions/han/db/migrate/")
       Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
     end
   end

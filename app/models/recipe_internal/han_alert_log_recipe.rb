@@ -11,7 +11,6 @@ class RecipeInternal::HanAlertLogRecipe < RecipeInternal
     end
 
     def template_path
-
       File.join(File.dirname(__FILE__),'..','..','views','reports','han_alert','han_alert_log.html.erb')
     end
 

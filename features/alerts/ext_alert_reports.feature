@@ -50,12 +50,42 @@ Feature: Alert Reports
 
     When I inspect the generated rendering
     Then I should see "Alert ID:" in the rendering
+    And I should see "Title" in the rendering
+    And I should see "Severity" in the rendering
+    And I should see "Message" in the rendering
+    And I should see "Status" in the rendering
+    And I should see "Short Message" in the rendering
+    And I should see "Acknowledge" in the rendering
+    And I should see "Author" in the rendering
+    And I should see "Sensitive" in the rendering
+    And I should see "Created At" in the rendering
+    And I should see "Jurisdictional" in the rendering
+    And I should see "Audiences" in the rendering
+    And I should see "Jurisdictions" in the rendering
+    And I should see "Roles" in the rendering
+    And I should see "People" in the rendering
+    And I should see "Acknowledgements" in the rendering
+    And I should see "Name" in the rendering
+    And I should see "Email Address" in the rendering
+    And I should see "Acknowledged with Device" in the rendering
+    And I should see "Alert Response" in the rendering
+    And I should see "Report Generated on" in the rendering
+    And I should see "UTC for John Smith" in the rendering
     And I should not see "No Acknowledgements Found" in the rendering
 
     When I inspect the generated pdf
     Then I should see "Alert ID:" in the pdf
     And I should not see "No Acknowledgements Found" in the pdf
+    And I should see "UTC for John Smith" in the rendering
 
     When I inspect the generated csv
-    Then I should see "if you can respond within 30 minutes" in the csv
+    Then I should see "display_name" in the csv
+    And I should see "email" in the csv
+    And I should see "device_type" in the csv
+    And I should see "response" in the csv
+    And I should see "time" in the csv
     And I should see "Brian Simms" in the csv
+    And I should see "brian.simms@example.com" in the csv
+    And I should see "Console" in the csv
+    And I should see "if you can respond within 30 minutes" in the csv
+    And I should see "UTC" in the csv
