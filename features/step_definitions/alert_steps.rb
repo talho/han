@@ -131,7 +131,6 @@ end
 
 When 'I follow the acknowledge HAN alert link "$title"' do |title|
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
-  debugger
   if title.blank?
     visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
   else
@@ -183,8 +182,7 @@ Then 'a HAN alert exists with:' do |table|
   attrs = table.rows_hash
   conditions = attrs['identifier'].blank? ? "" : "identifier = :identifier OR "
   conditions += attrs['message'].blank? ? "title = :title" : "(title = :title AND message = :message)"
-  alert = HanAlert.find(:first, :conditions => [conditions,
-                                                {:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
+  alert = HanAlert.first(:conditions => [conditions,{:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
   attrs.each do |attr, value|
     case attr
     when 'from_jurisdiction'
@@ -226,8 +224,7 @@ Then 'an alert should not exist with:' do |table|
   attrs = table.rows_hash
   conditions = attrs['identifier'].blank? ? "" : "identifier = :identifier OR "
   conditions += attrs['message'].blank? ? "title = :title" : "(title = :title AND message = :message)"
-  alert = HanAlert.find(:first, :conditions => [conditions,
-                                                {:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
+  alert = HanAlert.first(:conditions => [conditions,{:identifier => attrs['identifier'], :title => attrs['title'], :message => attrs['message']}])
   if alert.nil?
     alert.should be_nil
   else
