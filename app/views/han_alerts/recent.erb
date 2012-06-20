@@ -1,0 +1,4 @@
+<ul id="alerts">
+  <%= render :partial => "han_alerts/alert", :collection => @alerts, :as => :alert %>
+  <%= will_paginate @alerts %>
+</ul>
