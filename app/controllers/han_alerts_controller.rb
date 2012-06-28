@@ -12,6 +12,30 @@ class HanAlertsController < ApplicationController
     @alerts = current_user.han_alerts_within_jurisdictions(params[:page])
   end
 
+  def recent
+    require 'will_paginate/array'
+    per_page = ( params[:per_page].to_i > 0 ? params[:per_page].to_i : 10 )
+    @alerts = (defined?(current_user.recent_han_alerts) && current_user.recent_han_alerts.size > 0) ?
+        current_user.recent_han_alerts.paginate(:page => params[:page], :per_page => per_page) :
+        (defined?(HanAlert) ? [HanAlert.default_alert] : []).paginate(:page => 1)
+    respond_to do |format|
+      format.html
+      format.ext
+      format.json do
+        unless @alerts.nil? || @alerts.empty? || ( @alerts.map(&:id) == [nil] ) # for dummy default alert
+          jsonObject = @alerts.collect{ |alert| alert.iphone_format(acknowledge_han_alert_path(alert.id),alert.acknowledged_by_user?(current_user)) }
+          headers["Access-Control-Allow-Origin"] = "*"
+          render :json => jsonObject
+        else
+          headers["Access-Control-Allow-Origin"] = "*"
+          render :json => []
+        end
+      end
+    end
+  end
+
+
+
   def show
     alert = HanAlert.find(params[:id])
     @alert = alert
@@ -308,7 +332,7 @@ class HanAlertsController < ApplicationController
         flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
       end
     end
-    redirect_to root_path
+    redirect_to hud_path
   end
 
   def calculate_recipient_count
