@@ -9,6 +9,7 @@ module Han
       ::Audience.send(:include, Models::Audience)
       ::User.send(:include, Models::User)
       ::Organization.send(:include, Models::Organization)
+      ::AuditsController.send(:add_model,'HanAlert')
     end
     
   end
