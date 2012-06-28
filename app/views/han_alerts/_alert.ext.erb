@@ -19,8 +19,8 @@
       <p class="brief sensitive"><strong>Sensitive:</strong> <%=h alert.sensitive? ? 'Yes' : 'No' %></p>
       <p class="brief acknowledge alertResponse"><strong>Acknowledge:</strong> <%=
           if alert.acknowledge?
-            unless alert.alert_attempts.find_by_user_id(@user.id).nil?
-              cdr = alert.alert_attempts.find_by_user_id(@user.id).call_down_response
+            unless alert.alert_attempts.find_by_user_id(current_user.id).nil?
+              cdr = alert.alert_attempts.find_by_user_id(current_user.id).call_down_response
               if alert.call_down_messages[cdr.to_s] == "Please press one to acknowledge this alert."
                 alert.acknowledge? ? 'Yes' : 'No'
               else
@@ -39,7 +39,7 @@
       </div>
 
       <p>
-        <% if alert.acknowledge? && !alert.acknowledged_by_user?(@user) %>
+        <% if alert.acknowledge? && !alert.acknowledged_by_user?(current_user) %>
           <% if alert.expired? %>
             Acknowledgement is no longer allowed for this Alert.
           <% elsif alert.call_down_messages["1"] == "Please press one to acknowledge this alert." %>
