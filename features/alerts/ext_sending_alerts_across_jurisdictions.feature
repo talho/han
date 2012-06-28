@@ -5,23 +5,23 @@ Feature: Sending alerts across jurisdictions
 
   Background:
     Given the following entities exists:
-      | Jurisdiction | Tarrant County                              |
-      | Jurisdiction | Wise County                                 |
-      | Jurisdiction | Potter County                               |
-      | Jurisdiction | Dallas County                               |
-      | Jurisdiction | Ottawa County                               |
-      | Jurisdiction | Texas                                       |
-      | Jurisdiction | Michigan                                    |
-      | Role         | Health Officer                              |
-      | Role         | Health Alert and Communications Coordinator |
+      | Jurisdiction | Tarrant County                              |     |
+      | Jurisdiction | Wise County                                 |     |
+      | Jurisdiction | Potter County                               |     |
+      | Jurisdiction | Dallas County                               |     |
+      | Jurisdiction | Ottawa County                               |     |
+      | Jurisdiction | Texas                                       |     |
+      | Jurisdiction | Michigan                                    |     |
+      | Role         | Health Officer                              | han |
+      | Role         | Health Alert and Communications Coordinator | han |
     And the following users exist:
-      | Ethan Waldo     | ethan.waldo@example.com     | Health Alert and Communications Coordinator | Tarrant County |
-      | Keith Gaddis    | keith.gaddis@example.com    | Health Alert and Communications Coordinator | Wise County    |
-      | Jason Phipps    | jason.phipps@example.com    | Health Alert and Communications Coordinator | Potter County  |
-      | Dan Morrison    | dan.morrison@example.com    | Health Alert and Communications Coordinator | Ottawa County  |
-      | Zach Dennis     | zach.dennis@example.com     | Health Alert and Communications Coordinator | Dallas County  |
-      | Brandon Keepers | brandon.keepers@example.com | Health Alert and Communications Coordinator | Texas          |
-      | Brian Ryckbost  | brian.ryckbost@example.com  | Health Alert and Communications Coordinator | Texas          |
+      | Ethan Waldo     | ethan.waldo@example.com     | Health Alert and Communications Coordinator | Tarrant County | han |
+      | Keith Gaddis    | keith.gaddis@example.com    | Health Alert and Communications Coordinator | Wise County    | han |
+      | Jason Phipps    | jason.phipps@example.com    | Health Alert and Communications Coordinator | Potter County  | han |
+      | Dan Morrison    | dan.morrison@example.com    | Health Alert and Communications Coordinator | Ottawa County  | han |
+      | Zach Dennis     | zach.dennis@example.com     | Health Alert and Communications Coordinator | Dallas County  | han |
+      | Brandon Keepers | brandon.keepers@example.com | Health Alert and Communications Coordinator | Texas          | han |
+      | Brian Ryckbost  | brian.ryckbost@example.com  | Health Alert and Communications Coordinator | Texas          | han |
 
     And Texas is the parent jurisdiction of:
       | Dallas County | Tarrant County | Wise County | Potter County |
@@ -32,17 +32,17 @@ Feature: Sending alerts across jurisdictions
     And I am logged in as "zach.dennis@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
   Scenario: Sending an alert to sibling jurisdictions
     When I fill in the ext alert defaults
     And I fill in "Message" with "For more details, keep on reading..."
 
     And I select the following alert audience:
-      | name                                        | type         |
-      | Tarrant County                              | Jurisdiction |
-      | Wise County                                 | Jurisdiction |
-      | Health Alert and Communications Coordinator | Role         |
+      | name                                             | type         |
+      | Tarrant County                                   | Jurisdiction |
+      | Wise County                                      | Jurisdiction |
+      | Han: Health Alert and Communications Coordinator | Role         |
 
     And I click breadCrumbItem "Preview"
     And I wait for the audience calculation to finish
@@ -64,9 +64,9 @@ Feature: Sending alerts across jurisdictions
     And I fill in "Message" with "For more details, keep on reading..."
 
     And I select the following alert audience:
-      | name                                        | type         |
-      | Texas                                       | Jurisdiction |
-      | Health Alert and Communications Coordinator | Role         |
+      | name                                             | type         |
+      | Texas                                            | Jurisdiction |
+      | Han: Health Alert and Communications Coordinator | Role         |
 
     And I click breadCrumbItem "Preview"
     And I wait for the audience calculation to finish
@@ -88,9 +88,9 @@ Feature: Sending alerts across jurisdictions
     And I fill in "Message" with "For more details, keep on reading..."
 
     And I select the following alert audience:
-      | name                                        | type         | state    |
-      | Ottawa County                               | Jurisdiction | Michigan |
-      | Health Alert and Communications Coordinator | Role         |          |
+      | name                                             | type         | state    |
+      | Ottawa County                                    | Jurisdiction | Michigan |
+      | Han: Health Alert and Communications Coordinator | Role         |          |
 
     And I click breadCrumbItem "Preview"
     And I wait for the audience calculation to finish

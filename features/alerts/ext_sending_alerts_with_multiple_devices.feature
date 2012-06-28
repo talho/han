@@ -6,12 +6,12 @@ Feature: Sending alerts to multiple devices
 
   Background:
     Given the following users exist:
-      | John Smith      | john.smith@example.com    | Health Alert and Communications Coordinator | Dallas County  |
-      | Keith Gaddis    | keith.gaddis@example.com  | Epidemiologist                              | Wise County    |
-      | Joe Black       | joe.black@example.com     | Epidemiologist                              | Potter County  |
-      | Henry Frank     | henry.frank@example.com   | Public Relations                            | Bell County    |
-      | Martin Gons     | martin.gons@example.com   | Chairopractor                               | Travis County  |
-      | George Strait   | george.strait@example.com | Registered Nurse                            | Bell County    |
+      | John Smith      | john.smith@example.com    | Health Alert and Communications Coordinator | Dallas County  | han |
+      | Keith Gaddis    | keith.gaddis@example.com  | Epidemiologist                              | Wise County    | han |
+      | Joe Black       | joe.black@example.com     | Epidemiologist                              | Potter County  | han |
+      | Henry Frank     | henry.frank@example.com   | Public Relations                            | Bell County    | han |
+      | Martin Gons     | martin.gons@example.com   | Chairopractor                               | Travis County  | han |
+      | George Strait   | george.strait@example.com | Registered Nurse                            | Bell County    | han |
     And keith.gaddis@example.com has the following devices:
       | SMS   | 5125551245 |
       | Phone | 5125551235 |
@@ -32,7 +32,7 @@ Feature: Sending alerts to multiple devices
     Given I log in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I select "Moderate" from ext combo "Severity"

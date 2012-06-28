@@ -11,8 +11,8 @@ Feature: Alert Reports
       | Role         | Health Alert and Communications Coordinator |
       | Role         | Epidemiologist                              |
     And the following users exist:
-      | John Smith      | john.smith@example.com  | Health Alert and Communications Coordinator | Dallas County  |
-      | Brian Simms     | brian.simms@example.com | Epidemiologist                              | Tarrant County |
+      | John Smith      | john.smith@example.com  | Health Alert and Communications Coordinator | Dallas County  | han |
+      | Brian Simms     | brian.simms@example.com | Epidemiologist                              | Tarrant County | han |
     And the role "Health Alert and Communications Coordinator" is an alerter
     And a sent alert with:
       | title             | Grant Sample                                                |
@@ -28,14 +28,14 @@ Feature: Alert Reports
   Scenario: A non-alerter cannot view a report of an alert
     Given I am logged in as "brian.simms@example.com"
     When I am on the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should not be able to navigate to "HAN > Alert Log and Reporting"
 
   @clear_report_db
   Scenario: A alerter can report on an alert that has been acknowledged
     Given I am logged in as "brian.simms@example.com"
     And I am on the ext dashboard page
-    When I navigate to "HAN > HAN Alerts"
+    When I navigate to "Apps > HAN > HAN Alerts"
     Then I can see the alert summary for "Grant Sample"
     When I click summary "Grant Sample"
     And I select "if you can respond within 30 minutes" from "Alert Response"

@@ -10,8 +10,8 @@ Feature: Sending alerts to BlackBerry devices
       | Role         | Health Alert and Communications Coordinator |
       | Role         | Public                                      |
     Given the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator  | Dallas County  |
-      | Bill Smith      | bill.smith@example.com   | Public                                       | Dallas County  |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator  | Dallas County  | han |
+      | Bill Smith      | bill.smith@example.com   | Public                                       | Dallas County  | han |
     And "bill.smith@example.com" has the following devices:
       | blackberry | 12345678 |
     And the role "Health Alert and Communications Coordinator" is an alerter
@@ -20,7 +20,7 @@ Feature: Sending alerts to BlackBerry devices
   Scenario: Sending alerts to Blackberry devices
     Given I log in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I check "Blackberry"

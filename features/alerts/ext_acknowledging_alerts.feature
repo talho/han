@@ -3,8 +3,8 @@ Feature: Acknowledging an alert
 
   Background:
     Given the following users exist:
-      | John Smith   | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County |
-      | Keith Gaddis | keith.gaddis@example.com | Epidemiologist                              | Wise County   |
+      | John Smith   | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
+      | Keith Gaddis | keith.gaddis@example.com | Epidemiologist                              | Wise County   | han |
     And "Texas" is the parent jurisdiction of:
       | Dallas County |
       | Wise County   |
@@ -112,7 +112,7 @@ Feature: Acknowledging an alert
 
     When I navigate to the ext dashboard page
     And I wait for the "Loading" mask to go away
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I can see the alert summary for "H1N1 SNS push packs to be delivered tomorrow"
     And I click han_alert "H1N1 SNS push packs to be delivered tomorrow"
     And I should not see an "Acknowledge" button
@@ -123,7 +123,7 @@ Feature: Acknowledging an alert
     Given I am logged in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
     And I fill in the ext alert defaults
     And I select "Advanced" from ext combo "Acknowledge"
     # add a 3rd response box
@@ -151,7 +151,8 @@ Feature: Acknowledging an alert
     Then I should see "Successfully acknowledged alert: H1N1 SNS push packs to be delivered tomorrow"
     And the alert should be acknowledged
 
-    When I am on the HAN
+    And I am logged in as "keith.gaddis@example.com"
+    When I navigate to "Apps > HAN > HAN Alerts"
     Then I can see the alert summary for "H1N1 SNS push packs to be delivered tomorrow"
     And I should see "Acknowledge: if you can call back within 30 minutes"
 
@@ -165,7 +166,7 @@ Feature: Acknowledging an alert
       | phone | 2105551212 |
     And I log in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I select "Advanced" from ext combo "Acknowledge"
@@ -195,7 +196,7 @@ Feature: Acknowledging an alert
     When I acknowledge the phone message for "H1N1 SNS push packs to be delivered tomorrow" with "if you can call back within 15 minutes"
     And delayed jobs are processed
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I click han_alert "H1N1 SNS push packs to be delivered tomorrow"
     And I should not see an "Acknowledge" button
     But I should see "Acknowledge: if you can call back within 15 minutes"

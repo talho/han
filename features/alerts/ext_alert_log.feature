@@ -2,20 +2,20 @@
 Feature: Viewing the HAN alert log
   Background:
     Given the following entities exists:
-      | Role | Health Alert and Communications Coordinator |
+      | Role | Health Alert and Communications Coordinator | han |
     And the role "Health Alert and Communications Coordinator" is an alerter
 
   Scenario: Viewing list of alerts in your jurisdictions
     Given the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
     And I am logged in as "john.smith@example.com"
-    And an alert with:
+    And a sent alert with:
       | from_jurisdiction | Dallas County |
       | title             | Hello World   |
       | jurisdictions     | Dallas County |
       | acknowledge       | No            |
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I should see an alert titled "Hello World"
     And I should see "Acknowledge: None"
 
@@ -26,7 +26,7 @@ Feature: Viewing the HAN alert log
 
   Scenario: Viewing list of alerts sent directly to you
     Given the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
     And I am logged in as "john.smith@example.com"
     And a sent alert with:
       | from_jurisdiction | Dallas County |
@@ -34,7 +34,7 @@ Feature: Viewing the HAN alert log
       | title             | Hello World   |
       | acknowledge       | No            |
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I should see an alert titled "Hello World"
     And I should see "Acknowledge: None"
 
@@ -50,14 +50,14 @@ Feature: Viewing the HAN alert log
     And Texas is the parent jurisdiction of:
       | Dallas County |
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
     And I am logged in as "john.smith@example.com"
     And an alert with:
       | from_jurisdiction | Dallas County |
       | title             | Hello World   |
       | jurisdictions     | Dallas County |
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I should see an alert titled "Hello World"
 
     When I click "View" within alert "Hello World"
@@ -68,9 +68,9 @@ Feature: Viewing the HAN alert log
       | Jurisdiction | Potter County |
       | Jurisdiction | Dallas County |
     And the following users exist:
-      | John Smith | john.smith@example.com | Health Alert and Communications Coordinator | Dallas County |
+      | John Smith | john.smith@example.com | Health Alert and Communications Coordinator | Dallas County | han |
     And the following users exist:
-      | Sam Body | sam@example.com | Health Alert and Communications Coordinator | Dallas County |
+      | Sam Body | sam@example.com | Health Alert and Communications Coordinator | Dallas County | han |
     And I am logged in as "john.smith@example.com"
     And an alert with:
       | author            | Sam Body      |
@@ -78,7 +78,7 @@ Feature: Viewing the HAN alert log
       | title             | Hello World   |
       | jurisdiction      | Potter County |
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I should not see an alert titled "Hello World"
 
   #Scenario: Clicking back on a viewed alert # this won't be a valid use case, especially after the ext control is worked in: no back button
@@ -90,9 +90,9 @@ Feature: Viewing the HAN alert log
     And Texas is the parent jurisdiction of:
       | Dallas County |
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas |
-      | Jane Smith      | jane.smith@example.com   | Health Alert and Communications Coordinator | Texas |
-      | Daniel Morrison | daniel@example.com       | Health Alert and Communications Coordinator | Texas |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
+      | Jane Smith      | jane.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
+      | Daniel Morrison | daniel@example.com       | Health Alert and Communications Coordinator | Texas | han |
     And a sent alert with:
       | from_jurisdiction     | Texas                                       |
       | title                 | Hello World                                 |
@@ -108,7 +108,7 @@ Feature: Viewing the HAN alert log
 
     And I am logged in as "jane.smith@example.com"
     When I am on the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     And I click summary "Hello World"
     And I press "Acknowledge"
     And I wait for the "Saving" mask to go away
@@ -117,7 +117,7 @@ Feature: Viewing the HAN alert log
     And I am logged in as "john.smith@example.com"
     And delayed jobs are processed
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
     And I click summary "Hello World"
     And I can see the alert for "Hello World" is 33% acknowledged
@@ -130,10 +130,10 @@ Feature: Viewing the HAN alert log
     And I cannot see the device alert acknowledgement rate for "Hello World" in "Fax"
     And I cannot see the device alert acknowledgement rate for "Hello World" in "Blackberry"
     And I close the active tab
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     And I click summary "Hello World"
     And I press "Acknowledge"
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
     And I click summary "Hello World"
     And I should see "Acknowledge: Normal"
@@ -161,13 +161,13 @@ Feature: Viewing the HAN alert log
     And 20 random HAN alerts in R2
     And 10 random HAN alerts in C1
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | R1 |
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | C1 |
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | R2 |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | R1 | han |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | C1 | han |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | R2 | han |
     And "john.smith@example.com" is not public in "Texas"
     And I am logged in as "john.smith@example.com"
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I should see 10 HAN alerts
 
   Scenario: Viewing acknowledged alerts with alert responses
@@ -177,9 +177,9 @@ Feature: Viewing the HAN alert log
     And Texas is the parent jurisdiction of:
       | Dallas County |
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas |
-      | Jane Smith      | jane.smith@example.com   | Health Alert and Communications Coordinator | Texas |
-      | Daniel Morrison | daniel@example.com       | Health Alert and Communications Coordinator | Texas |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
+      | Jane Smith      | jane.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
+      | Daniel Morrison | daniel@example.com       | Health Alert and Communications Coordinator | Texas | han |
     And I am logged in as "john.smith@example.com"
     And a sent alert with:
       | from_jurisdiction     | Texas                                       |
@@ -197,11 +197,11 @@ Feature: Viewing the HAN alert log
     And "john.smith@example.com" has not acknowledged the HAN alert "Hello World"
     And "daniel@example.com" has not acknowledged the HAN alert "Hello World"
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
     And I should see "Acknowledge: Advanced"
     When I click summary "Hello World"
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     And I click summary "Hello World"
     And I should see "Alert Response"
 
@@ -212,9 +212,9 @@ Feature: Viewing the HAN alert log
     And Texas is the parent jurisdiction of:
       | Dallas County |
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas |
-      | Jane Smith      | jane.smith@example.com   | Health Alert and Communications Coordinator | Texas |
-      | Daniel Morrison | daniel@example.com       | Health Alert and Communications Coordinator | Texas |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
+      | Jane Smith      | jane.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
+      | Daniel Morrison | daniel@example.com       | Health Alert and Communications Coordinator | Texas | han |
     And I am logged in as "john.smith@example.com"
     And a sent alert with:
       | from_jurisdiction     | Texas                                       |
@@ -231,12 +231,12 @@ Feature: Viewing the HAN alert log
     And "john.smith@example.com" has not acknowledged the HAN alert "Hello World"
     And "daniel@example.com" has not acknowledged the HAN alert "Hello World"
     When I am on the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see "Alert Response"
     When I click summary "Hello World"
     And I select "if you can respond within 15 minutes" from "Alert Response"
     And I press "Acknowledge"
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
     When I click "View" within alert "Hello World"
     And I wait for the "Loading" mask to go away
@@ -246,9 +246,9 @@ Feature: Viewing the HAN alert log
     Given the following entities exists:
       | Jurisdiction | Texas          |
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas |
-      | Jane Smith      | jane.smith@example.com   | Health Alert and Communications Coordinator | Texas |
-      | Daniel Morrison | daniel@example.com       | Health Alert and Communications Coordinator | Texas |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
+      | Jane Smith      | jane.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
+      | Daniel Morrison | daniel@example.com       | Health Alert and Communications Coordinator | Texas | han |
     And I am logged in as "john.smith@example.com"
     And a sent alert with:
       | from_jurisdiction     | Texas                                |
@@ -269,7 +269,7 @@ Feature: Viewing the HAN alert log
     And I follow the acknowledge HAN alert link
     And delayed jobs are processed
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
     When I click "View" within alert "Hello World"
     And I wait for the "Loading" mask to go away
@@ -289,9 +289,9 @@ Feature: Viewing the HAN alert log
       | Jurisdiction | Texas         |
       | Organization | DSHS          |
     And the following users exist:
-      | John Smith   | john.smith@example.com | Health Alert and Communications Coordinator  | Texas |
-      | Jane Smith   | jane.smith@example.com | Health Officer                               | Texas |
-      | Daniel Smith | daniel@example.com     | Health Officer                               | Texas |
+      | John Smith   | john.smith@example.com | Health Alert and Communications Coordinator  | Texas | han |
+      | Jane Smith   | jane.smith@example.com | Health Officer                               | Texas | han |
+      | Daniel Smith | daniel@example.com     | Health Officer                               | Texas | han |
     And "jane.smith@example.com" is a member of the organization "DSHS"
     And the role "Health Alert and Communications Coordinator" is an alerter
     And I am logged in as "john.smith@example.com"
@@ -313,7 +313,7 @@ Feature: Viewing the HAN alert log
 
     When I am logged in as "john.smith@example.com"
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I can see the alert summary for "Hello World"
     When I click "View" within alert "Hello World"
     And I wait for the "Loading" mask to go away
