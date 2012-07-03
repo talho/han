@@ -7,25 +7,25 @@ Feature: Creating and sending alerts
 
   Background:
     Given the following entities exists:
-      | Jurisdiction | Dallas County                               |
-      | Jurisdiction | Tarrant County                              |
-      | Jurisdiction | Wise County                                 |
-      | Jurisdiction | Potter County                               |
-      | Jurisdiction | Texas                                       |
-      | Role         | Health Alert and Communications Coordinator |
-      | Role         | Health Officer                              |
-      | Role         | Immunization Director                       |
-      | Role         | Epidemiologist                              |
-      | Role         | WMD Coordinator                             |
+      | Jurisdiction | Dallas County                               |     |
+      | Jurisdiction | Tarrant County                              |     |
+      | Jurisdiction | Wise County                                 |     |
+      | Jurisdiction | Potter County                               |     |
+      | Jurisdiction | Texas                                       |     |
+      | Role         | Health Alert and Communications Coordinator | han |
+      | Role         | Health Officer                              | han |
+      | Role         | Immunization Director                       | han |
+      | Role         | Epidemiologist                              | han |
+      | Role         | WMD Coordinator                             | han |
     And the following users exist:
-      | John Smith      | john.smith@example.com     | Health Alert and Communications Coordinator  | Dallas County  |
-      | Brian Simms     | brian.simms@example.com    | Epidemiologist                               | Dallas County  |
-      | Ed McGuyver     | ed.mcguyver@example.com    | Public                                       | Dallas County  |
-      | Ethan Waldo     | ethan.waldo@example.com    | Health Officer                               | Tarrant County |
-      | Keith Gaddis    | keith.gaddis@example.com   | Epidemiologist                               | Wise County    |
-      | Jason Phipps    | jason.phipps@example.com   | WMD Coordinator                              | Potter County  |
-      | Dan Morrison    | dan.morrison@example.com   | Health Officer                               | Ottawa County  |
-      | Brian Ryckbost  | brian.ryckbost@example.com | Health Officer                               | Tarrant County |
+      | John Smith      | john.smith@example.com     | Health Alert and Communications Coordinator  | Dallas County  | han |
+      | Brian Simms     | brian.simms@example.com    | Epidemiologist                               | Dallas County  | han |
+      | Ed McGuyver     | ed.mcguyver@example.com    | Public                                       | Dallas County  | han |
+      | Ethan Waldo     | ethan.waldo@example.com    | Health Officer                               | Tarrant County | han |
+      | Keith Gaddis    | keith.gaddis@example.com   | Epidemiologist                               | Wise County    | han |
+      | Jason Phipps    | jason.phipps@example.com   | WMD Coordinator                              | Potter County  | han |
+      | Dan Morrison    | dan.morrison@example.com   | Health Officer                               | Ottawa County  | han |
+      | Brian Ryckbost  | brian.ryckbost@example.com | Health Officer                               | Tarrant County | han |
     And delayed jobs are processed
     And "john.smith@example.com" is not public in "Texas"
     And "brian.simms@example.com" is not public in "Texas"
@@ -43,7 +43,7 @@ Feature: Creating and sending alerts
     And I am logged in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
   Scenario: Sending an alert directly to a user
     When I fill in the ext alert defaults
@@ -77,12 +77,12 @@ Feature: Creating and sending alerts
     And I fill in "Message" with "For more details, keep on reading..."
 
     And I select the following alert audience:
-      | name            | type         |
-      | Dallas County   | Jurisdiction |
-      | Potter County   | Jurisdiction |
-      | Health Officer  | Role         |
-      | Epidemiologist  | Role         |
-      | Keith Gaddis    | User         |
+      | name                 | type         |
+      | Dallas County        | Jurisdiction |
+      | Potter County        | Jurisdiction |
+      | Han: Health Officer  | Role         |
+      | Han: Epidemiologist  | Role         |
+      | Keith Gaddis         | User         |
     And I click breadCrumbItem "Preview"
 
     And I should see "For more details, keep on reading..."
@@ -96,12 +96,12 @@ Feature: Creating and sending alerts
 
     And I expand ext panel "Alert Recipients (Primary Audience)"
     And I should see the following audience breakdown
-      | name           | type         |
-      | Dallas County  | Jurisdiction |
-      | Potter County  | Jurisdiction |
-      | Health Officer | Role         |
-      | Epidemiologist | Role         |
-      | Keith Gaddis   | User         |
+      | name                | type         |
+      | Dallas County       | Jurisdiction |
+      | Potter County       | Jurisdiction |
+      | Han: Health Officer | Role         |
+      | Han: Epidemiologist | Role         |
+      | Keith Gaddis        | User         |
 
     When I click breadCrumbItem "Alert Details"
     And I fill in "Title" with "Something Different"
@@ -115,12 +115,12 @@ Feature: Creating and sending alerts
       | Methods       | Email    |
       | Delivery Time | 72 hours |
     And I should see the following audience breakdown
-      | name           | type         |
-      | Dallas County  | Jurisdiction |
-      | Potter County  | Jurisdiction |
-      | Health Officer | Role         |
-      | Epidemiologist | Role         |
-      | Keith Gaddis   | User         |
+      | name                | type         |
+      | Dallas County       | Jurisdiction |
+      | Potter County       | Jurisdiction |
+      | Han: Health Officer | Role         |
+      | Han: Epidemiologist | Role         |
+      | Keith Gaddis        | User         |
 
   Scenario: Sending an alert to specific users sends alerts to each user
     When I fill in the ext alert defaults
@@ -205,8 +205,8 @@ Feature: Creating and sending alerts
     And I fill in "Message" with "For more details, keep on reading..."
 
     And I select the following alert audience:
-      | name           | type |
-      | Health Officer | Role |
+      | name                | type |
+      | Han: Health Officer | Role |
 
     And I click breadCrumbItem "Preview"
     And I wait for the audience calculation to finish

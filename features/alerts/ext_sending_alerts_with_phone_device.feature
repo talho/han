@@ -7,8 +7,8 @@ Feature: Sending alerts to phones
 
   Background:
     Given the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator  | Dallas County  |
-      | Keith Gaddis    | keith.gaddis@example.com | Epidemiologist                               | Wise County    |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator  | Dallas County  | han |
+      | Keith Gaddis    | keith.gaddis@example.com | Epidemiologist                               | Wise County    | han |
     And keith.gaddis@example.com has the following devices:
       | phone | 2105551212 |
     And Texas is the parent jurisdiction of:
@@ -21,7 +21,7 @@ Feature: Sending alerts to phones
     Given I log in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "App > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I uncheck "E-mail"
@@ -46,7 +46,7 @@ Feature: Sending alerts to phones
     Given I log in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I uncheck "E-mail"
@@ -70,13 +70,11 @@ Feature: Sending alerts to phones
       | 2105551212 | The following is an alert from the Texas Public Health Information Network.  There is a Chicken pox outbreak in the area |
 
     # legacy code since we haven't converted the HAN alert log to EXT yet
-    When I go to the HAN alert log
     And I click han_alert "H1N1 SNS push packs to be delivered tomorrow"
     Then I can see the device alert acknowledgement rate for "H1N1 SNS push packs to be delivered tomorrow" in "Phone" is 0%
 
     When "keith.gaddis@example.com" acknowledges the phone alert
     And delayed jobs are processed
-    And I go to the HAN alert log
     And I click han_alert "H1N1 SNS push packs to be delivered tomorrow"
     Then I can see the device alert acknowledgement rate for "H1N1 SNS push packs to be delivered tomorrow" in "Phone" is 50%
     #end legacy code
@@ -87,7 +85,7 @@ Feature: Sending alerts to phones
       | phone | 2105551213 |
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I uncheck "E-mail"
@@ -114,7 +112,7 @@ Feature: Sending alerts to phones
     Given I log in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I uncheck "E-mail"
@@ -151,7 +149,7 @@ Feature: Sending alerts to phones
     Given I log in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
     When I fill in the ext alert defaults
     And I uncheck "E-mail"
     And I check "Phone"
@@ -186,12 +184,12 @@ Feature: Sending alerts to phones
 
     When "keith.gaddis@example.com" acknowledges the phone alert
     And delayed jobs are processed
-    And I go to the HAN alert log
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     And I click han_alert "Title for Chicken pox outbreak"
     Then I can see the device alert acknowledgement rate for "Title for Chicken pox outbreak" in "Phone" is 0%
 
     And I am logged in as "keith.gaddis@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts" 
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I can see the alert summary for "Title for Chicken pox outbreak"
     And the alert should not be acknowledged

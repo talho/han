@@ -7,8 +7,8 @@ Feature: Sending alerts to SMS devices
 
   Background:
     Given the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County  |
-      | Keith Gaddis    | keith.gaddis@example.com | Epidemiologist                              | Wise County    |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County  | han |
+      | Keith Gaddis    | keith.gaddis@example.com | Epidemiologist                              | Wise County    | han |
     And "Texas" is the parent jurisdiction of:
       | Dallas County |
       | Wise County   |
@@ -28,7 +28,7 @@ Feature: Sending alerts to SMS devices
     Given I am logged in as "john.smith@example.com"
     And I am allowed to send alerts
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I uncheck "E-mail"

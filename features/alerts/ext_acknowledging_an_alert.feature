@@ -7,7 +7,7 @@ Feature: Acknowledging an alert
 
   Background:
     Given the following users exist:
-      | Martin Fowler      | martin@example.com   | Health Alert and Communications Coordinator | Dallas County |
+      | Martin Fowler      | martin@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
     And the role "Health Alert and Communications Coordinator" is an alerter
     And I am logged in as "martin@example.com"
     When I am on the ext dashboard page
@@ -21,7 +21,7 @@ Feature: Acknowledging an alert
       | acknowledge       | Yes                  |
       | from_jurisdiction | Dallas County        |
       | jurisdictions     | Dallas County        |
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I can see the alert summary for "Piggy Pox"
     When I click summary "Piggy Pox"
     And I press "Acknowledge"
@@ -46,7 +46,7 @@ Feature: Acknowledging an alert
       | alert_response_3  | if you can respond within 1 hour     |
       | alert_response_4  | if you can respond within 4 hours    |
       | alert_response_5  | if you cannot respond                |
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I can see the alert summary for "Piggy Pox"
     When I click summary "Piggy Pox"
     When I select "if you can respond within 30 minutes" from "Alert Response"
@@ -74,7 +74,7 @@ Feature: Acknowledging an alert
       | alert_response_3  | if you can respond within 1 hour     |
       | alert_response_4  | if you can respond within 4 hours    |
       | alert_response_5  | if you cannot respond                |
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I can see the alert summary for "Piggy Pox"
     When I click summary "Piggy Pox"
     Then I press "Acknowledge"

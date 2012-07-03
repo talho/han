@@ -7,14 +7,14 @@ Feature: Updating an alert
 
    Background:
     Given the following entities exists:
-      | Jurisdiction | Dallas County                               |
-      | Role         | Health Officer                              |
-      | Role         | Health Alert and Communications Coordinator |
+      | Jurisdiction | Dallas County                               |     |
+      | Role         | Health Officer                              | han |
+      | Role         | Health Alert and Communications Coordinator | han |
     And the following users exist:
-      | John Smith  | john.smith@example.com  | Health Alert and Communications Coordinator | Dallas County |
-      | Jane Smith  | jane.smith@example.com  | Health Alert and Communications Coordinator | Dallas County |
-      | Brian Simms | brian.simms@example.com | Health Officer                              | Dallas County |
-      | Ed McGuyver | ed.mcguyver@example.com | Health Officer                              | Dallas County |
+      | John Smith  | john.smith@example.com  | Health Alert and Communications Coordinator | Dallas County | han |
+      | Jane Smith  | jane.smith@example.com  | Health Alert and Communications Coordinator | Dallas County | han |
+      | Brian Simms | brian.simms@example.com | Health Officer                              | Dallas County | han |
+      | Ed McGuyver | ed.mcguyver@example.com | Health Officer                              | Dallas County | han |
 
     And the role "Health Alert and Communications Coordinator" is an alerter
     And delayed jobs are processed
@@ -33,7 +33,7 @@ Feature: Updating an alert
       | jurisdictions         | Dallas County                          |
 
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I should see an alert titled "Flying Monkey Disease"
 
     When I click "Update" within alert "Flying Monkey Disease"
@@ -88,14 +88,14 @@ Feature: Updating an alert
       | jurisdictions         | Dallas County                          |
 
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I should see an alert titled "Flying Monkey Disease"
     When I sign out
 
     Given I am logged in as "jane.smith@example.com"
     And I am allowed to send alerts
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     Then I should see an alert titled "Flying Monkey Disease"
 
     When I click "Update" within alert "Flying Monkey Disease"
@@ -154,7 +154,7 @@ Feature: Updating an alert
       | jurisdictions         | Dallas County                          |
 
     When I am on the ext dashboard page
-    And I navigate to "HAN > Alert Log and Reporting"
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
     When I click "Cancel" within alert "Flying Monkey Disease"
     And fill in "Message" with "Flying monkey disease is not contagious"
 

@@ -7,11 +7,11 @@ Feature: Viewing recent alerts on dashboard
 
   Scenario: User should see the example alert if no alerts exist
     Given the following users exist:
-      | Martin Fowler      | martin@example.com   | Public | Dallas County |
+      | Martin Fowler      | martin@example.com   | Public | Dallas County | han |
     And I am logged in as "martin@example.com"
 
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see an alert with the summary:
       | title       | Example Health Alert - please click More to see the alert contents |
       | severity    | Minor |
@@ -23,8 +23,8 @@ Feature: Viewing recent alerts on dashboard
 
   Scenario: User should see the 20 most recent alerts sent to them
     Given the following users exist:
-      | Martin Fowler | martin@example.com    | Public                                      | Dallas County |
-      | John Ford     | john.ford@example.com | Health Alert and Communications Coordinator | Dallas County |
+      | Martin Fowler | martin@example.com    | Public                                      | Dallas County | han |
+      | John Ford     | john.ford@example.com | Health Alert and Communications Coordinator | Dallas County | han |
     And the role "Health Alert and Communications Coordinator" is an alerter
     And I am logged in as "john.ford@example.com"
     And a sent alert with:
@@ -37,7 +37,7 @@ Feature: Viewing recent alerts on dashboard
     And I am logged in as "martin@example.com"
 
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see an alert with the summary:
       | title       | rolling pig pox |
       | severity    | Moderate |
@@ -47,7 +47,7 @@ Feature: Viewing recent alerts on dashboard
 
     Given 19 more alerts are sent to me
     When delayed jobs are processed
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 10 HAN alerts
     When I click inlineLink "Next"
     Then I should see 10 HAN alerts
@@ -60,7 +60,7 @@ Feature: Viewing recent alerts on dashboard
 
     Given 1 more alert is sent to me
     When delayed jobs are processed
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 10 HAN alerts
     And I should not see an alert titled "rolling pig pox"
     When I click inlineLink "Next"

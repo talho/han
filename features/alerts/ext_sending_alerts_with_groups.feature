@@ -5,12 +5,12 @@ Feature: Sending alerts using groups
 
   Background:
     Given the following entities exist:
-      | Role          | Epidemiologist |
-      | Role          | Health Officer |
-      | Role          | Admin          |
-      | Role          | Health Alert and Communications Coordinator |
-      | Role          | BT Coordinator |
-      | Jurisdiction  | Potter County  |
+      | Role          | Epidemiologist                              | han |
+      | Role          | Health Officer                              | han |
+      | Role          | Admin                                       | han |
+      | Role          | Health Alert and Communications Coordinator | han |
+      | Role          | BT Coordinator                              | han |
+      | Jurisdiction  | Potter County                               |     |
     And Texas is the parent jurisdiction of:
       | Tarrant County |
       | Potter County  |
@@ -18,12 +18,12 @@ Feature: Sending alerts using groups
     And the role "Health Alert and Communications Coordinator" is an alerter
     And the role "Epidemiologist" is an alerter
     And the following users exist:
-      | John Smith  | john.smith@example.com | Admin                                       | Tarrant County |
-      | John Smith  | john.smith@example.com | Health Alert and Communications Coordinator | Tarrant County |
-      | Jane Smith  | jane.smith@example.com | Health Alert and Communications Coordinator | Tarrant County |
-      | Bob Smith   | bob.smith@example.com  | Health Alert and Communications Coordinator | Texas          |
-      | Jim Smith   | jim.smith@example.com  | Epidemiologist                              | Texas          |
-      | Leroy Smith | leroy@example.com      | Epidemiologist                              | Potter County  |
+      | John Smith  | john.smith@example.com | Admin                                       | Tarrant County | han |
+      | John Smith  | john.smith@example.com | Health Alert and Communications Coordinator | Tarrant County | han |
+      | Jane Smith  | jane.smith@example.com | Health Alert and Communications Coordinator | Tarrant County | han |
+      | Bob Smith   | bob.smith@example.com  | Health Alert and Communications Coordinator | Texas          | han |
+      | Jim Smith   | jim.smith@example.com  | Epidemiologist                              | Texas          | han |
+      | Leroy Smith | leroy@example.com      | Epidemiologist                              | Potter County  | han |
     And the following groups for "john.smith@example.com" exist:
       | G1 | Tarrant County | Health Officer |  | Personal     |                |
       | G2 | Texas          | Epidemiologist |  | Global       |                |
@@ -32,7 +32,7 @@ Feature: Sending alerts using groups
   Scenario: Owner should see all his groups
     Given I am logged in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
                                 
     When I fill in the ext alert defaults
 
@@ -46,7 +46,7 @@ Feature: Sending alerts using groups
   Scenario: Users in same jurisdiction should see jurisdiction-scoped groups
     Given I am logged in as "jane.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
 
@@ -60,7 +60,7 @@ Feature: Sending alerts using groups
   Scenario: Users in another jurisdiction should see only globally-scoped groups
     Given I am logged in as "bob.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
 
@@ -74,7 +74,7 @@ Feature: Sending alerts using groups
   Scenario: Saving an alert with a group selected should include group users as recipients
     Given I am logged in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I select "Test" from ext combo "Status"
@@ -95,7 +95,7 @@ Feature: Sending alerts using groups
   Scenario: Sending an alert to only a group with no other audience specified
     Given I am logged in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I fill in the ext alert defaults
     And I select "Test" from ext combo "Status"

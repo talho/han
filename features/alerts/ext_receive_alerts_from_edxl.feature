@@ -32,15 +32,15 @@ Feature: Alerts from EDXL
     And Louisiana is the parent jurisdiction of:
       | Calcasieu |
     And the following users exist:
-    | Keith Gaddis | keith@example.com  | Health Alert and Communications Coordinator | Texas |
-    | Bob Dole     | bob@example.com  | Health Alert and Communications Coordinator | Potter County |
-    | Jason Phipps | jphipps@example.com | Chief Epidemiologist | Potter County |
-    | Wise Coordinator | wisecoordinator@example.com | Health Alert and Communications Coordinator | Wise County |
-    | Daniel Morrison | daniel@example.com | Health Officer | Wise County |
-    | Brandon Keepers | brandon@example.com | Health Officer | Texas |
-    | Zach Dennis | zach@example.com | Health Officer | Texas |
-    | Mark Jensen | mjensen@cdc.gov  | Public | Texas |
-    | Ethan Waldo | ethan@example.com | Public | Potter County |
+    | Keith Gaddis     | keith@example.com           | Health Alert and Communications Coordinator | Texas         | han |
+    | Bob Dole         | bob@example.com             | Health Alert and Communications Coordinator | Potter County | han |
+    | Jason Phipps     | jphipps@example.com         | Chief Epidemiologist                        | Potter County | han |
+    | Wise Coordinator | wisecoordinator@example.com | Health Alert and Communications Coordinator | Wise County   | han |
+    | Daniel Morrison  | daniel@example.com          | Health Officer                              | Wise County   | han |
+    | Brandon Keepers  | brandon@example.com         | Health Officer                              | Texas         | han |
+    | Zach Dennis      | zach@example.com            | Health Officer                              | Texas         | han |
+    | Mark Jensen      | mjensen@cdc.gov             | Health Officer                              | Texas         | han |
+    | Ethan Waldo      | ethan@example.com           | Public                                      | Potter County | han |
     And "bob@example.com" is not public in "Texas"
     And "jphipps@example.com" is not public in "Texas"
     And "daniel@example.com" is not public in "Texas"
@@ -110,7 +110,7 @@ Feature: Alerts from EDXL
       | emails        | ethan@example.com |
     When I log in as "mjensen@cdc.gov"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
 
@@ -121,7 +121,7 @@ Feature: Alerts from EDXL
       | message_type | Alert |
     And delayed jobs are processed
     When I log in as "keith@example.com"
-    And I go to the HAN page
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
     When PhinMS delivers the message: PCAMessageUpdate.xml
@@ -136,7 +136,7 @@ Feature: Alerts from EDXL
       | body contains | To date, seven people in the area effected by Hurricane Katrina have been reported ill from the bacterial disease Vibrio vulnificus. |
     When I log in as "keith@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 2 HAN alerts
 
   Scenario: Receiving an EDXL alert cancel
@@ -146,7 +146,7 @@ Feature: Alerts from EDXL
       | message_type | Alert |
     And delayed jobs are processed
     When I log in as "keith@example.com"
-    And I go to the HAN page
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
     When PhinMS delivers the message: PCAMessageCancel.xml
@@ -161,7 +161,7 @@ Feature: Alerts from EDXL
       | body contains | To date, seven people in the area effected by Hurricane Katrina have been reported ill from the bacterial disease Vibrio vulnificus. |
     When I log in as "keith@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 2 HAN alerts
 
 #TODO: Need to implement
@@ -208,21 +208,21 @@ Feature: Alerts from EDXL
       | emails        | ethan@example.com, jphipps@example.com, daniel@example.com |
     When I log in as "keith@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
 
     When I sign out
     And I log in as "bob@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should see "Example Health Alert"
 
     When I sign out
     And I log in as "mjensen@cdc.gov"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
 
@@ -234,14 +234,14 @@ Feature: Alerts from EDXL
      | body contains | Message Body Message Body Message Body Message Body Message Body Message Body |
     When I log in as "bob@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
 
     When I sign out
     And I log in as "keith@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
 
@@ -258,21 +258,21 @@ Feature: Alerts from EDXL
     And "mark@cdc.gov" should not receive an email with the subject "Cascade alert sent from Federal jurisdiction to TX"
     When I log in as "bob@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
 
     When I sign out
     When I log in as "keith@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
 
     When I sign out
     When I log in as "brandon@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should see "Example Health Alert"
 
@@ -288,7 +288,7 @@ Feature: Alerts from EDXL
       | emails        | ethan@example.com, jphipps@example.com |
     When I log in as "keith@example.com"
     And I navigate to the ext dashboard page
-    And I navigate to "HAN > HAN Alerts"
+    And I navigate to "Apps > HAN > HAN Alerts"
     Then I should see 1 HAN alert
     And I should not see "Example Health Alert"
 

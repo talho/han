@@ -6,14 +6,14 @@ Feature: Sending alerts form
 
   Scenario: Send alert form should perform client side validation
     Given the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
     And Texas is the parent jurisdiction of:
       | Dallas County |
     And Texas is a state
     And the role "Health Alert and Communications Coordinator" is an alerter
     And I am logged in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     When I click breadCrumbItem "Recipients"
     Then I should have the "Alert Details" breadcrumb selected
@@ -57,14 +57,14 @@ Feature: Sending alerts form
   Scenario: Sending alerts form should not contain system roles
     Given there is an system only Admin role
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
     And Texas is the parent jurisdiction of:
       | Dallas County |
     And Texas is a state
     And the role "Health Alert and Communications Coordinator" is an alerter
     And I am logged in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
     Then the "Send Alert" tab should be open
     When I fill in the following:
       | Title   | This is a test title to pass validation   |
@@ -83,8 +83,8 @@ Feature: Sending alerts form
       | Jurisdiction | Potter County  |
       | Jurisdiction | Tarrant County |
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County |
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Potter County |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Potter County | han |
     And Texas is the parent jurisdiction of:
       | Dallas County |
       | Potter County |
@@ -93,7 +93,7 @@ Feature: Sending alerts form
     And I am logged in as "john.smith@example.com"
 
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
     When I open ext combo "Jurisdiction"
     Then I should see "Dallas County"
     Then I should see "Potter County"
@@ -120,14 +120,14 @@ Feature: Sending alerts form
 
   Scenario: Sending alerts should display Federal jurisdiction as an option
     Given the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
     And Texas is the parent jurisdiction of:
       | Dallas County |
     And Texas is a state
     And the role "Health Alert and Communications Coordinator" is an alerter
     And I am logged in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
     When I fill in the following:
       | Title   | This is a test title to pass validation   |
       | Message | This is a test message to pass validation |
@@ -144,11 +144,11 @@ Feature: Sending alerts form
       | Dallas County |
     And Texas is a state
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Texas | han |
     And the role "Health Alert and Communications Coordinator" is an alerter
     And I am logged in as "john.smith@example.com"
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
     When I fill in the following:
       | Title   | This is a test title to pass validation   |
       | Message | This is a test message to pass validation |
@@ -165,8 +165,8 @@ Feature: Sending alerts form
       | Jurisdiction | Potter County  |
       | Jurisdiction | Tarrant County |
     And the following users exist:
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County |
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Potter County |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Dallas County | han |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator | Potter County | han |
     And Texas is the parent jurisdiction of:
       | Dallas County |
       | Potter County |
@@ -175,7 +175,7 @@ Feature: Sending alerts form
     And I am logged in as "john.smith@example.com"
 
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
     And I select "Potter County" from ext combo "Jurisdiction"
     And I select "Advanced" from ext combo "Acknowledge"
     # add a 3rd, 4th and 5th response box
@@ -225,14 +225,14 @@ Feature: Sending alerts form
     And Texas is a state
     And the following users exist:
     # since we're doing this in the texas space and aren't selecting a jurisdiction, I'm going to use the default han coordinator role here.
-      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator  | Texas         |
-      | Jane Smith      | jane.smith@example.com   | Health Officer                               | Texas         |
+      | John Smith      | john.smith@example.com   | Health Alert and Communications Coordinator  | Texas         | han |
+      | Jane Smith      | jane.smith@example.com   | Health Officer                               | Texas         | han |
     And "jane.smith@example.com" is a member of the organization "DSHS"
     And the role "Health Alert and Communications Coordinator" is an alerter
     And I am logged in as "john.smith@example.com"
 
     When I navigate to the ext dashboard page
-    And I navigate to "HAN > Send an Alert"
+    And I navigate to "Apps > HAN > Send an Alert"
 
     And I fill in the following:
       | Title              | H1N1 SNS push packs to be delivered tomorrow |
@@ -248,6 +248,7 @@ Feature: Sending alerts form
     And I click breadCrumbItem "Preview"
 
     And I expand ext panel "Alert Recipients (Primary Audience)"
+
     Then I should see the following audience breakdown
       | name       | type         |
       | DSHS       | Organization |
