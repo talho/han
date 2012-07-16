@@ -3,20 +3,20 @@ Feature: Alerts from EDXL
 
   Background:
     Given the following entities exists:
-      | approval role | Health Officer |
-      | approval role | Emergency Preparedness Coordinator |
-      | approval role | Chief Epidemiologist |
-      | approval role | Communicable/Infectious Disease Coordinators |
-      | approval role | Health Alert and Communications Coordinator |
-      | approval role | HAN Coordinator  |
-      | organization | CDC                   |
-      | jurisdiction | Federal               |
-      | jurisdiction | Texas                 |
-      | jurisdiction | Potter County         |
-      | jurisdiction | Wise County           |
-      | jurisdiction | Louisiana             |
-      | jurisdiction | Calcasieu             |
-      | user | John Smith |
+      | role | Health Officer | han |
+      | role | Emergency Preparedness Coordinator | han |
+      | role | Chief Epidemiologist | han |
+      | role | Communicable/Infectious Disease Coordinators | han |
+      | role | Health Alert and Communications Coordinator | han |
+      | role | HAN Coordinator  | han |
+      | organization | CDC                   | |
+      | jurisdiction | Federal               | |
+      | jurisdiction | Texas                 | |
+      | jurisdiction | Potter County         | |
+      | jurisdiction | Wise County           | |
+      | jurisdiction | Louisiana             | |
+      | jurisdiction | Calcasieu             | |
+      | user | John Smith | |
     And "CDC" has the OID "2.16.840.1.114222.4.20.1.1"
     And "Texas" has the FIPS code "48"
     And "Potter County" has the FIPS code "01003"

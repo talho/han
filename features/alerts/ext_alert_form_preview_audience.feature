@@ -178,4 +178,4 @@ Feature: Alert Preview Audience Calculation
     When I maliciously post data to "/han_alerts/calculate_recipient_count.json"
       | from_jurisdiction_id | 1 |
       | jurisdiction_ids[]   | 2 |
-    Then I should see "<title>TXPhin: sessions/new</title>" within the alert box
+    Then I should see "<title>Phin: sessions/new</title>" within the alert box

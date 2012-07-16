@@ -1,0 +1,36 @@
+role,approval_required,alerter
+Animal Control Director,true,false
+Behavioral Health Director,true,false
+BioTerrorism Coordinator,true,false
+Border Health Director,true,false
+Chief Epidemiologist,true,false
+Chief Veterinarian,true,false
+Communicable/Infectious Disease Coordinator,true,false
+Emergency Management Coordinator,true,false
+Emergency Medical Services Authority,true,false
+Emergency Operations Center Coordinator,true,false
+Emergency Room Director,true,false
+Emergency Training Coordinator,true,false
+Environmental Health Director,true,false
+Epidemiologist,true,false
+FBI WMD/BT Agent,true,false
+Health Alert and Communications Coordinator,true,true
+Health Officer,true,false
+Immunization Director,true,false
+Infection Control Practitioner,true,false
+Laboratory BT,true,false
+Laboratory Director,true,false
+Medical Director,true,false
+Medical Examiner/Coroner,true,false
+Medical Society,true,false
+Microbiologist,true,false
+Poison Control Center,true,false
+Public Health Administrator,true,false
+Public Health Investigator/Contact Tracer,true,false
+Public Health Nursing Director,true,false
+Public Information Officer,true,false
+Quarantine Officer,true,false
+School District Nurse,true,false
+Strategic National Stockpile Coordinator,true,false
+Technical Training Liaison,true,false
+Weapons of Mass Destruction Coordinator,true,false

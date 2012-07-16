@@ -64,20 +64,18 @@ Feature: Sending alerts to phones
     And I wait for the audience calculation to finish
     And I press "Send Alert"
     Then the "Alert Log and Reporting" tab should be open
-    When delayed jobs are processed
     Then the following phone calls should be made:
       | phone      | message                                                                                                                  |
       | 2105551212 | The following is an alert from the Texas Public Health Information Network.  There is a Chicken pox outbreak in the area |
 
-    # legacy code since we haven't converted the HAN alert log to EXT yet
-    And I click han_alert "H1N1 SNS push packs to be delivered tomorrow"
+    And I click title "H1N1 SNS push packs to be delivered tomorrow"
     Then I can see the device alert acknowledgement rate for "H1N1 SNS push packs to be delivered tomorrow" in "Phone" is 0%
 
     When "keith.gaddis@example.com" acknowledges the phone alert
-    And delayed jobs are processed
-    And I click han_alert "H1N1 SNS push packs to be delivered tomorrow"
+    And I close the active tab
+    And I navigate to "Apps > HAN > Alert Log and Reporting"
+    And I click title "H1N1 SNS push packs to be delivered tomorrow"
     Then I can see the device alert acknowledgement rate for "H1N1 SNS push packs to be delivered tomorrow" in "Phone" is 50%
-    #end legacy code
 
   Scenario: Sending alerts to users with multiple phone devices
     Given I log in as "john.smith@example.com"
@@ -185,7 +183,7 @@ Feature: Sending alerts to phones
     When "keith.gaddis@example.com" acknowledges the phone alert
     And delayed jobs are processed
     And I navigate to "Apps > HAN > Alert Log and Reporting"
-    And I click han_alert "Title for Chicken pox outbreak"
+    And I click title "Title for Chicken pox outbreak"
     Then I can see the device alert acknowledgement rate for "Title for Chicken pox outbreak" in "Phone" is 0%
 
     And I am logged in as "keith.gaddis@example.com"
