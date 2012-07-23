@@ -23,7 +23,7 @@ class HanAlertsController < ApplicationController
       format.ext
       format.json do
         unless @alerts.nil? || @alerts.empty? || ( @alerts.map(&:id) == [nil] ) # for dummy default alert
-          jsonObject = @alerts.collect{ |alert| alert.iphone_format(acknowledge_han_alert_path(alert.id),alert.acknowledged_by_user?(current_user)) }
+          jsonObject = @alerts.collect{ |alert| alert.iphone_format(update_alert_path(alert.id),alert.acknowledged_by_user?(current_user)) }
           headers["Access-Control-Allow-Origin"] = "*"
           render :json => jsonObject
         else
@@ -33,8 +33,6 @@ class HanAlertsController < ApplicationController
       end
     end
   end
-
-
 
   def show
     alert = HanAlert.find(params[:id])
@@ -274,67 +272,6 @@ class HanAlertsController < ApplicationController
     end
   end
 
-  def acknowledge
-    alert_attempt = current_user.alert_attempts.find_by_alert_id(params[:id])
-    respond_to do |format|
-      if alert_attempt.nil? || alert_attempt.acknowledged?
-        flash[:error] = "Unable to acknowledge alert.  You may have already acknowledged the alert.
-        If you believe this is in error, please contact support@#{DOMAIN}."
-        format.json {
-          headers["Access-Control-Allow-Origin"] = "*"
-          headers["Access-Control-Allow-Headers"] = "Cookie"
-          render :json => {}, :status => :unprocessable_entity
-        }
-      else
-        device = "Device::EmailDevice" unless params[:email].blank?
-        unless params[:call_down_response].blank?
-          params[:alert_attempt] = {}
-          params[:alert_attempt][:call_down_response] = params[:call_down_response]
-        end
-        if params[:alert_attempt].blank?
-            alert_attempt.acknowledge! :ack_device => device, :ack_response => "1"
-        else
-          device = "Device::EmailDevice" unless params[:email].blank?
-          alert_attempt.acknowledge! :ack_device => device, :ack_response => params[:alert_attempt][:call_down_response]
-# TODO: Figure out what this does and fix for rails 3
-#          expire_log_entry(alert_attempt.alert)
-          flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
-          format.json {
-            headers["Access-Control-Allow-Origin"] = "*"
-            headers["Access-Control-Allow-Headers"] = "Cookie"
-            render :json => {}, :status => :ok
-          }
-        end
-        if alert_attempt.errors.empty?
-          
-#          expire_log_entry(alert_attempt.alert)
-          flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
-        else
-          flash[:notice] = nil
-          flash[:error] = "Error: " + alert_attempt.errors["acknowledgement"]
-        end
-      end
-      format.html {redirect_to hud_path}
-    end
-  end
-
-  def token_acknowledge
-    alert_attempt = AlertAttempt.find_by_alert_id_and_token(params[:id], params[:token])
-    if alert_attempt.nil? || alert_attempt.acknowledged?
-      flash[:error] = "Unable to acknowledge alert.  You may have already acknowledged the alert.
-      If you believe this is in error, please contact support@#{DOMAIN}."
-    else
-      if alert_attempt.alert.sensitive?
-        flash[:error] = "You are not authorized to view this page."
-      else
-        alert_attempt.acknowledge! :ack_device => "Device::EmailDevice", :ack_response => params[:call_down_response]
-#       expire_log_entry(alert_attempt.alert)
-        flash[:notice] = "Successfully acknowledged alert: #{alert_attempt.alert.title}."
-      end
-    end
-    redirect_to hud_path
-  end
-
   def calculate_recipient_count
     parms = { :audience => {:jurisdiction_ids => params[:jurisdiction_ids], :user_ids => params[:user_ids], 
               :role_ids => params[:role_ids], :group_ids => params[:group_ids]},
@@ -393,6 +330,7 @@ class HanAlertsController < ApplicationController
   end
   
 private
+
   def can_view_alert
     alert = HanAlert.find(params[:id])
     jurs=current_user.alerting_jurisdictions.sort_by(&:lft)
@@ -415,11 +353,7 @@ private
       end
     end
   end
-  
-  def expire_log_entry(alert)
-    expire_fragment(:controller => "alerts", :action => "index", :key => ['alert_log_entry', alert.id])
-  end
-  
+
   def alerter_required
     unless current_user.alerter?
       respond_to do |format|
