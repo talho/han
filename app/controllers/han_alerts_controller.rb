@@ -102,7 +102,7 @@ class HanAlertsController < ApplicationController
             flash[:notice] = "Successfully sent the alert."
             redirect_to han_alerts_path
           }
-          format.json { render :json => {:success => true, :alert_path => han_alert_path(@alert), :id => @alert.id, :title => @alert.title}}
+          format.json { render :json => {:success => true, :alert_path => alert_path(@alert), :id => @alert.id, :title => @alert.title}}
         end
       else
         if @alert.errors['message_recording']
