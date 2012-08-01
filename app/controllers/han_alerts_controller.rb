@@ -39,10 +39,6 @@ class HanAlertsController < ApplicationController
     @alert = alert
     respond_to do |format|
       format.html
-      format.pdf do
-        prawnto :inline => false
-        alerter_required
-      end
       format.xml { render :xml => @alert.to_xml( :include => [:author, :from_jurisdiction] , :dasherize => false)}
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json
@@ -65,12 +61,7 @@ class HanAlertsController < ApplicationController
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
       end
-      format.csv do
-        alerter_required
-        @filename = "alert-#{@alert.identifier}.csv"
-        @output_encoding = 'UTF-8'
-      end
-    end
+   end
 
   end
 
