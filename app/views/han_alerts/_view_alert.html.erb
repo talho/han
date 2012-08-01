@@ -3,7 +3,7 @@
       <p class="title">
         <span class="title <%= alert.severity.downcase %>"><%=h alert.title %></span>
         <span class="actions">
-          <%= link_to 'View', alert %>
+          <%= link_to 'View', han_alert_path(alert.id) %>
           <%= link_to 'Update', edit_han_alert_path(alert, :_action => 'update') if alert.original_alert.nil? && !alert.cancelled? %>
           <%= link_to 'Cancel', edit_han_alert_path(alert, :_action => 'cancel') if alert.original_alert.nil? && !alert.cancelled? %>
         </span>
