@@ -1,8 +1,10 @@
 
 module Han
   class Engine < Rails::Engine
-    
+
+
     config.to_prepare do
+      Han::HanAlertObserver.instance
       ::Jurisdiction.send(:include, Models::Jurisdiction)
       ::Role.send(:include, Models::Role)
       ::Target.send(:include, Models::Target)
@@ -11,6 +13,6 @@ module Han
       ::Organization.send(:include, Models::Organization)
       ::AuditsController.send(:add_model,'HanAlert')
     end
-    
+
   end
 end

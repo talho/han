@@ -38,9 +38,9 @@ class CreateHanAlert < ActiveRecord::Migration
     
     if Alert.column_names.include?('references')
       rename_column(:alerts, :references, :alert_references)
-      add_column(:alert_attempts, :alert_type, :string)
-      add_column(:alert_ack_logs, :alert_type, :string)
-      add_column(:alert_device_types, :alert_type, :string)
+      add_column(:alert_attempts, :alert_type, :string) unless AlertAttempt.column_names.include?('alert_type')
+      add_column(:alert_ack_logs, :alert_type, :string) unless AlertAckLog.column_names.include?('alert_type')
+      add_column(:alert_device_types, :alert_type, :string) unless AlertDeviceType.column_names.include?('alert_type')
     end
 
 
@@ -139,8 +139,8 @@ class CreateHanAlert < ActiveRecord::Migration
     drop_table :han_alerts
 
     rename_column(:alerts, :alert_references, :references)
-    remove_column(:alert_attempts, :alert_type)
-    remove_column(:alert_ack_logs, :alert_type)
-    remove_column(:alert_device_types, :alert_type)
+    remove_column(:alert_attempts, :alert_type) if AlertAttempt.column_names.include?('alert_type')
+    remove_column(:alert_ack_logs, :alert_type) if AlertAckLog.column_names.include?('alert_type')
+    remove_column(:alert_device_types, :alert_type) if AlertDeviceType.column_names.include?('alert_type')
   end
 end

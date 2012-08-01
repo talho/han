@@ -6,10 +6,10 @@ Feature: Viewing the dashboard
           | Jurisdiction  | Dallas County         |     |
           | Jurisdiction  | Tarrant County        |     |
           | Jurisdiction  | Texas                 |     |
-          | public role   | Public                | han |
-          | role | Health Officer                 | han |
-          | role | Immunization Director          | han |
-          | role | HAN Coordinator                | han |
+          | Role          | Public                |     |
+          | Role          | Health Officer        | han |
+          | Role          | Immunization Director | han |
+          | Role          | HAN Coordinator       | han |
         And the role "HAN Coordinator" is an alerter
         And Texas is the parent jurisdiction of:
           | Dallas County | Tarrant County |

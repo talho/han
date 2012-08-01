@@ -55,9 +55,9 @@ When /I acknowledge the phone message for "([^"]*)"(?: with "([^"]*)")?$/ do |ti
     del = FactoryGirl.create(:delivery, :alert_attempt => aa, :device => u.devices.phone.first)
   end
   unless ack.nil?
-    aa.acknowledge! :ack_response => al.call_down_messages.index(ack)
+    aa.acknowledge! :response => al.call_down_messages.key(ack)
   else
-    aa.acknowledge! :ack_response => 1
+    aa.acknowledge! :response => 1
   end
 end
 
@@ -75,7 +75,7 @@ Given /^"([^\"]*)" has acknowledged the HAN alert "([^\"]*)" with "([^\"]*)" (\d
   aa = alert.alert_attempts(true).find_by_user_id(u.id)
   aa.created_at += (delta)
   aa.save
-  aa.acknowledge! :ack_response => alert.call_down_messages.key(message)
+  aa.acknowledge! :response => alert.call_down_messages.key(message)
 end
 
 Given /^(\d*) random HAN alerts$/ do |count|
@@ -126,19 +126,19 @@ end
 
 When /^I follow the acknowledge HAN alert link$/ do
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
-  visit token_acknowledge_alert_url(attempt.alert.id, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
+  visit update_alert_with_token_url(attempt.alert.id, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :response => 1)
 end
 
 When 'I follow the acknowledge HAN alert link "$title"' do |title|
   attempt = current_user.nil? ? AlertAttempt.last : current_user.alert_attempts.last
   if title.blank?
-    visit token_acknowledge_alert_url(attempt.alert, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
+    visit update_alert_with_token_url(attempt.alert.id, attempt.token, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :response => 1)
   else
-    call_down_response = attempt.alert.becomes(HanAlert).reload.call_down_messages.key(title).to_i
+    response = attempt.alert.becomes(HanAlert).reload.call_down_messages.key(title).to_i
     if current_user.nil?
       raise "Step not yet supported if no user is logged in"
     else
-      visit email_acknowledge_alert_url(attempt.alert, call_down_response, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :call_down_response => 1)
+      visit update_alert_url(attempt.alert, :host => "#{page.driver.rack_server.host}:#{page.driver.rack_server.port}", :response => response)
     end
   end
 end

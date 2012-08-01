@@ -13,7 +13,8 @@ Please visit <%= url_for(:action => "hud", :controller => "dashboard", :id => @a
 <%- else -%>
 
 <% if @alert.acknowledge? %>
-To acknowledge this alert, please click <%= token_acknowledge_alert_url(@alert, @alert_attempt.token) %>
+<%# acknowledged_alert_device_type_id %>
+To acknowledge this alert, please click <%= update_alert_with_token_url(@alert, @alert_attempt.token, @alert_attempt.device) %>
 <% end %>
 
 <%= @alert.title %>

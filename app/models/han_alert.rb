@@ -82,13 +82,6 @@ class HanAlert < Alert
   validates_format_of :caller_id, :with => /^[0-9]*$/, :on => :create, :allow_blank => true, :allow_nil => true
   validates_attachment_content_type :message_recording, :content_type => ["audio/x-wav", "application/x-wav"]
 
-  before_create :set_sent_at
-  before_create :set_message_type
-  before_create :set_acknowledgment
-  before_save :set_jurisdiction_level
-  after_create :set_identifiers
-  after_initialize :do_after_initialize
-  
   has_paper_trail :meta => { :item_desc  => Proc.new { |x| x.to_s }, :app => Proc.new { |x| x.app } }
 
   scope :active, :conditions => ["UNIX_TIMESTAMP(created_at) + ((delivery_time + #{ExpirationGracePeriod}) * 60) > UNIX_TIMESTAMP(UTC_TIMESTAMP())"]
@@ -223,10 +216,6 @@ class HanAlert < Alert
     end.flatten.compact.uniq
   end
 
-  def do_after_initialize
-    self.acknowledge = true if acknowledge.nil?
-  end
-
   def human_delivery_time
     self.class.human_delivery_time(delivery_time)
   end
@@ -272,18 +261,6 @@ class HanAlert < Alert
     title = "Example Health Alert - please click More to see the alert contents"
     message = "This is an example of a health alert.  You can see the title above and this is the alert body.\n\nThe status lets you know if this is an actual alert or just a test alert.  The severity lets you know the level of severity from Minor to Extreme severity.  The sensitive indicator lets you know if the alert is of a sensitive nature.\n\nYou can also see if the alert requires acknowledgment.  If the alert does require acknowlegment, an acknowledge button will appear so you can acknowledge the alert."
     HanAlert.new(:title => title, :message => message, :severity => "Minor", :created_at => Time.zone.now, :status => "Test", :acknowledge => false, :sensitive => false)
-  end
-
-  # cascade alerting
-  def set_jurisdiction_level
-    if !Jurisdiction.find_by_name(sender).nil?
-      jurs = Jurisdiction.foreign.find(:all, :conditions => ['id in (?)', audiences.map(&:jurisdiction_ids).flatten.uniq])
-      level=[]
-      level << "Federal" if jurs.detect{|j| j.root?}
-      level << "State" if jurs.detect{|j| !j.root? && !j.leaf?}
-      level << "Local" if jurs.detect{|j| j.leaf?}
-      write_attribute("jurisdiction_level",  level.join(","))
-    end
   end
 
   def initialize_statistics
@@ -371,23 +348,6 @@ class HanAlert < Alert
 
   def responders(responder_categories=[1,2,3,4,5])
     alert_attempts.find_all_by_call_down_response(responder_categories).map(&:user).uniq
-  end
-
-  # cascade alerting
-  def jurisdictions_per_level
-    audiences.each do |audience|
-      if audience.users.empty?
-       if audience.jurisdictions.empty?
-          if jurisdiction_level =~ /local/i
-            audience.jurisdictions << Jurisdiction.root.children.nonforeign.first.descendants
-          end
-          if jurisdiction_level =~ /state/i
-            audience.jurisdictions << Jurisdiction.root.children.nonforeign
-          end
-        end
-        audience.roles = Role.all if audience.roles.empty?
-      end
-    end
   end
 
   def self.preview_recipients_size(params)
@@ -550,42 +510,6 @@ class HanAlert < Alert
   end
 
   private
-
-  def set_sent_at
-    if sent_at.blank?
-      write_attribute("sent_at", Time.zone.now)
-    end
-  end
-
-  def set_message_type
-    self.message_type = MessageTypes[:alert] if self.message_type.blank?
-  end
-
-  def set_identifiers
-    if identifier.nil?
-      write_attribute(:identifier, "#{Agency[:agency_abbreviation]}-#{Time.zone.now.strftime("%Y")}-#{id}")
-    end
-    if distribution_id.nil? || (!original_alert.nil? && distribution_id == original_alert.distribution_id)
-      write_attribute(:distribution_id, "#{Agency[:agency_abbreviation]}-#{created_at.strftime("%Y")}-#{id}")
-    end
-    if sender_id.nil?
-      write_attribute(:sender_id, "#{Agency[:agency_identifier]}@#{Agency[:agency_domain]}")
-    end
-    if !original_alert.nil? && distribution_reference.nil?
-      write_attribute(:distribution_reference, "#{original_alert.distribution_id},#{sender_id},#{original_alert.sent_at.utc.iso8601(3)}")
-    end
-    if !original_alert.nil? && reference.nil?
-      write_attribute(:reference, "#{Agency[:agency_identifier]},#{original_alert.distribution_id},#{original_alert.sent_at.utc.iso8601(3)}")
-    end
-    self.save!
-  end
-
-  def set_acknowledgment
-    if self.acknowledge && self.call_down_messages.blank?
-      self.call_down_messages = {}
-      self.call_down_messages["1"] = "Please press one to acknowledge this alert."
-    end
-  end
 
   def required_han_coordinators
     # Keith says: "Do not fuck with this method."

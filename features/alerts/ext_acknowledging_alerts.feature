@@ -80,7 +80,7 @@ Feature: Acknowledging an alert
 
     When I sign out
     And I follow the acknowledge HAN alert link
-    Then I should see "You are not authorized"
+    Then I should see "you do not have access to it"
     And the alert should not be acknowledged
 
   Scenario: Acknowledging an alert through phone
