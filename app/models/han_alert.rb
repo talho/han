@@ -57,12 +57,6 @@ class HanAlert < Alert
   has_many :ack_logs, :class_name => 'AlertAckLog', :foreign_key => :alert_id
   has_many :recipients, :class_name => "User", :finder_sql => proc{"SELECT users.* FROM users, targets, targets_users WHERE targets.item_type='HanAlert' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id"}
 
-  scope :devices, {
-      :select => "DISTINCT devices.type",
-      :joins => "INNER JOIN alert_attempts ON view_han_alerts.id=alert_attempts.alert_id INNER JOIN deliveries ON deliveries.alert_attempt_id=alert_attempts.id INNER JOIN devices ON deliveries.device_id=devices.id",
-      :conditions => "view_han_alerts.id=#{object_id}"
-  }
-
   has_attached_file :message_recording, :path => ":rails_root/:attachment/:id.:extension"
 
   Statuses = ['Actual', 'Exercise', 'Test']

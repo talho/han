@@ -6,7 +6,7 @@ module Han
         base.send :extend, ClassMethods
   
         ::User.class_eval do
-          has_many :recent_han_alerts, :through => :alert_attempts, :source => 'alert', :source_type => 'HanAlert', :foreign_key => 'alert_id', :include => [:alert_device_types, :from_jurisdiction, :original_alert, :author], :order => "view_han_alerts.created_at DESC"
+          has_many :recent_han_alerts, :through => :alert_attempts, :source => "alert", :order => "created_at DESC", :conditions => {alert_type: 'HanAlert'}, :include => [:alert_device_types, :from_jurisdiction, :original_alert, :author]
         end
       end
   
@@ -20,9 +20,9 @@ module Han
         ors=jurs.map{|j| "(jurisdictions.lft >= #{j.lft} AND jurisdictions.lft <= #{j.rgt})"}.join(" OR ")
   
         HanAlert.paginate(:conditions => ors,
-                       :joins => "inner join jurisdictions on view_han_alerts.from_jurisdiction_id=jurisdictions.id",
+                       :joins => "inner join jurisdictions on from_jurisdiction_id=jurisdictions.id",
                        :include => [:original_alert, :cancellation, :author, :from_jurisdiction],
-                       :order => "view_han_alerts.created_at DESC, view_han_alerts.id DESC",
+                       :order => "created_at DESC",
                        :page => page,
                        :per_page => 10)
       end
