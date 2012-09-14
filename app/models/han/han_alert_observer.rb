@@ -1,5 +1,5 @@
 class Han::HanAlertObserver < ActiveRecord::Observer
-  observe Han::HanAlert
+  observe HanAlert
 
   def after_initialize(alert)
     alert.acknowledge = true if alert.acknowledge.nil?
